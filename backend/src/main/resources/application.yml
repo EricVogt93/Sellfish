@@ -1,0 +1,72 @@
+spring:
+  application:
+    name: bewerbungsatze
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/bewerbungsatze}
+    username: ${DB_USER:bewerbungsatze}
+    password: ${DB_PASSWORD:bewerbungsatze}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB
+
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: always
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  security:
+    jwt:
+      # Base64-kodiertes HMAC-Secret. In Produktion via ENV / Infisical setzen!
+      secret: ${JWT_SECRET:Y2hhbmdlLW1lLXRoaXMtaXMtYS1kZXYtb25seS1zZWNyZXQtMzJieXRlcyE=}
+      access-token-ttl-minutes: ${JWT_ACCESS_TTL:30}
+      refresh-token-ttl-days: ${JWT_REFRESH_TTL:14}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
+  crypto:
+    # Master-Key (Base64, 32 Byte) für AES-GCM-Verschlüsselung von Per-User-API-Keys.
+    master-key: ${CRYPTO_MASTER_KEY:ZGV2LW9ubHktbWFzdGVyLWtleS0zMmJ5dGVzLWxvbmchISE=}
+  infisical:
+    enabled: ${INFISICAL_ENABLED:false}
+    base-url: ${INFISICAL_URL:https://app.infisical.com}
+    client-id: ${INFISICAL_CLIENT_ID:}
+    client-secret: ${INFISICAL_CLIENT_SECRET:}
+    project-id: ${INFISICAL_PROJECT_ID:}
+    environment: ${INFISICAL_ENV:prod}
+  storage:
+    backend: ${STORAGE_BACKEND:fs}        # fs | minio
+    fs-root: ${STORAGE_FS_ROOT:./data/storage}
+    minio:
+      endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+      access-key: ${MINIO_ACCESS_KEY:}
+      secret-key: ${MINIO_SECRET_KEY:}
+      bucket: ${MINIO_BUCKET:bewerbungsatze}
+
+logging:
+  level:
+    de.bewerbungsatze: INFO
