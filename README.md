@@ -75,6 +75,6 @@ docker compose -f infra/docker-compose.yml up --build
 | **M4** | Matching & Ranking (Hard-Filter → Semantik → Feature-Score), Matches-API, Feedback | ✅ |
 | **M5** | Generatoren: Tailored-CV, Anschreiben, Motivation, Bewerbungstext | ⏳ |
 | **M6** | Self-Learning: Feedback-Labels, logistische Regression (Gewichte), Profil-Drift, Scheduler | ✅ |
-| **M7** | Scraper, LLM-Websuche, externe-Agenten-API (MCP), Admin | ⏳ |
+| **M7** | Generischer Scraper, LLM-Websuche, Agent-Tool-API, Admin (Nutzer/Quellen/Provider) | ✅ |
 
 Details siehe [`docs/architecture.md`](docs/architecture.md).
