@@ -13,5 +13,8 @@ public interface LlmProviderConfigRepository extends JpaRepository<LlmProviderCo
     @Query("select c from LlmProviderConfig c where c.userId is null and c.purpose = ?1 and c.enabled = true")
     List<LlmProviderConfig> findGlobalByPurpose(Purpose purpose);
 
+    @Query("select c from LlmProviderConfig c where c.userId is null")
+    List<LlmProviderConfig> findAllGlobal();
+
     List<LlmProviderConfig> findByUserId(UUID userId);
 }
