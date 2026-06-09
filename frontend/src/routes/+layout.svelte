@@ -15,7 +15,10 @@
     <a class="brand" href="/">Bewerbungsatze</a>
     <nav>
       <a href="/dashboard">Dashboard</a>
+      <a href="/matches">Matches</a>
+      <a href="/documents">Dokumente</a>
       <a href="/profile">Profil</a>
+      <a href="/settings">Provider</a>
       {#if getAccessToken()}
         <button onclick={logout}>Logout</button>
       {:else}
