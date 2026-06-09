@@ -1,0 +1,26 @@
+# Java / Maven
+backend/target/
+*.class
+
+# Node / SvelteKit
+frontend/node_modules/
+frontend/.svelte-kit/
+frontend/build/
+frontend/.vercel/
+frontend/.env
+
+# Storage / Daten
+backend/data/
+data/
+
+# Secrets / Env
+.env
+infra/.env
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
