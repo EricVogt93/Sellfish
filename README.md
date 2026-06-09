@@ -12,7 +12,7 @@ Treffer.
 
 - **Backend:** Java 21, Spring Boot 3.4, PostgreSQL + pgvector, Flyway, Spring Security (JWT)
 - **Frontend:** SvelteKit (TypeScript), Node-Adapter
-- **KI:** Spring AI (Multiprovider) – wird in M2 angebunden
+- **KI:** Eigene, schlanke Multiprovider-Schicht über `RestClient` (OpenAI-kompatibel inkl. ChatGPT/Kimi/NIM/OpenRouter, Anthropic/Claude, Ollama, Google Gemini)
 - **Secrets:** Infisical (zentrale Keys) + AES-GCM-verschlüsselte Per-User-Keys
 - **Storage:** MinIO (S3-kompatibel) oder lokales Dateisystem
 
@@ -70,7 +70,7 @@ docker compose -f infra/docker-compose.yml up --build
 |-------------|--------|--------|
 | **M0** | Gerüst: Repo-Struktur, docker-compose, Spring-Boot- & SvelteKit-Skeleton, Flyway-Schema, CI | ✅ |
 | **M1** | Auth & Multi-User (JWT), Profil + Wünsche/Filter | ✅ |
-| **M2** | Dokumenten-Upload + Parsing, LLM-Provider-Abstraktion (Spring AI), Infisical | ⏳ |
+| **M2** | Dokumenten-Upload + Parsing (Tika + LLM), LLM-Provider-Abstraktion (Multiprovider), Infisical, Storage (FS/MinIO) | ✅ |
 | **M3** | Job-Ingestion (Bundesagentur-API, Adzuna), Embeddings | ⏳ |
 | **M4** | Matching & Ranking, Dashboard mit Score-Begründung | ⏳ |
 | **M5** | Generatoren: Tailored-CV, Anschreiben, Motivation, Bewerbungstext | ⏳ |
