@@ -50,6 +50,29 @@ export async function api<T>(path: string, options: RequestInit = {}): Promise<T
   return (await res.json()) as T;
 }
 
+/**
+ * Multipart-Upload (z. B. Dokumente). Setzt bewusst keinen Content-Type,
+ * damit der Browser die Boundary ergänzt.
+ */
+export async function apiUpload<T>(path: string, form: FormData): Promise<T> {
+  const headers = new Headers();
+  const token = getAccessToken();
+  if (token) headers.set('Authorization', `Bearer ${token}`);
+
+  const res = await fetch(path, { method: 'POST', body: form, headers });
+  if (!res.ok) {
+    let message = `HTTP ${res.status}`;
+    try {
+      const problem = await res.json();
+      message = problem.detail ?? problem.message ?? message;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+  return (await res.json()) as T;
+}
+
 export const auth = {
   register: (email: string, password: string) =>
     api<TokenResponse>('/api/auth/register', {
