@@ -33,12 +33,17 @@ HNSW-Cosine-Index für schnelle Ähnlichkeitssuche.
 
 ## LLM-Provider-Abstraktion (M2)
 
-Über Spring AI (`ChatModel` / `EmbeddingModel`). Ein `ProviderResolver` wählt pro Nutzer und Zweck
-(`CHAT`/`EMBEDDING`) die konkrete Modell-Instanz anhand `llm_provider_config`:
+Eigene, dependency-leichte Schicht über Spring `RestClient` (kein Spring AI). Ein `ProviderResolver`
+wählt pro Nutzer und Zweck (`CHAT`/`EMBEDDING`) die konkrete Konfiguration aus `llm_provider_config`,
+löst den Key auf (Infisical bzw. AES-entschlüsselt) und liefert ein `ResolvedModel`. Der `LlmService`
+dispatcht an den passenden Client (`ChatProvider`/`EmbeddingProvider`):
 
-- **self-hosted:** Ollama (`base_url` auf eigene Instanz)
-- **OpenAI/ChatGPT, NVIDIA NIM, andere OpenAI-kompatible:** OpenAI-Client mit konfigurierbarer Base-URL
-- **Anthropic/Claude, Google/Gemini:** native Spring-AI-Clients
+- **self-hosted:** `OllamaClient` (`base_url` auf eigene Instanz)
+- **OpenAI/ChatGPT, NVIDIA NIM, Kimi, OpenRouter, …:** `OpenAiCompatibleClient` mit konfigurierbarer Base-URL
+- **Anthropic/Claude:** `AnthropicClient`
+- **Google/Gemini:** `GoogleGeminiClient`
+
+Jeder Client ist isoliert per `MockRestServiceServer` unit-getestet.
 
 Globale Keys kommen aus **Infisical** (Machine-Identity), Per-User-Keys werden AES-GCM-verschlüsselt
 in der DB abgelegt. Siehe [`provider-setup.md`](provider-setup.md) und [`infisical-setup.md`](infisical-setup.md).
