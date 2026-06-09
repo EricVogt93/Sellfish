@@ -74,7 +74,7 @@ docker compose -f infra/docker-compose.yml up --build
 | **M3** | Job-Ingestion (Bundesagentur-API, Adzuna), Dedupe, pgvector-Embeddings, Scheduler | ✅ |
 | **M4** | Matching & Ranking (Hard-Filter → Semantik → Feature-Score), Matches-API, Feedback | ✅ |
 | **M5** | Generatoren: Tailored-CV, Anschreiben, Motivation, Bewerbungstext | ⏳ |
-| **M6** | Self-Learning: Feedback, Profil-Drift, Gewichts-Retraining | ⏳ |
+| **M6** | Self-Learning: Feedback-Labels, logistische Regression (Gewichte), Profil-Drift, Scheduler | ✅ |
 | **M7** | Scraper, LLM-Websuche, externe-Agenten-API (MCP), Admin | ⏳ |
 
 Details siehe [`docs/architecture.md`](docs/architecture.md).

@@ -73,6 +73,41 @@ public class VectorStore {
         return result.isEmpty() ? 0.0 : result.get(0);
     }
 
+    /** Liest das Profil-Embedding (leeres Array, falls keins vorhanden). */
+    public float[] getProfileEmbedding(UUID userId) {
+        return readVector("SELECT embedding::text FROM profile_embedding WHERE user_id = ?", userId);
+    }
+
+    /** Liest das Job-Embedding (leeres Array, falls keins vorhanden). */
+    public float[] getJobEmbedding(UUID jobId) {
+        return readVector("SELECT embedding::text FROM job_embedding WHERE job_id = ?", jobId);
+    }
+
+    private float[] readVector(String sql, UUID id) {
+        List<String> rows = jdbc.query(sql, (rs, rowNum) -> rs.getString(1), id);
+        if (rows.isEmpty() || rows.get(0) == null) {
+            return new float[0];
+        }
+        return parseLiteral(rows.get(0));
+    }
+
+    static float[] parseLiteral(String literal) {
+        String trimmed = literal.trim();
+        if (trimmed.length() < 2) {
+            return new float[0];
+        }
+        String body = trimmed.substring(1, trimmed.length() - 1).trim();
+        if (body.isEmpty()) {
+            return new float[0];
+        }
+        String[] parts = body.split(",");
+        float[] out = new float[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            out[i] = Float.parseFloat(parts[i].trim());
+        }
+        return out;
+    }
+
     static String toLiteral(float[] embedding) {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < embedding.length; i++) {
