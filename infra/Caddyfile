@@ -1,0 +1,23 @@
+# Reverse-Proxy mit automatischem TLS (Let's Encrypt), Single-Origin.
+# Die Adresse kommt AUSSCHLIESSLICH aus der Umgebung (.env):
+#   SITE_ADDRESS=":80"            -> lokal/hinter eigenem Proxy, ohne TLS
+#   SITE_ADDRESS="jobs.example.com" -> öffentliche Domain, Auto-TLS via Let's Encrypt
+{$SITE_ADDRESS::80} {
+	encode gzip
+
+	# Uploads (CV, Zeugnisse) bis 30 MB
+	request_body {
+		max_size 30MB
+	}
+
+	# API & Tooling -> Spring-Boot-Backend
+	@backend path /api/* /actuator/* /v3/api-docs* /swagger-ui* /swagger-ui.html
+	handle @backend {
+		reverse_proxy backend:8080
+	}
+
+	# Alles übrige -> SvelteKit-Frontend
+	handle {
+		reverse_proxy frontend:3000
+	}
+}

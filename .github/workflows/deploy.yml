@@ -1,8 +1,8 @@
 name: Deploy
 
-# Manuell auslösbar. Setzt voraus, dass auf dem Server die Prod-Compose-Datei liegt
-# (infra/docker-compose.prod.yml + infra/nginx) und folgende Repository-Secrets gesetzt sind:
-#   SSH_HOST, SSH_USER, SSH_KEY (privater Key), optional SSH_PORT, DEPLOY_PATH
+# Manuell auslösbar. Setzt voraus, dass auf dem Server das Repo (infra/docker-compose.prod.yml
+# + infra/Caddyfile) samt konfigurierter infra/.env liegt und folgende Repository-Secrets
+# gesetzt sind: SSH_HOST, SSH_USER, SSH_KEY (privater Key), optional SSH_PORT, DEPLOY_PATH
 on:
   workflow_dispatch:
     inputs:
