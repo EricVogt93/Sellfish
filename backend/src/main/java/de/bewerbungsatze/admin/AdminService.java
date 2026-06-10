@@ -85,11 +85,48 @@ public class AdminService {
     public LlmProviderConfig createGlobalLlmConfig(Provider provider, String model, Purpose purpose,
                                                    String baseUrl, String keyRef, String apiKey,
                                                    boolean isDefault) {
-        LlmProviderConfig config = new LlmProviderConfig(null, provider, model, purpose);
-        config.setBaseUrl(baseUrl);
-        config.setKeyRef(keyRef);
+        List<LlmProviderConfig> globals = llmConfigRepository.findAllGlobal();
+
+        // API-Key pro Provider (baseUrl) wiederverwenden: bleibt das Feld leer, ziehen wir den
+        // bereits gespeicherten Key derselben baseUrl. So laesst sich das Modell per Dropdown
+        // umschalten, ohne den Schluessel jedes Mal neu einzugeben.
+        String keyEnc = null;
         if (apiKey != null && !apiKey.isBlank()) {
-            config.setKeyEnc(cryptoService.encrypt(apiKey));
+            keyEnc = cryptoService.encrypt(apiKey);
+        } else if (baseUrl != null) {
+            keyEnc = globals.stream()
+                    .filter(c -> baseUrl.equals(c.getBaseUrl())
+                            && c.getKeyEnc() != null && !c.getKeyEnc().isBlank())
+                    .map(LlmProviderConfig::getKeyEnc)
+                    .findFirst().orElse(null);
+        }
+
+        // Upsert: vorhandene globale Config mit gleicher purpose+baseUrl+model wiederverwenden,
+        // statt Duplikate anzulegen.
+        LlmProviderConfig config = globals.stream()
+                .filter(c -> c.getPurpose() == purpose
+                        && java.util.Objects.equals(c.getBaseUrl(), baseUrl)
+                        && java.util.Objects.equals(c.getModel(), model))
+                .findFirst()
+                .orElseGet(() -> new LlmProviderConfig(null, provider, model, purpose));
+        config.setProvider(provider);
+        config.setModel(model);
+        config.setBaseUrl(baseUrl);
+        if (keyRef != null && !keyRef.isBlank()) {
+            config.setKeyRef(keyRef);
+        }
+        if (keyEnc != null) {
+            config.setKeyEnc(keyEnc);
+        }
+
+        // Genau ein Default pro Purpose: andere Defaults derselben Purpose zuruecksetzen.
+        if (isDefault) {
+            for (LlmProviderConfig other : globals) {
+                if (other.getPurpose() == purpose && other.isDefault() && other != config) {
+                    other.setDefault(false);
+                    llmConfigRepository.save(other);
+                }
+            }
         }
         config.setDefault(isDefault);
         return llmConfigRepository.save(config);

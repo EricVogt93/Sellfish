@@ -15,6 +15,30 @@
 
   const PROVIDERS = ['OLLAMA', 'OPENAI', 'NIM', 'OPENAI_COMPATIBLE', 'ANTHROPIC', 'GOOGLE'];
 
+  // Kuratierte Modell-Presets fuer den Schnell-Umschalter (ohne Keys – der Key wird
+  // serverseitig pro Provider/baseUrl wiederverwendet, einmal hinterlegt reicht).
+  const LOCAL_BASE = 'http://llamacpp.ai.svc.cluster.local:8000/v1';
+  const GO_BASE = 'https://opencode.ai/zen/go/v1';
+  interface Preset { label: string; group: string; provider: string; baseUrl: string; model: string; }
+  const MODEL_PRESETS: Preset[] = [
+    { group: 'Lokal (Homelab, privat & frei)', label: 'gpt-oss-20b — lokal, schnell', provider: 'OPENAI_COMPATIBLE', baseUrl: LOCAL_BASE, model: 'gpt-oss-20b' },
+    { group: 'opencode-go (Cloud)', label: 'DeepSeek V4 Pro', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'deepseek-v4-pro' },
+    { group: 'opencode-go (Cloud)', label: 'DeepSeek V4 Flash', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'deepseek-v4-flash' },
+    { group: 'opencode-go (Cloud)', label: 'GLM 5.1', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'glm-5.1' },
+    { group: 'opencode-go (Cloud)', label: 'Kimi K2.6', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'kimi-k2.6' },
+    { group: 'opencode-go (Cloud)', label: 'Qwen3.7 Max', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'qwen3.7-max' },
+    { group: 'opencode-go (Cloud)', label: 'MiniMax M3', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'minimax-m3' }
+  ];
+  const GROUPS = [...new Set(MODEL_PRESETS.map((p) => p.group))];
+
+  let globalConfigs = $state<Config[]>([]);
+  let selectedModel = $state(MODEL_PRESETS[0].model);
+  let switchKey = $state('');
+  let switching = $state(false);
+  let switchMsg = $state<string | null>(null);
+  let isAdmin = $state(true);
+  const activeChat = $derived(globalConfigs.find((c) => c.purpose === 'CHAT' && c.isDefault) || null);
+
   let configs = $state<Config[]>([]);
   let form = $state({
     provider: 'OLLAMA',
@@ -31,12 +55,50 @@
     configs = await api<Config[]>('/api/llm/configs');
   }
 
+  async function loadGlobal() {
+    try {
+      globalConfigs = await api<Config[]>('/api/admin/llm-configs');
+      isAdmin = true;
+      if (activeChat) selectedModel = activeChat.model;
+    } catch {
+      isAdmin = false; // kein Admin -> Schnell-Umschalter ausblenden
+    }
+  }
+
+  async function switchModel() {
+    const p = MODEL_PRESETS.find((m) => m.model === selectedModel);
+    if (!p) return;
+    switching = true;
+    switchMsg = null;
+    try {
+      await api('/api/admin/llm-configs', {
+        method: 'POST',
+        body: JSON.stringify({
+          provider: p.provider,
+          model: p.model,
+          purpose: 'CHAT',
+          baseUrl: p.baseUrl,
+          apiKey: switchKey || null, // leer -> serverseitig vorhandenen Key wiederverwenden
+          isDefault: true
+        })
+      });
+      switchKey = '';
+      await loadGlobal();
+      switchMsg = `✓ Generierungs-Modell aktiv: ${p.model}`;
+    } catch (e) {
+      switchMsg = '✗ ' + (e instanceof Error ? e.message : 'Fehler');
+    } finally {
+      switching = false;
+    }
+  }
+
   onMount(async () => {
     if (!getAccessToken()) {
       await goto('/login');
       return;
     }
     await load();
+    await loadGlobal();
   });
 
   async function create(event: SubmitEvent) {
@@ -64,6 +126,41 @@
     await load();
   }
 </script>
+
+{#if isAdmin}
+<section class="switcher">
+  <h1>KI-Modell (Generierung)</h1>
+  <p class="cur">
+    Aktiv:
+    <strong>{activeChat ? activeChat.model : '— keins gesetzt'}</strong>
+    {#if activeChat}<span class="tag">{activeChat.baseUrl && activeChat.baseUrl.includes('opencode') ? 'Cloud' : 'lokal'}</span>{/if}
+  </p>
+  <div class="switchrow">
+    <select bind:value={selectedModel} aria-label="Modell wählen">
+      {#each GROUPS as g}
+        <optgroup label={g}>
+          {#each MODEL_PRESETS.filter((m) => m.group === g) as m}
+            <option value={m.model}>{m.label}</option>
+          {/each}
+        </optgroup>
+      {/each}
+    </select>
+    <input
+      placeholder="API-Key (nur 1× pro Cloud-Provider)"
+      type="password"
+      bind:value={switchKey}
+    />
+    <button onclick={switchModel} disabled={switching}>
+      {switching ? 'Wechsle…' : 'Aktivieren'}
+    </button>
+  </div>
+  {#if switchMsg}<p class="msg">{switchMsg}</p>{/if}
+  <p class="hint">
+    Lokale Modelle laufen frei &amp; privat im Homelab. Cloud-Modelle (opencode-go) brauchen den
+    Key nur beim ersten Mal — danach reicht das Dropdown.
+  </p>
+</section>
+{/if}
 
 <section>
   <h1>LLM-Provider</h1>
@@ -147,5 +244,40 @@
   }
   .msg {
     color: #166534;
+  }
+  .switcher {
+    border: 1px solid #c7d2fe;
+    background: #f5f7ff;
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1.6rem;
+  }
+  .switchrow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    align-items: center;
+    margin: 0.6rem 0;
+  }
+  .switchrow select {
+    min-width: 16rem;
+    flex: 1 1 16rem;
+  }
+  .cur {
+    font-size: 0.95rem;
+  }
+  .cur .tag {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.05rem 0.5rem;
+    border-radius: 999px;
+    background: #6366f1;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .hint {
+    font-size: 0.8rem;
+    color: #6b7280;
   }
 </style>
