@@ -639,21 +639,27 @@ select.aa-input { appearance: none; cursor: pointer; }
 
   /* Kein 1080px-Zwang mehr -> Tabelle nutzt 100% der Viewport-Breite */
   .aa-table { min-width: 0; width: 100%; }
-  .aa-table th, .aa-table td { padding-left: 9px; padding-right: 9px; }
+  .aa-table th, .aa-table td { padding-left: 10px; padding-right: 10px; }
 
-  /* Nur Essenzielles: Check(1) · Match(2) · Job(3) · Actions(9).
-     Company(4), Location(5), Salary(6), Filters(7), Rating(8) ausblenden. */
+  /* Sichtbar: Match(2) · Job(3) · Actions(9).
+     Check(1), Company(4), Location(5), Salary(6), Filters(7), Rating(8) ausblenden. */
+  .aa-table th:nth-child(1), .aa-table td:nth-child(1),
   .aa-table th:nth-child(4), .aa-table td:nth-child(4),
   .aa-table th:nth-child(5), .aa-table td:nth-child(5),
   .aa-table th:nth-child(6), .aa-table td:nth-child(6),
   .aa-table th:nth-child(7), .aa-table td:nth-child(7),
   .aa-table th:nth-child(8), .aa-table td:nth-child(8) { display: none; }
 
+  /* Score schmal, Job saugt den GESAMTEN Restplatz (kein Loch mehr),
+     Actions schrumpfen auf ihren Inhalt und sitzen rechts. */
+  .aa-table th:nth-child(2), .aa-table td:nth-child(2) { width: 52px; padding-right: 4px; }
+  .aa-table th:nth-child(3), .aa-table td:nth-child(3) { width: 100%; }
+  .aa-col-actions { width: 1%; white-space: nowrap; padding-left: 4px; }
+
   /* Job-Titel darf umbrechen statt abgeschnitten zu werden */
   .aa-jobtitle { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.25; }
-  .aa-jobmeta { white-space: normal; }
-  .aa-col-actions { width: auto; }
-  .aa-rowactions { gap: 4px; }
+  .aa-jobmeta { white-space: normal; line-height: 1.3; }
+  .aa-rowactions { gap: 2px; }
 
   /* schmalere Hinweiszeile im Header weg (Keyboard-Hints sind Desktop) */
   .aa-pagehead .aa-hint { display: none; }
