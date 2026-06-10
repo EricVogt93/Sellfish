@@ -10,6 +10,7 @@ export interface Job {
 	id: string;
 	matchId?: string;
 	status?: string;
+	url?: string;
 	title: string;
 	company: string;
 	initials: string;
