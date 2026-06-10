@@ -34,5 +34,8 @@ base_url=https://integrate.api.nvidia.com/v1, key_ref=/llm/nim-key, purpose=CHAT
 provider=ANTHROPIC, model=claude-sonnet-4-6, key_ref=/llm/anthropic-key, purpose=CHAT
 ```
 
-> Embedding-Dimension: Das Schema legt `vector(768)` an (passend zu `nomic-embed-text`).
-> Bei abweichender Dimension eine Folge-Migration ergänzen.
+> **Embedding-Dimension:** Über `EMBEDDING_DIM` (Default 768, passend zu `nomic-embed-text`)
+> konfigurierbar — z. B. `1536` für OpenAI `text-embedding-3-small`. Der Wert legt beim **ersten**
+> DB-Start die pgvector-Spalten an und kann danach nicht mehr per ENV geändert werden (dann
+> Folge-Migration nötig). Liefert ein Modell eine abweichende Dimension, werden dessen Embeddings
+> mit einer Warnung verworfen statt still zu scheitern.

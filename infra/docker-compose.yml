@@ -61,6 +61,7 @@ services:
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-768}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173}
       INFISICAL_ENABLED: ${INFISICAL_ENABLED:-false}
       INFISICAL_URL: ${INFISICAL_URL:-https://app.infisical.com}

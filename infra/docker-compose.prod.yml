@@ -56,6 +56,8 @@ services:
       MINIO_ENDPOINT: http://minio:9000
       MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
       MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      # Muss zur Dimension des Embedding-Modells passen (nur beim ersten DB-Start wirksam).
+      EMBEDDING_DIM: ${EMBEDDING_DIM:-768}
       CORS_ORIGINS: ${PUBLIC_ORIGIN:-http://localhost}
       INFISICAL_ENABLED: ${INFISICAL_ENABLED:-false}
       INFISICAL_URL: ${INFISICAL_URL:-https://app.infisical.com}
