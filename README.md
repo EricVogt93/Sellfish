@@ -72,7 +72,7 @@ docker compose -f infra/docker-compose.yml up --build
 | **M0** | Gerüst: Repo-Struktur, docker-compose, Spring-Boot- & SvelteKit-Skeleton, Flyway-Schema, CI | ✅ |
 | **M1** | Auth & Multi-User (JWT), Profil + Wünsche/Filter | ✅ |
 | **M2** | Dokumenten-Upload + Parsing (Tika + LLM), LLM-Provider-Abstraktion (Multiprovider), Infisical, Storage (FS/MinIO) | ✅ |
-| **M3** | Job-Ingestion: 16 internationale API-Quellen, Dedupe, pgvector-Embeddings, Scheduler | ✅ |
+| **M3** | Job-Ingestion: 20 internationale API-Quellen, Dedupe, pgvector-Embeddings, Scheduler | ✅ |
 | **M4** | Matching & Ranking (Hard-Filter → Semantik → Feature-Score), Matches-API, Feedback | ✅ |
 | **M5** | Generatoren: Tailored-CV, Anschreiben, Motivation, Bewerbungstext | ⏳ |
 | **M6** | Self-Learning: Feedback-Labels, logistische Regression (Gewichte), Profil-Drift, Scheduler | ✅ |

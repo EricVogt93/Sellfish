@@ -28,7 +28,7 @@ in `adapter/*` und wird über die Ports eingebunden (Dependency Inversion).
 | Port (Interface)                                  | Adapter (Implementierungen)                                  |
 |---------------------------------------------------|-------------------------------------------------------------|
 | `ai.port.ChatProvider` / `ai.port.EmbeddingProvider` | `ai.adapter.out.{OpenAiCompatible,Ollama,Anthropic,GoogleGemini}Client` |
-| `jobs.port.JobSource`                             | `jobs.adapter.source.*Source` (16 internationale Quellen)   |
+| `jobs.port.JobSource`                             | `jobs.adapter.source.*Source` (20 internationale Quellen)   |
 | `storage.port.StorageService`                     | `storage.adapter.{FileSystem,Minio}StorageService`          |
 | (Secrets)                                         | `ai.adapter.out.InfisicalClient`                            |
 | (Persistence, pgvector)                           | `jobs.adapter.persistence.VectorStore`                      |
