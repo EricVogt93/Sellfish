@@ -74,7 +74,7 @@ docker compose -f infra/docker-compose.yml up --build
 | **M2** | Dokumenten-Upload + Parsing (Tika + LLM), LLM-Provider-Abstraktion (Multiprovider), Infisical, Storage (FS/MinIO) | ✅ |
 | **M3** | Job-Ingestion: 20 internationale API-Quellen, Dedupe, pgvector-Embeddings, Scheduler | ✅ |
 | **M4** | Matching & Ranking (Hard-Filter → Semantik → Feature-Score), Matches-API, Feedback | ✅ |
-| **M5** | Generatoren: Tailored-CV, Anschreiben, Motivation, Bewerbungstext | ⏳ |
+| **M5** | Generatoren: Tailored-CV, Anschreiben, Motivation, Bewerbungstext (LLM, versioniert) | ✅ |
 | **M6** | Self-Learning: Feedback-Labels, logistische Regression (Gewichte), Profil-Drift, Scheduler | ✅ |
 | **M7** | Generischer Scraper, LLM-Websuche, Agent-Tool-API, Admin (Nutzer/Quellen/Provider) | ✅ |
 
