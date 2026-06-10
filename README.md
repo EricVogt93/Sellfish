@@ -54,10 +54,24 @@ npm install
 npm run dev   # http://localhost:5173 (proxyt /api an :8080)
 ```
 
-### Alles per Docker
+### Alles per Docker (Entwicklung)
 ```bash
 docker compose -f infra/docker-compose.yml up --build
 ```
+
+## Produktion & CI/CD
+
+- **CI** (`.github/workflows/ci.yml`): bei jedem Push Backend `mvn verify` inkl.
+  Testcontainers-Integrationstests (echter Postgres + pgvector) + Frontend-Build.
+- **CD** (`.github/workflows/cd.yml`): baut auf `main`/Tags Docker-Images und pusht sie nach GHCR.
+- **Prod-Start** auf dem Server (hinter nginx, Single-Origin Port 80):
+  ```bash
+  cd infra && cp .env.example .env   # Secrets setzen!
+  docker compose -f docker-compose.prod.yml pull
+  docker compose -f docker-compose.prod.yml up -d
+  ```
+
+Details: [`docs/deployment.md`](docs/deployment.md).
 
 ## Tests
 
