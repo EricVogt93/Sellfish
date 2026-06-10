@@ -5,7 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import de.bewerbungsatze.jobs.Job;
 import de.bewerbungsatze.jobs.JobRepository;
 import de.bewerbungsatze.jobs.MatchRecomputer;
-import de.bewerbungsatze.jobs.VectorStore;
+import de.bewerbungsatze.jobs.adapter.persistence.VectorStore;
 import de.bewerbungsatze.profile.PreferencesRepository;
 import de.bewerbungsatze.profile.ProfileRepository;
 import org.springframework.stereotype.Service;

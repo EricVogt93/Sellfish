@@ -34,7 +34,7 @@ public final class LlmConfigDtos {
             boolean enabled,
             String params) {
 
-        static ConfigResponse from(LlmProviderConfig c) {
+        public static ConfigResponse from(LlmProviderConfig c) {
             boolean hasKey = (c.getKeyEnc() != null && !c.getKeyEnc().isBlank())
                     || (c.getKeyRef() != null && !c.getKeyRef().isBlank());
             return new ConfigResponse(c.getId(), c.getProvider(), c.getModel(), c.getBaseUrl(),

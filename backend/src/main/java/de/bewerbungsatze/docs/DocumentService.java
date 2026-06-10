@@ -2,7 +2,7 @@ package de.bewerbungsatze.docs;
 
 import de.bewerbungsatze.common.error.ApiException;
 import de.bewerbungsatze.cv.CvParsingService;
-import de.bewerbungsatze.storage.StorageService;
+import de.bewerbungsatze.storage.port.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

@@ -29,7 +29,7 @@ public final class ProfileDtos {
             String availability,
             String meta) {
 
-        static ProfileResponse from(UserProfile p) {
+        public static ProfileResponse from(UserProfile p) {
             return new ProfileResponse(p.getHeadline(), p.getSummary(), p.getLocation(),
                     p.isWillingnessToRelocate(), p.getSalaryMin(), p.getRemotePref(),
                     p.getAvailability(), p.getMeta());
@@ -57,7 +57,7 @@ public final class ProfileDtos {
             String hardFilters,
             String softWeights) {
 
-        static PreferencesResponse from(UserPreferences p) {
+        public static PreferencesResponse from(UserPreferences p) {
             return new PreferencesResponse(p.getDesiredTitles(), p.getIndustries(), p.getCompanySize(),
                     p.getContractTypes(), p.getExcludedCompanies(), p.getKeywords(),
                     p.getHardFilters(), p.getSoftWeights());

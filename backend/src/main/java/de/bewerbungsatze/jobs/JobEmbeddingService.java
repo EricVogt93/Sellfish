@@ -1,4 +1,5 @@
 package de.bewerbungsatze.jobs;
+import de.bewerbungsatze.jobs.adapter.persistence.VectorStore;
 
 import de.bewerbungsatze.ai.LlmService;
 import org.slf4j.Logger;

@@ -1,7 +1,7 @@
 package de.bewerbungsatze.ai;
 
-import de.bewerbungsatze.ai.client.ChatProvider;
-import de.bewerbungsatze.ai.client.EmbeddingProvider;
+import de.bewerbungsatze.ai.port.ChatProvider;
+import de.bewerbungsatze.ai.port.EmbeddingProvider;
 import de.bewerbungsatze.ai.model.ChatRequest;
 import de.bewerbungsatze.ai.model.ChatResult;
 import de.bewerbungsatze.ai.model.ResolvedModel;

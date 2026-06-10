@@ -1,6 +1,6 @@
 package de.bewerbungsatze.jobs;
 
-import de.bewerbungsatze.jobs.source.JobQuery;
+import de.bewerbungsatze.jobs.port.JobQuery;
 import de.bewerbungsatze.profile.UserPreferences;
 import de.bewerbungsatze.profile.UserProfile;
 import org.junit.jupiter.api.Test;

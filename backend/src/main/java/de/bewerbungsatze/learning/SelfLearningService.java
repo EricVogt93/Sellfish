@@ -3,7 +3,7 @@ package de.bewerbungsatze.learning;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.bewerbungsatze.jobs.Job;
 import de.bewerbungsatze.jobs.JobRepository;
-import de.bewerbungsatze.jobs.VectorStore;
+import de.bewerbungsatze.jobs.adapter.persistence.VectorStore;
 import de.bewerbungsatze.matching.Features;
 import de.bewerbungsatze.matching.FeatureScorer;
 import de.bewerbungsatze.matching.JobMatch;

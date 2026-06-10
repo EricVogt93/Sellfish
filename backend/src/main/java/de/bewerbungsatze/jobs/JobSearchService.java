@@ -3,7 +3,7 @@ package de.bewerbungsatze.jobs;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.bewerbungsatze.cv.CvStructured;
 import de.bewerbungsatze.cv.CvStructuredRepository;
-import de.bewerbungsatze.jobs.source.JobQuery;
+import de.bewerbungsatze.jobs.port.JobQuery;
 import de.bewerbungsatze.profile.PreferencesRepository;
 import de.bewerbungsatze.profile.ProfileRepository;
 import de.bewerbungsatze.profile.UserPreferences;

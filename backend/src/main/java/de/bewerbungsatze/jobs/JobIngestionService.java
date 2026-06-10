@@ -2,10 +2,10 @@ package de.bewerbungsatze.jobs;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.bewerbungsatze.jobs.source.Fingerprints;
-import de.bewerbungsatze.jobs.source.JobQuery;
-import de.bewerbungsatze.jobs.source.JobSource;
-import de.bewerbungsatze.jobs.source.RawJob;
+import de.bewerbungsatze.jobs.adapter.source.Fingerprints;
+import de.bewerbungsatze.jobs.port.JobQuery;
+import de.bewerbungsatze.jobs.port.JobSource;
+import de.bewerbungsatze.jobs.port.RawJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

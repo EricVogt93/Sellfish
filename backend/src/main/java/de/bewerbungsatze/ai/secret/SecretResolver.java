@@ -1,4 +1,5 @@
 package de.bewerbungsatze.ai.secret;
+import de.bewerbungsatze.ai.adapter.out.InfisicalClient;
 
 import de.bewerbungsatze.ai.LlmProviderConfig;
 import de.bewerbungsatze.common.crypto.CryptoService;
