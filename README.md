@@ -10,6 +10,7 @@ Treffer.
 
 ## Tech-Stack
 
+- **Architektur:** Hexagonal (Ports & Adapters) — siehe [`docs/hexagonal-architecture.md`](docs/hexagonal-architecture.md)
 - **Backend:** Java 21, Spring Boot 3.4, PostgreSQL + pgvector, Flyway, Spring Security (JWT)
 - **Frontend:** SvelteKit (TypeScript), Node-Adapter
 - **KI:** Eigene, schlanke Multiprovider-Schicht über `RestClient` (OpenAI-kompatibel inkl. ChatGPT/Kimi/NIM/OpenRouter, Anthropic/Claude, Ollama, Google Gemini)
@@ -71,7 +72,7 @@ docker compose -f infra/docker-compose.yml up --build
 | **M0** | Gerüst: Repo-Struktur, docker-compose, Spring-Boot- & SvelteKit-Skeleton, Flyway-Schema, CI | ✅ |
 | **M1** | Auth & Multi-User (JWT), Profil + Wünsche/Filter | ✅ |
 | **M2** | Dokumenten-Upload + Parsing (Tika + LLM), LLM-Provider-Abstraktion (Multiprovider), Infisical, Storage (FS/MinIO) | ✅ |
-| **M3** | Job-Ingestion (Bundesagentur-API, Adzuna), Dedupe, pgvector-Embeddings, Scheduler | ✅ |
+| **M3** | Job-Ingestion: 16 internationale API-Quellen, Dedupe, pgvector-Embeddings, Scheduler | ✅ |
 | **M4** | Matching & Ranking (Hard-Filter → Semantik → Feature-Score), Matches-API, Feedback | ✅ |
 | **M5** | Generatoren: Tailored-CV, Anschreiben, Motivation, Bewerbungstext | ⏳ |
 | **M6** | Self-Learning: Feedback-Labels, logistische Regression (Gewichte), Profil-Drift, Scheduler | ✅ |

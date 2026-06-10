@@ -1,4 +1,6 @@
 package de.bewerbungsatze.storage;
+import de.bewerbungsatze.storage.port.StorageService;
+import de.bewerbungsatze.storage.adapter.FileSystemStorageService;
 
 import de.bewerbungsatze.common.config.StorageProperties;
 import org.junit.jupiter.api.Test;

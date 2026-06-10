@@ -1,10 +1,10 @@
 package de.bewerbungsatze.jobs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.bewerbungsatze.jobs.source.Fingerprints;
-import de.bewerbungsatze.jobs.source.JobQuery;
-import de.bewerbungsatze.jobs.source.JobSource;
-import de.bewerbungsatze.jobs.source.RawJob;
+import de.bewerbungsatze.jobs.adapter.source.Fingerprints;
+import de.bewerbungsatze.jobs.port.JobQuery;
+import de.bewerbungsatze.jobs.port.JobSource;
+import de.bewerbungsatze.jobs.port.RawJob;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
