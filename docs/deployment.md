@@ -17,24 +17,35 @@ Push real verifiziert.
 
 ## Produktion starten
 
-Voraussetzung: Docker + Docker Compose auf dem Server.
+Voraussetzung: Docker + Docker Compose auf dem Server. Die öffentliche Domain wird **nicht**
+im Repo hinterlegt, sondern pro Installation in der `.env` gesetzt (Open-Source-tauglich).
 
 ```bash
 git clone <repo> /opt/bewerbungsatze
 cd /opt/bewerbungsatze/infra
-cp .env.example .env            # Secrets setzen! (JWT_SECRET, CRYPTO_MASTER_KEY, DB_PASSWORD, MINIO_SECRET_KEY)
+cp .env.example .env
+# In .env setzen:
+#   SITE_ADDRESS=<deine-domain>           z. B. jobs.example.com  -> Auto-TLS via Let's Encrypt
+#   PUBLIC_ORIGIN=https://<deine-domain>
+#   JWT_SECRET / CRYPTO_MASTER_KEY        (openssl rand -base64 32)
+#   DB_PASSWORD / MINIO_SECRET_KEY        (starke Werte)
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-Danach läuft alles hinter nginx auf Port 80 (Single-Origin):
-- Frontend: `http://<host>/`
-- API: `http://<host>/api/...`
-- Swagger UI: `http://<host>/swagger-ui.html`
-- Health: `http://<host>/actuator/health`
+Voraussetzungen für Auto-TLS: DNS-A/AAAA-Record der Domain zeigt auf den Server,
+Ports 80 **und** 443 sind erreichbar. Caddy holt und erneuert die Zertifikate automatisch.
 
-Komponenten: `nginx` (Reverse Proxy) → `frontend` (SvelteKit/Node) + `backend` (Spring Boot),
-`postgres` (pgvector), `minio` (Objekt-Storage). Daten liegen in den Volumes `pgdata`/`miniodata`.
+Danach (Single-Origin über Caddy):
+- Frontend: `https://<deine-domain>/`
+- API: `https://<deine-domain>/api/...`
+- Swagger UI: `https://<deine-domain>/swagger-ui.html`
+- Health: `https://<deine-domain>/actuator/health`
+
+Ohne Domain (lokal/hinter eigenem Proxy): `SITE_ADDRESS=:80` lassen → alles unter `http://<host>/`.
+
+Komponenten: `caddy` (Reverse Proxy + TLS) → `frontend` (SvelteKit/Node) + `backend` (Spring Boot),
+`postgres` (pgvector), `minio` (Objekt-Storage). Daten in Volumes `pgdata`/`miniodata`/`caddydata`.
 
 ### Secrets (Pflicht in Prod)
 `openssl rand -base64 32` für `JWT_SECRET` und `CRYPTO_MASTER_KEY`; starke `DB_PASSWORD`/`MINIO_SECRET_KEY`.
@@ -48,6 +59,5 @@ LLM-Provider-Keys idealerweise über Infisical (`INFISICAL_*`) statt im Klartext
 neuen Images und startet die Prod-Compose neu.
 
 ## TLS
-Für HTTPS einen Reverse-Proxy mit automatischem Zertifikat (z. B. Caddy oder Traefik) vor
-nginx setzen oder nginx um ein `certbot`-Setup erweitern und `PUBLIC_ORIGIN=https://<domain>`
-sowie `HTTP_PORT` entsprechend anpassen.
+Bereits eingebaut: Caddy terminiert TLS automatisch (Let's Encrypt), sobald `SITE_ADDRESS`
+eine Domain ist. Kein certbot, keine manuelle Zertifikatspflege.

@@ -64,9 +64,10 @@ docker compose -f infra/docker-compose.yml up --build
 - **CI** (`.github/workflows/ci.yml`): bei jedem Push Backend `mvn verify` inkl.
   Testcontainers-Integrationstests (echter Postgres + pgvector) + Frontend-Build.
 - **CD** (`.github/workflows/cd.yml`): baut auf `main`/Tags Docker-Images und pusht sie nach GHCR.
-- **Prod-Start** auf dem Server (hinter nginx, Single-Origin Port 80):
+- **Prod-Start** auf dem Server (hinter Caddy mit Auto-TLS; Domain kommt aus der `.env`,
+  nichts ist im Repo hardcodet):
   ```bash
-  cd infra && cp .env.example .env   # Secrets setzen!
+  cd infra && cp .env.example .env   # SITE_ADDRESS=<deine-domain> + Secrets setzen!
   docker compose -f docker-compose.prod.yml pull
   docker compose -f docker-compose.prod.yml up -d
   ```
