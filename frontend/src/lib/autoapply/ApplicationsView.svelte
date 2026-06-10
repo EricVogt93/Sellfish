@@ -2,28 +2,27 @@
 	import Icon from './Icon.svelte';
 	import CompanyMark from './CompanyMark.svelte';
 	import StageBadge from './StageBadge.svelte';
-	import { APPLICATIONS, JOBS, STAGES, type Application, type Stage } from './data';
+	import { STAGES, type Stage } from './data';
+	import type { Job } from './data';
 
-	let { statuses }: { statuses: Record<string, string> } = $props();
+	// UI-Jobs mit beworbenem Status (vom Page-Container vorgefiltert)
+	let { applications }: { applications: Job[] } = $props();
 
-	// Statische Tracking-Einträge mit in dieser Session gesendeten Bewerbungen mischen
-	const all = $derived.by<Application[]>(() => {
-		const sessionApps: Application[] = Object.entries(statuses)
-			.filter(([id, s]) => s === 'applied' && !APPLICATIONS.some((a) => a.jobId === id))
-			.map(([jobId], i) => ({
-				id: 'live' + i,
-				jobId,
-				stage: 'sent' as Stage,
-				sentAt: 'Today',
-				lastEvent: 'Delivered to ATS',
-				auto: true
-			}));
-		return [...sessionApps, ...APPLICATIONS];
-	});
+	const STATUS_TO_STAGE: Record<string, Stage> = {
+		APPLIED: 'sent',
+		INTERVIEW: 'interview',
+		OFFER: 'offer',
+		REJECTED: 'rejected'
+	};
+
+	function stageOf(status: string | undefined): Stage {
+		return STATUS_TO_STAGE[status ?? 'APPLIED'] ?? 'sent';
+	}
 
 	const counts = $derived(
-		all.reduce<Record<string, number>>((m, a) => {
-			m[a.stage] = (m[a.stage] || 0) + 1;
+		applications.reduce<Record<string, number>>((m, a) => {
+			const s = stageOf(a.status);
+			m[s] = (m[s] || 0) + 1;
 			return m;
 		}, {})
 	);
@@ -34,7 +33,7 @@
 <div class="aa-view">
 	<header class="aa-pagehead">
 		<div>
-			<div class="eyebrow">tracking · {all.length} in flight</div>
+			<div class="eyebrow">tracking · {applications.length} in flight</div>
 			<h1 class="aa-h1">Applications</h1>
 		</div>
 		<div class="aa-stagecounts">
@@ -49,15 +48,21 @@
 		</div>
 	</header>
 
-	<div class="aa-tablecard">
-		<table class="aa-table">
-			<thead>
-				<tr><th>Job</th><th>Company</th><th>Stage</th><th>Sent</th><th>Last event</th><th>Mode</th><th class="aa-col-actions"></th></tr>
-			</thead>
-			<tbody>
-				{#each all as app (app.id)}
-					{@const job = JOBS.find((j) => j.id === app.jobId)}
-					{#if job}
+	{#if applications.length === 0}
+		<div class="aa-tablecard">
+			<div class="aa-empty">
+				<Icon name="send" size={28} style="color:var(--text-muted);" />
+				<p>No applications yet. Apply to a job from the Jobs view.</p>
+			</div>
+		</div>
+	{:else}
+		<div class="aa-tablecard">
+			<table class="aa-table">
+				<thead>
+					<tr><th>Job</th><th>Company</th><th>Stage</th><th>Source</th><th>Match</th><th class="aa-col-actions"></th></tr>
+				</thead>
+				<tbody>
+					{#each applications as job (job.id)}
 						<tr class="aa-row">
 							<td>
 								<div class="aa-jobcell">
@@ -66,23 +71,16 @@
 								</div>
 							</td>
 							<td class="aa-company">{job.company}</td>
-							<td><StageBadge stage={app.stage} /></td>
-							<td class="aa-jobmeta">{app.sentAt}</td>
-							<td class="aa-lastevent">{app.lastEvent}</td>
-							<td>
-								{#if app.auto}
-									<span class="aa-modechip"><Icon name="zap" size={11} /> auto</span>
-								{:else}
-									<span class="aa-modechip aa-modechip-manual"><Icon name="pen" size={11} /> reviewed</span>
-								{/if}
-							</td>
+							<td><StageBadge stage={stageOf(job.status)} /></td>
+							<td class="aa-jobmeta">{job.source}</td>
+							<td><span class="aa-fsum-counter" style="color:var(--accent-secondary);">{job.score}</span></td>
 							<td class="aa-col-actions">
-								<button class="aa-iconbtn" title="Open application"><Icon name="external" size={14} /></button>
+								<button class="aa-iconbtn" title="Open posting"><Icon name="external" size={14} /></button>
 							</td>
 						</tr>
-					{/if}
-				{/each}
-			</tbody>
-		</table>
-	</div>
+					{/each}
+				</tbody>
+			</table>
+		</div>
+	{/if}
 </div>

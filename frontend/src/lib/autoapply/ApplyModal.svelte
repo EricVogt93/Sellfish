@@ -1,91 +1,91 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Icon from './Icon.svelte';
 	import Btn from './Btn.svelte';
 	import CompanyMark from './CompanyMark.svelte';
-	import { JOBS, generateLetter, type Profile } from './data';
+	import { backend, type DocumentResponse, type GenerationType } from '$lib/api/backend';
+	import type { Job } from './data';
 
 	const GEN_STEPS = [
-		'Parsing job posting…',
+		'Reading the job posting…',
 		'Matching against your profile…',
 		'Selecting attachments…',
-		'Drafting cover letter…',
+		'Drafting the cover letter…',
 		'Running tone & length check…'
 	];
 
+	const TYPE_LABELS: Record<GenerationType, string> = {
+		COVER_LETTER: 'Cover letter',
+		MOTIVATION: 'Motivation letter',
+		TAILORED_CV: 'Tailored CV',
+		APPLICATION_TEXT: 'Short application text'
+	};
+
 	let {
-		jobIds,
+		jobs,
 		mode,
-		profile,
+		documents = [],
 		onClose,
 		onSent
 	}: {
-		jobIds: string[];
+		jobs: Job[];
 		mode: 'quick' | 'review';
-		profile: Profile;
+		documents?: DocumentResponse[];
 		onClose: () => void;
 		onSent: (ids: string[]) => void;
 	} = $props();
 
-	const jobs = $derived(jobIds.map((id) => JOBS.find((j) => j.id === id)!).filter(Boolean));
-
-	let step = $state<'generating' | 'review' | 'sending' | 'done'>('generating');
+	let step = $state<'generating' | 'review' | 'sending' | 'done' | 'error'>('generating');
 	let genLine = $state(0);
 	let active = $state(0);
-	let tone = $state(profile.prefs.tone);
+	let docType = $state<GenerationType>('COVER_LETTER');
 	let letters = $state<Record<string, string>>({});
-	let attached = $state<Set<string>>(new Set(profile.files.map((f) => f.id)));
+	let attached = $state<Set<string>>(new Set(documents.map((d) => d.id)));
+	let errorMsg = $state('');
 	let sent = false;
 
-	// Generierungs-Animation
-	$effect(() => {
-		if (step !== 'generating') return;
+	async function runGeneration(type: GenerationType) {
+		step = 'generating';
 		genLine = 0;
 		const iv = setInterval(() => {
-			genLine = Math.min(genLine + 1, GEN_STEPS.length);
-		}, 330);
-		const t = setTimeout(() => {
+			genLine = Math.min(genLine + 1, GEN_STEPS.length - 1);
+		}, 420);
+		try {
+			const results = await Promise.all(
+				jobs.map((j) => backend.generate(j.matchId!, type).then((r) => [j.id, r.content] as const))
+			);
 			clearInterval(iv);
+			genLine = GEN_STEPS.length;
 			const next: Record<string, string> = {};
-			jobs.forEach((j) => {
-				next[j.id] = generateLetter(j, profile, tone);
-			});
+			results.forEach(([id, content]) => (next[id] = content));
 			letters = next;
-			step = mode === 'quick' ? 'sending' : 'review';
-		}, GEN_STEPS.length * 330 + 350);
-		return () => {
+			if (mode === 'quick') void doSend();
+			else step = 'review';
+		} catch (e) {
 			clearInterval(iv);
-			clearTimeout(t);
-		};
-	});
+			errorMsg = e instanceof Error ? e.message : 'Generation failed';
+			step = 'error';
+		}
+	}
 
-	// Quick-Apply: automatisch senden
-	$effect(() => {
-		if (step !== 'sending') return;
-		const t = setTimeout(() => {
+	async function doSend() {
+		step = 'sending';
+		try {
+			await Promise.all(jobs.map((j) => backend.setStatus(j.matchId!, 'APPLIED')));
 			if (!sent) {
 				sent = true;
 				onSent(jobs.map((j) => j.id));
 			}
 			step = 'done';
-		}, 900);
-		return () => clearTimeout(t);
-	});
-
-	function send() {
-		if (!sent) {
-			sent = true;
-			onSent(jobs.map((j) => j.id));
+		} catch (e) {
+			errorMsg = e instanceof Error ? e.message : 'Sending failed';
+			step = 'error';
 		}
-		step = 'done';
 	}
 
-	function regenerate(newTone: string) {
-		tone = newTone;
-		const next: Record<string, string> = {};
-		jobs.forEach((j) => {
-			next[j.id] = generateLetter(j, profile, newTone);
-		});
-		letters = next;
+	function regenerate(type: GenerationType) {
+		docType = type;
+		void runGeneration(type);
 	}
 
 	function toggleAttach(id: string) {
@@ -95,6 +95,10 @@
 		attached = n;
 	}
 
+	onMount(() => {
+		void runGeneration(docType);
+	});
+
 	const job = $derived(jobs[active]);
 	const sources = $derived(jobs.map((j) => j.source).filter((v, i, a) => a.indexOf(v) === i).join(', '));
 </script>
@@ -103,7 +107,7 @@
 	class="aa-modal-overlay"
 	role="presentation"
 	onclick={(e) => {
-		if (e.target === e.currentTarget && step !== 'sending') onClose();
+		if (e.target === e.currentTarget && step !== 'sending' && step !== 'generating') onClose();
 	}}
 >
 	<div class={`aa-modal ${step === 'review' ? 'aa-modal-wide' : ''}`}>
@@ -125,17 +129,21 @@
 					{/each}
 				</div>
 			</div>
-		{/if}
-
-		{#if step === 'sending'}
+		{:else if step === 'sending'}
 			<div class="aa-gen">
 				<div class="aa-gen-orb is-sending"><Icon name="send" size={20} /></div>
 				<h3 class="aa-gen-title">Sending…</h3>
-				<div class="aa-gen-sub">Submitting via {sources}</div>
+				<div class="aa-gen-sub">Marking as applied via {sources}</div>
 			</div>
-		{/if}
-
-		{#if step === 'review' && job}
+		{:else if step === 'error'}
+			<div class="aa-gen">
+				<div class="aa-gen-orb" style="background:linear-gradient(135deg,var(--accent-error),var(--accent-tertiary));animation:none;"><Icon name="x" size={22} strokeWidth={2.5} /></div>
+				<h3 class="aa-gen-title">Couldn’t generate</h3>
+				<div class="aa-gen-sub" style="max-width:300px;">{errorMsg}</div>
+				<div class="aa-gen-sub" style="margin-top:6px;">Configure an AI provider under Profile → AI provider, then try again.</div>
+				<Btn variant="secondary" onclick={onClose} style="margin-top:18px;">Close</Btn>
+			</div>
+		{:else if step === 'review' && job}
 			<div class="aa-review">
 				<header class="aa-review-head">
 					<div>
@@ -161,46 +169,49 @@
 					</div>
 					<aside class="aa-review-side">
 						<div class="aa-review-block">
-							<div class="eyebrow">tone</div>
+							<div class="eyebrow">document type</div>
 							<div class="aa-segmented">
-								{#each ['Professional', 'Direct'] as t (t)}
-									<button class={`aa-segbtn ${tone === t ? 'is-active' : ''}`} onclick={() => regenerate(t)}>{t}</button>
+								{#each ['COVER_LETTER', 'MOTIVATION', 'APPLICATION_TEXT'] as t (t)}
+									<button class={`aa-segbtn ${docType === t ? 'is-active' : ''}`} onclick={() => regenerate(t as GenerationType)}>
+										{TYPE_LABELS[t as GenerationType].split(' ')[0]}
+									</button>
 								{/each}
 							</div>
 						</div>
 						<div class="aa-review-block">
 							<div class="eyebrow">attachments</div>
-							{#each profile.files as f (f.id)}
+							{#if documents.length === 0}
+								<p class="aa-cardnote" style="margin-top:0;">No documents yet — upload your CV under Profile.</p>
+							{/if}
+							{#each documents as f (f.id)}
 								<label class="aa-attach">
 									<input type="checkbox" class="aa-check" checked={attached.has(f.id)} onchange={() => toggleAttach(f.id)} />
 									<Icon name="paperclip" size={12} style="color:var(--text-muted);" />
-									<span class="aa-attach-name">{f.name}</span>
-									<span class="aa-attach-size">{f.size}</span>
+									<span class="aa-attach-name">{f.filename}</span>
+									<span class="aa-attach-size">{f.type}</span>
 								</label>
 							{/each}
 						</div>
 						<div class="aa-review-block">
 							<div class="eyebrow">target</div>
 							<div class="aa-review-target">
-								<div class="aa-cond"><Icon name="mail" size={13} /><span>via {job.source} ATS</span></div>
-								<div class="aa-cond"><Icon name="user" size={13} /><span>{profile.name}</span></div>
+								<div class="aa-cond"><Icon name="mail" size={13} /><span>via {job.source}</span></div>
+								<div class="aa-cond"><Icon name="briefcase" size={13} /><span>{job.title}</span></div>
 							</div>
 						</div>
 					</aside>
 				</div>
 
 				<footer class="aa-review-foot">
-					<Btn variant="ghost" icon="refresh" onclick={() => regenerate(tone)}>Regenerate</Btn>
+					<Btn variant="ghost" icon="refresh" onclick={() => regenerate(docType)}>Regenerate</Btn>
 					<div style="flex:1;"></div>
 					<Btn variant="ghost" onclick={onClose}>Cancel</Btn>
-					<Btn variant="primary" icon="send" onclick={send}>
-						Send {jobs.length > 1 ? `all ${jobs.length}` : 'application'}
+					<Btn variant="primary" icon="send" onclick={doSend}>
+						Mark {jobs.length > 1 ? `all ${jobs.length}` : 'as'} applied
 					</Btn>
 				</footer>
 			</div>
-		{/if}
-
-		{#if step === 'done'}
+		{:else if step === 'done'}
 			<div class="aa-gen">
 				<div class="aa-gen-orb is-done"><Icon name="check" size={22} strokeWidth={2.5} /></div>
 				<h3 class="aa-gen-title">{jobs.length > 1 ? `${jobs.length} applications sent` : 'Application sent'}</h3>

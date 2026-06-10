@@ -22,13 +22,17 @@ public final class MatchDtos {
             double score,
             Integer rank,
             MatchStatus status,
-            String scoreBreakdown) {
+            String scoreBreakdown,
+            String description,
+            String source,
+            String remote) {
 
         public static MatchResponse of(JobMatch match, Job job) {
             return new MatchResponse(
                     match.getId(), job.getId(), job.getTitle(), job.getCompany(), job.getLocation(),
                     job.getUrl(), job.getSalaryRaw(), job.getPostedAt(), match.getScore(),
-                    match.getRank(), match.getStatus(), match.getScoreBreakdown());
+                    match.getRank(), match.getStatus(), match.getScoreBreakdown(),
+                    job.getDescription(), job.getSourceCode(), job.getRemote());
         }
     }
 

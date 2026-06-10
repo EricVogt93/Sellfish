@@ -1,66 +1,74 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Icon from './Icon.svelte';
-	import Btn from './Btn.svelte';
 	import Avatar from './Avatar.svelte';
-	import { USERS } from './data';
+	import { backend, type AdminUser, type Me } from '$lib/api/backend';
+	import { initialsOf, hueOf } from './map';
 
-	let {
-		currentUserId,
-		onSwitch
-	}: { currentUserId: string; onSwitch: (id: string) => void } = $props();
+	let { me }: { me: Me | null } = $props();
+
+	let members = $state<AdminUser[]>([]);
+	let isAdmin = $state(false);
+
+	onMount(async () => {
+		try {
+			members = await backend.listUsers();
+			isAdmin = true;
+		} catch {
+			// Kein Admin: nur der eigene Account wird angezeigt.
+			isAdmin = false;
+			if (me) members = [{ id: me.id, email: me.email, role: me.role, status: 'ACTIVE', createdAt: '' }];
+		}
+	});
 </script>
 
 <div class="aa-view">
 	<header class="aa-pagehead">
 		<div>
-			<div class="eyebrow">workspace · {USERS.length} members</div>
+			<div class="eyebrow">workspace · {members.length} member{members.length === 1 ? '' : 's'}</div>
 			<h1 class="aa-h1">Users</h1>
 		</div>
-		<Btn variant="primary" icon="plus">Invite member</Btn>
 	</header>
 
 	<div class="aa-tablecard">
 		<table class="aa-table">
 			<thead>
-				<tr><th>Member</th><th>Role</th><th>Status</th><th>Jobs tracked</th><th>Sent</th><th class="aa-col-actions"></th></tr>
+				<tr><th>Member</th><th>Role</th><th>Status</th><th class="aa-col-actions"></th></tr>
 			</thead>
 			<tbody>
-				{#each USERS as u (u.id)}
+				{#each members as u (u.id)}
 					<tr class="aa-row">
 						<td>
 							<div class="aa-jobcell">
-								<Avatar initials={u.initials} hue={u.hue} size={30} />
+								<Avatar initials={initialsOf(u.email)} hue={hueOf(u.email)} size={30} />
 								<div class="aa-jobcell-text">
-									<span class="aa-jobtitle">{u.name} {#if u.id === currentUserId}<span class="aa-youtag">you</span>{/if}</span>
-									<span class="aa-jobmeta">{u.email}</span>
+									<span class="aa-jobtitle">{u.email} {#if u.id === me?.id}<span class="aa-youtag">you</span>{/if}</span>
+									<span class="aa-jobmeta">{u.id}</span>
 								</div>
 							</div>
 						</td>
 						<td>
-							<span class={`aa-rolechip ${u.role === 'Admin' ? 'is-admin' : ''}`}>
-								{#if u.role === 'Admin'}<Icon name="shield" size={11} />{/if}{u.role}
+							<span class={`aa-rolechip ${u.role === 'ADMIN' ? 'is-admin' : ''}`}>
+								{#if u.role === 'ADMIN'}<Icon name="shield" size={11} />{/if}{u.role}
 							</span>
 						</td>
 						<td>
 							<span class="aa-stagecount">
-								<span class="aa-stage-dot" style={`background:${u.active ? 'var(--accent-success)' : 'var(--text-muted)'};`}></span>
-								{u.active ? 'Active' : 'Invited'}
+								<span class="aa-stage-dot" style={`background:${u.status === 'ACTIVE' ? 'var(--accent-success)' : 'var(--text-muted)'};`}></span>
+								{u.status === 'ACTIVE' ? 'Active' : u.status}
 							</span>
 						</td>
-						<td class="aa-jobmeta">{u.jobsTracked}</td>
-						<td class="aa-jobmeta">{u.sent}</td>
 						<td class="aa-col-actions">
-							<div class="aa-rowactions">
-								{#if u.id !== currentUserId}
-									<Btn variant="ghost" size="sm" onclick={() => onSwitch(u.id)}>Switch to</Btn>
-								{/if}
-								<button class="aa-iconbtn" title="Member settings"><Icon name="more" size={14} /></button>
-							</div>
+							<button class="aa-iconbtn" title="Member settings"><Icon name="more" size={14} /></button>
 						</td>
 					</tr>
 				{/each}
 			</tbody>
 		</table>
 	</div>
-	<p class="aa-cardnote" style="margin-top:12px;">Each member has their own profile, filters, documents and application history. Admins can invite, remove and reset members.</p>
+	{#if !isAdmin}
+		<p class="aa-cardnote" style="margin-top:12px;">You see only your own account. Workspace member management requires an admin role.</p>
+	{:else}
+		<p class="aa-cardnote" style="margin-top:12px;">Each member has their own profile, filters, documents and application history.</p>
+	{/if}
 </div>
