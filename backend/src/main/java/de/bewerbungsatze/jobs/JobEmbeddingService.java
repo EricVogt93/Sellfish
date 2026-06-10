@@ -17,7 +17,12 @@ import java.util.UUID;
 public class JobEmbeddingService {
 
     private static final Logger log = LoggerFactory.getLogger(JobEmbeddingService.class);
-    private static final int MAX_CHARS = 8000;
+    // Begrenzung der Embedding-Eingabe. Muss unter das Per-Request-Token-Budget des
+    // Embedding-Servers passen: llamacpp-embed laeuft mit --ctx-size 8192 / --parallel 4,
+    // d.h. effektiv ~2048 Tokens pro Slot. 8000 Zeichen (alter Wert) sprengten das bei
+    // langen Board-Beschreibungen -> Embedding scheiterte still, Job wurde nie Match-Kandidat.
+    // 4000 Zeichen (~1000-1600 Tokens) liegen sicher darunter.
+    private static final int MAX_CHARS = 4000;
 
     private final LlmService llmService;
     private final VectorStore vectorStore;
@@ -41,7 +46,8 @@ public class JobEmbeddingService {
             vectorStore.upsertJobEmbedding(job.getId(), vector, "embedding");
             return true;
         } catch (RuntimeException e) {
-            log.debug("Job-Embedding übersprungen für {}: {}", job.getId(), e.getMessage());
+            log.warn("Job-Embedding fehlgeschlagen für {} ({} Zeichen): {}",
+                    job.getId(), text.length(), e.getMessage());
             return false;
         }
     }
