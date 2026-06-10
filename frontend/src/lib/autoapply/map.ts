@@ -63,6 +63,7 @@ export function mapMatch(m: MatchResponse): Job {
 		id: m.jobId,
 		matchId: m.matchId,
 		status: m.status,
+		url: m.url ?? undefined,
 		title: m.title,
 		company: m.company ?? '—',
 		initials: initialsOf(m.company ?? m.title),

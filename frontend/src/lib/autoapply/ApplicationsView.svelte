@@ -75,7 +75,7 @@
 							<td class="aa-jobmeta">{job.source}</td>
 							<td><span class="aa-fsum-counter" style="color:var(--accent-secondary);">{job.score}</span></td>
 							<td class="aa-col-actions">
-								<button class="aa-iconbtn" title="Open posting"><Icon name="external" size={14} /></button>
+								<button class="aa-iconbtn" title="Open posting" disabled={!job.url} onclick={() => job.url && window.open(job.url, '_blank', 'noopener')}><Icon name="external" size={14} /></button>
 							</td>
 						</tr>
 					{/each}

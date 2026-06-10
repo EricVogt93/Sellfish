@@ -109,7 +109,9 @@
 				<div class="aa-expand-right">
 					<p class="aa-blurb">{job.blurb}</p>
 					<div class="aa-expand-actions">
-						<Btn variant="ghost" icon="external" size="sm">Original posting</Btn>
+						{#if job.url}
+							<Btn variant="ghost" icon="external" size="sm" onclick={() => window.open(job.url, '_blank', 'noopener')}>Original posting</Btn>
+						{/if}
 						<Btn variant="secondary" icon="eye" size="sm" onclick={() => onOpen(job.id)}>Details</Btn>
 					</div>
 				</div>

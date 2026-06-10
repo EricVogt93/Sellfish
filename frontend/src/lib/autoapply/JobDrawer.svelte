@@ -35,6 +35,9 @@
 			<h2 class="aa-drawer-title">{job.title}</h2>
 			<div class="aa-jobmeta">{job.company} · {job.location} · via {job.source}</div>
 		</div>
+		{#if job.url}
+			<button class="aa-iconbtn" title="Open original posting" onclick={() => window.open(job.url, '_blank', 'noopener')}><Icon name="external" size={16} /></button>
+		{/if}
 		<button class="aa-iconbtn" onclick={onClose} title="Close (Esc)"><Icon name="x" size={16} /></button>
 	</header>
 

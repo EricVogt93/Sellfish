@@ -227,7 +227,6 @@
 				<button class="aa-searchbtn" onclick={() => (paletteOpen = true)}>
 					<Icon name="search" size={13} /><span>Search</span><Kbd>Ctrl K</Kbd>
 				</button>
-				<button class="aa-iconbtn" title="Notifications"><Icon name="bell" size={16} /><span class="aa-belldot"></span></button>
 				<div class="aa-usermenu-wrap">
 					<button class="aa-userbtn" onclick={() => (userMenu = !userMenu)}>
 						<Avatar initials={initialsOf(me?.email)} hue={hueOf(me?.email)} size={28} />

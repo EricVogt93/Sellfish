@@ -33,7 +33,7 @@
 	<div class="aa-tablecard">
 		<table class="aa-table">
 			<thead>
-				<tr><th>Member</th><th>Role</th><th>Status</th><th class="aa-col-actions"></th></tr>
+				<tr><th>Member</th><th>Role</th><th>Status</th></tr>
 			</thead>
 			<tbody>
 				{#each members as u (u.id)}
@@ -57,9 +57,6 @@
 								<span class="aa-stage-dot" style={`background:${u.status === 'ACTIVE' ? 'var(--accent-success)' : 'var(--text-muted)'};`}></span>
 								{u.status === 'ACTIVE' ? 'Active' : u.status}
 							</span>
-						</td>
-						<td class="aa-col-actions">
-							<button class="aa-iconbtn" title="Member settings"><Icon name="more" size={14} /></button>
 						</td>
 					</tr>
 				{/each}
