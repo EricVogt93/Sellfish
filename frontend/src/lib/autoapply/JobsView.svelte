@@ -20,7 +20,9 @@
 		onQuickApply,
 		onApply,
 		onBulkApply,
-		onClearSelection
+		onClearSelection,
+		onRescan,
+		searching = false
 	}: {
 		jobs: Job[];
 		ratings: Record<string, number>;
@@ -37,6 +39,8 @@
 		onApply: (ids: string[]) => void;
 		onBulkApply: () => void;
 		onClearSelection: () => void;
+		onRescan: () => void;
+		searching?: boolean;
 	} = $props();
 
 	const allSelected = $derived(jobs.length > 0 && jobs.every((j) => selection.has(j.id)));
@@ -51,7 +55,7 @@
 		</div>
 		<div class="aa-pagehead-right">
 			<span class="aa-hint"><Kbd>J</Kbd><Kbd>K</Kbd> navigate · <Kbd>X</Kbd> select · <Kbd>Enter</Kbd> open · <Kbd>A</Kbd> apply</span>
-			<Btn variant="secondary" icon="refresh">Rescan</Btn>
+			<Btn variant="secondary" icon="refresh" disabled={searching} onclick={onRescan}>{searching ? 'Scanning…' : 'Rescan'}</Btn>
 		</div>
 	</header>
 
@@ -92,6 +96,13 @@
 				{/each}
 			</tbody>
 		</table>
+		{#if jobs.length === 0}
+			<div class="aa-empty">
+				<Icon name="inbox" size={28} style="color:var(--text-muted);" />
+				<p>No matches yet. Set your preferences &amp; an AI provider in Profile, then run a scan.</p>
+				<Btn variant="primary" icon="refresh" disabled={searching} onclick={onRescan}>{searching ? 'Scanning…' : 'Run search'}</Btn>
+			</div>
+		{/if}
 	</div>
 
 	{#if selCount > 0}

@@ -1,18 +1,124 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Icon from './Icon.svelte';
-	import { FILTERS, type Profile } from './data';
+	import Btn from './Btn.svelte';
+	import { toast } from './toasts.svelte';
+	import { apiDownload } from '$lib/api';
+	import {
+		backend,
+		type ProfileResponse,
+		type PreferencesResponse,
+		type DocumentResponse,
+		type ProviderConfig
+	} from '$lib/api/backend';
 
-	let {
-		profile,
-		activeFilters,
-		onToggleFilter,
-		onPref
-	}: {
-		profile: Profile;
-		activeFilters: Set<string>;
-		onToggleFilter: (id: string) => void;
-		onPref: (key: string, value: string | number) => void;
-	} = $props();
+	let profile = $state<ProfileResponse | null>(null);
+	let prefs = $state<PreferencesResponse | null>(null);
+	let documents = $state<DocumentResponse[]>([]);
+	let providers = $state<ProviderConfig[]>([]);
+
+	// Komma-Listen-Felder
+	let titlesText = $state('');
+	let keywordsText = $state('');
+	let excludedText = $state('');
+
+	const PROVIDERS = ['OLLAMA', 'OPENAI', 'NIM', 'OPENAI_COMPATIBLE', 'ANTHROPIC', 'GOOGLE'];
+	const DOC_TYPES = ['CV', 'PROJECT_LIST', 'CERTIFICATE', 'REFERENCE', 'COVER_LETTER', 'OTHER'];
+
+	let docType = $state('CV');
+	let form = $state({ provider: 'OLLAMA', model: '', baseUrl: '', apiKey: '', keyRef: '', purpose: 'CHAT', isDefault: true });
+
+	const toList = (s: string) => s.split(',').map((x) => x.trim()).filter(Boolean);
+
+	async function loadAll() {
+		profile = await backend.getProfile();
+		prefs = await backend.getPreferences();
+		titlesText = (prefs.desiredTitles ?? []).join(', ');
+		keywordsText = (prefs.keywords ?? []).join(', ');
+		excludedText = (prefs.excludedCompanies ?? []).join(', ');
+		documents = await backend.listDocuments();
+		providers = await backend.listProviders();
+	}
+
+	onMount(loadAll);
+
+	async function saveIdentity() {
+		if (!profile) return;
+		try {
+			profile = await backend.updateProfile({
+				headline: profile.headline,
+				summary: profile.summary,
+				location: profile.location,
+				remotePref: profile.remotePref,
+				salaryMin: profile.salaryMin
+			});
+			toast('Profile saved', 'check');
+		} catch (e) {
+			toast(e instanceof Error ? e.message : 'Save failed', 'x', 'var(--accent-error)');
+		}
+	}
+
+	async function savePrefs() {
+		try {
+			prefs = await backend.updatePreferences({
+				desiredTitles: toList(titlesText),
+				keywords: toList(keywordsText),
+				excludedCompanies: toList(excludedText)
+			});
+			toast('Preferences saved — affects the next rescan', 'check');
+		} catch (e) {
+			toast(e instanceof Error ? e.message : 'Save failed', 'x', 'var(--accent-error)');
+		}
+	}
+
+	async function upload(e: Event) {
+		const input = e.target as HTMLInputElement;
+		const file = input.files?.[0];
+		if (!file) return;
+		try {
+			await backend.uploadDocument(docType, file);
+			documents = await backend.listDocuments();
+			toast(`${file.name} uploaded`, 'check');
+		} catch (err) {
+			toast(err instanceof Error ? err.message : 'Upload failed', 'x', 'var(--accent-error)');
+		}
+		input.value = '';
+	}
+
+	async function removeDoc(id: string) {
+		await backend.deleteDocument(id);
+		documents = documents.filter((d) => d.id !== id);
+	}
+
+	async function addProvider(e: SubmitEvent) {
+		e.preventDefault();
+		try {
+			await backend.createProvider({
+				provider: form.provider,
+				model: form.model,
+				baseUrl: form.baseUrl || undefined,
+				apiKey: form.apiKey || undefined,
+				keyRef: form.keyRef || undefined,
+				purpose: form.purpose,
+				isDefault: form.isDefault
+			});
+			form.apiKey = '';
+			providers = await backend.listProviders();
+			toast('Provider saved', 'check');
+		} catch (err) {
+			toast(err instanceof Error ? err.message : 'Failed', 'x', 'var(--accent-error)');
+		}
+	}
+
+	async function testProvider(id: string) {
+		const r = await backend.testProvider(id);
+		toast((r.ok ? '✓ ' : '✗ ') + r.message, r.ok ? 'check' : 'x', r.ok ? 'var(--accent-success)' : 'var(--accent-error)');
+	}
+
+	async function removeProvider(id: string) {
+		await backend.deleteProvider(id);
+		providers = providers.filter((p) => p.id !== id);
+	}
 </script>
 
 <div class="aa-view">
@@ -23,107 +129,113 @@
 		</div>
 	</header>
 
-	<div class="aa-profilegrid">
-		<section class="aa-card">
-			<div class="aa-card-head">
-				<Icon name="user" size={15} style="color:var(--accent-primary-light);" />
-				<h3>Identity</h3>
-			</div>
-			<div class="aa-field"><label for="aa-pf-name">Name</label><input id="aa-pf-name" class="aa-input" value={profile.name} /></div>
-			<div class="aa-field"><label for="aa-pf-headline">Headline</label><input id="aa-pf-headline" class="aa-input" value={profile.headline} /></div>
-			<div class="aa-field-row">
-				<div class="aa-field"><label for="aa-pf-email">Email</label><input id="aa-pf-email" class="aa-input" value={profile.email} /></div>
-				<div class="aa-field"><label for="aa-pf-city">City</label><input id="aa-pf-city" class="aa-input" value={profile.city} /></div>
-			</div>
-			<div class="aa-field">
-				<label for="aa-pf-skills">Skills (used in every cover letter)</label>
-				<div class="aa-skillchips" id="aa-pf-skills">
-					{#each profile.skills as s (s)}
-						<span class="aa-minichip aa-minichip-met">{s}</span>
-					{/each}
-					<button class="aa-minichip aa-minichip-add"><Icon name="plus" size={10} /> add</button>
+	{#if profile && prefs}
+		<div class="aa-profilegrid">
+			<section class="aa-card">
+				<div class="aa-card-head">
+					<Icon name="user" size={15} style="color:var(--accent-primary-light);" />
+					<h3>Identity</h3>
 				</div>
-			</div>
-		</section>
-
-		<section class="aa-card">
-			<div class="aa-card-head">
-				<Icon name="filter" size={15} style="color:var(--accent-secondary);" />
-				<h3>Filters</h3>
-				<span class="aa-card-headnote">scored on every job</span>
-			</div>
-			{#each FILTERS as f (f.id)}
-				<div class="aa-filterrow">
-					<span class="aa-filterlabel">{f.label}</span>
-					<button
-						role="switch"
-						aria-checked={activeFilters.has(f.id)}
-						aria-label={f.label}
-						class={`aa-switch ${activeFilters.has(f.id) ? 'is-on' : ''}`}
-						onclick={() => onToggleFilter(f.id)}
-					>
-						<span class="aa-switch-knob"></span>
-					</button>
-				</div>
-			{/each}
-			<p class="aa-cardnote">Disabled filters stop counting toward the match score on the next rescan.</p>
-		</section>
-
-		<section class="aa-card">
-			<div class="aa-card-head">
-				<Icon name="sliders" size={15} style="color:var(--accent-tertiary);" />
-				<h3>Auto-apply preferences</h3>
-			</div>
-			<div class="aa-field">
-				<label for="aa-pf-threshold">Quick-apply threshold · score ≥ <strong style="color:var(--accent-primary-light);">{profile.prefs.threshold}</strong></label>
-				<input
-					id="aa-pf-threshold"
-					type="range"
-					class="aa-range"
-					min="50"
-					max="100"
-					value={profile.prefs.threshold}
-					oninput={(e) => onPref('threshold', +e.currentTarget.value)}
-				/>
-				<p class="aa-cardnote">Jobs at or above this score show the one-click <Icon name="zap" size={11} /> quick-apply without review.</p>
-			</div>
-			<div class="aa-field-row">
-				<div class="aa-field">
-					<label for="aa-pf-tone">Letter tone</label>
-					<select id="aa-pf-tone" class="aa-input" value={profile.prefs.tone} onchange={(e) => onPref('tone', e.currentTarget.value)}>
-						<option>Professional</option><option>Direct</option>
-					</select>
+				<div class="aa-field"><label for="aa-headline">Headline</label><input id="aa-headline" class="aa-input" bind:value={profile.headline} /></div>
+				<div class="aa-field"><label for="aa-summary">Summary</label><input id="aa-summary" class="aa-input" bind:value={profile.summary} /></div>
+				<div class="aa-field-row">
+					<div class="aa-field"><label for="aa-loc">Location</label><input id="aa-loc" class="aa-input" bind:value={profile.location} /></div>
+					<div class="aa-field"><label for="aa-sal">Min. salary (€)</label><input id="aa-sal" class="aa-input" type="number" bind:value={profile.salaryMin} /></div>
 				</div>
 				<div class="aa-field">
-					<label for="aa-pf-lang">Language</label>
-					<select id="aa-pf-lang" class="aa-input" value={profile.prefs.language} onchange={(e) => onPref('language', e.currentTarget.value)}>
-						<option>English</option><option>German</option>
+					<label for="aa-remote">Remote preference</label>
+					<select id="aa-remote" class="aa-input" bind:value={profile.remotePref}>
+						<option value="ANY">Any</option><option value="REMOTE">Remote</option>
+						<option value="HYBRID">Hybrid</option><option value="ONSITE">On-site</option>
 					</select>
 				</div>
-			</div>
-			<div class="aa-field"><label for="aa-pf-sig">Signature</label><input id="aa-pf-sig" class="aa-input" value={profile.prefs.signature} /></div>
-		</section>
+				<Btn variant="primary" icon="check" onclick={saveIdentity} style="margin-top:4px;">Save identity</Btn>
+			</section>
 
-		<section class="aa-card">
-			<div class="aa-card-head">
-				<Icon name="file" size={15} style="color:var(--accent-warning);" />
-				<h3>Documents</h3>
-			</div>
-			{#each profile.files as f (f.id)}
-				<div class="aa-filerow">
-					<Icon name="file" size={15} style="color:var(--text-muted);" />
-					<div class="aa-filerow-text">
-						<span class="aa-filerow-name">{f.name}</span>
-						<span class="aa-jobmeta">{f.kind} · {f.size} · updated {f.updated}</span>
+			<section class="aa-card">
+				<div class="aa-card-head">
+					<Icon name="filter" size={15} style="color:var(--accent-secondary);" />
+					<h3>Preferences</h3>
+					<span class="aa-card-headnote">scored on every job</span>
+				</div>
+				<div class="aa-field"><label for="aa-titles">Desired job titles (comma-separated)</label><input id="aa-titles" class="aa-input" bind:value={titlesText} /></div>
+				<div class="aa-field"><label for="aa-kw">Keywords (comma-separated)</label><input id="aa-kw" class="aa-input" bind:value={keywordsText} /></div>
+				<div class="aa-field"><label for="aa-excl">Excluded companies (comma-separated)</label><input id="aa-excl" class="aa-input" bind:value={excludedText} /></div>
+				<Btn variant="primary" icon="check" onclick={savePrefs} style="margin-top:4px;">Save preferences</Btn>
+				<p class="aa-cardnote">Titles, keywords and your location drive the match score on the next rescan.</p>
+			</section>
+
+			<section class="aa-card">
+				<div class="aa-card-head">
+					<Icon name="file" size={15} style="color:var(--accent-warning);" />
+					<h3>Documents</h3>
+				</div>
+				{#each documents as f (f.id)}
+					<div class="aa-filerow">
+						<Icon name="file" size={15} style="color:var(--text-muted);" />
+						<div class="aa-filerow-text">
+							<span class="aa-filerow-name">{f.filename}</span>
+							<span class="aa-jobmeta">{f.type}{f.primary ? ' · primary' : ''}{f.hasStruct ? ' · parsed' : ''}</span>
+						</div>
+						<button class="aa-iconbtn" title="Download" onclick={() => apiDownload(`/api/documents/${f.id}/download`, f.filename)}><Icon name="download" size={13} /></button>
+						<button class="aa-iconbtn" title="Delete" onclick={() => removeDoc(f.id)}><Icon name="trash" size={13} /></button>
 					</div>
-					<button class="aa-iconbtn" title="Download"><Icon name="download" size={13} /></button>
-					<button class="aa-iconbtn" title="Delete"><Icon name="trash" size={13} /></button>
+				{/each}
+				<div class="aa-field-row" style="margin-top:12px;align-items:end;">
+					<div class="aa-field" style="margin:0;">
+						<label for="aa-doctype">Type</label>
+						<select id="aa-doctype" class="aa-input" bind:value={docType}>
+							{#each DOC_TYPES as t (t)}<option value={t}>{t}</option>{/each}
+						</select>
+					</div>
+					<label class="aa-dropzone" style="margin:0;">
+						<Icon name="upload" size={16} /><span>Upload</span>
+						<input type="file" style="display:none;" onchange={upload} />
+					</label>
 				</div>
-			{/each}
-			<div class="aa-dropzone">
-				<Icon name="upload" size={16} />
-				<span>Drop files or <a href="#0">browse</a> — PDF, max 10 MB</span>
-			</div>
-		</section>
-	</div>
+			</section>
+
+			<section class="aa-card">
+				<div class="aa-card-head">
+					<Icon name="sliders" size={15} style="color:var(--accent-tertiary);" />
+					<h3>AI provider</h3>
+					<span class="aa-card-headnote">needed for search & generation</span>
+				</div>
+				{#each providers as p (p.id)}
+					<div class="aa-filerow">
+						<Icon name="sparkles" size={15} style="color:var(--accent-primary-light);" />
+						<div class="aa-filerow-text">
+							<span class="aa-filerow-name">{p.provider} · {p.model}</span>
+							<span class="aa-jobmeta">{p.purpose}{p.isDefault ? ' · default' : ''}{p.hasKey ? ' · key set' : ''}</span>
+						</div>
+						<button class="aa-iconbtn" title="Test" onclick={() => testProvider(p.id)}><Icon name="refresh" size={13} /></button>
+						<button class="aa-iconbtn" title="Delete" onclick={() => removeProvider(p.id)}><Icon name="trash" size={13} /></button>
+					</div>
+				{/each}
+				<form onsubmit={addProvider} style="margin-top:12px;">
+					<div class="aa-field-row">
+						<div class="aa-field" style="margin-bottom:10px;">
+							<label for="aa-prov">Provider</label>
+							<select id="aa-prov" class="aa-input" bind:value={form.provider}>
+								{#each PROVIDERS as p (p)}<option value={p}>{p}</option>{/each}
+							</select>
+						</div>
+						<div class="aa-field" style="margin-bottom:10px;">
+							<label for="aa-purpose">Purpose</label>
+							<select id="aa-purpose" class="aa-input" bind:value={form.purpose}>
+								<option value="CHAT">Chat</option><option value="EMBEDDING">Embedding</option>
+							</select>
+						</div>
+					</div>
+					<div class="aa-field" style="margin-bottom:10px;"><label for="aa-model">Model</label><input id="aa-model" class="aa-input" bind:value={form.model} placeholder="e.g. llama3.1 / gpt-4o" required /></div>
+					<div class="aa-field" style="margin-bottom:10px;"><label for="aa-base">Base URL (optional)</label><input id="aa-base" class="aa-input" bind:value={form.baseUrl} placeholder="http://ollama:11434" /></div>
+					<div class="aa-field" style="margin-bottom:10px;"><label for="aa-key">API key (optional)</label><input id="aa-key" class="aa-input" type="password" bind:value={form.apiKey} /></div>
+					<Btn variant="primary" icon="plus">Add provider</Btn>
+				</form>
+				<p class="aa-cardnote">Add a <strong>CHAT</strong> provider for generation and an <strong>EMBEDDING</strong> provider for semantic matching.</p>
+			</section>
+		</div>
+	{:else}
+		<div class="aa-empty"><p>Loading…</p></div>
+	{/if}
 </div>
