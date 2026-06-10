@@ -50,7 +50,7 @@ app:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
   crypto:
     # Master-Key (Base64, 32 Byte) für AES-GCM-Verschlüsselung von Per-User-API-Keys.
-    master-key: ${CRYPTO_MASTER_KEY:ZGV2LW9ubHktbWFzdGVyLWtleS0zMmJ5dGVzLWxvbmchISE=}
+    master-key: ${CRYPTO_MASTER_KEY:ZGV2LW9ubHktbWFzdGVyLWtleS0zMi1ieXRlcy1vayE=}
   infisical:
     enabled: ${INFISICAL_ENABLED:false}
     base-url: ${INFISICAL_URL:https://app.infisical.com}
