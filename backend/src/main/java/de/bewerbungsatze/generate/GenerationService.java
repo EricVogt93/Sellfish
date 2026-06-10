@@ -45,9 +45,13 @@ public class GenerationService {
                 .orElseThrow(() -> ApiException.notFound("Stelle nicht gefunden"));
 
         String context = contextBuilder.build(userId, job);
+        // max_tokens grosszuegig: opencode-go-Modelle (deepseek/glm/...) sind Reasoning-Modelle
+        // und verbrauchen einen Grossteil des Budgets im reasoning_content. Bei nur 3000 frass
+        // das Reasoning mit grossem RAG-Kontext (Job-Beschreibung + CV) das ganze Budget auf
+        // -> leerer content. 8000 laesst genug Platz fuer Reasoning + eigentliches Anschreiben.
         ChatResult result = llmService.chat(userId, new ChatRequest(
                 List.of(ChatMessage.system(PromptTemplates.system(type)), ChatMessage.user(context)),
-                0.5, 3000));
+                0.5, 8000));
 
         int nextVersion = repository
                 .findFirstByUserIdAndJobMatchIdAndTypeOrderByVersionDesc(userId, jobMatchId, type)
