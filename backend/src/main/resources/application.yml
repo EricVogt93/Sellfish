@@ -16,6 +16,9 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    placeholders:
+      # Dimension der pgvector-Spalten beim ersten Anlegen (muss zum Embedding-Modell passen).
+      embeddingDim: ${EMBEDDING_DIM:768}
   servlet:
     multipart:
       max-file-size: 25MB
@@ -40,6 +43,10 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  embedding:
+    # Vektor-Dimension; muss zum gewählten Embedding-Modell passen (z. B. nomic-embed-text=768,
+    # OpenAI text-embedding-3-small=1536). Greift nur beim ersten Anlegen des Schemas.
+    dimension: ${EMBEDDING_DIM:768}
   security:
     jwt:
       # Base64-kodiertes HMAC-Secret. In Produktion via ENV / Infisical setzen!

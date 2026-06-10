@@ -104,7 +104,7 @@ CREATE INDEX idx_projects_user ON projects(user_id);
 -- =====================================================================
 CREATE TABLE profile_embedding (
     user_id      UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-    embedding    vector(768),
+    embedding    vector(${embeddingDim}),
     model        VARCHAR(100),
     generated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -144,7 +144,7 @@ CREATE INDEX idx_jobs_posted ON jobs(posted_at DESC);
 
 CREATE TABLE job_embedding (
     job_id       UUID PRIMARY KEY REFERENCES jobs(id) ON DELETE CASCADE,
-    embedding    vector(768),
+    embedding    vector(${embeddingDim}),
     model        VARCHAR(100),
     generated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );

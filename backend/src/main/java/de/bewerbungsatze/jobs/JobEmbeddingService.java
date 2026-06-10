@@ -4,6 +4,7 @@ import de.bewerbungsatze.jobs.adapter.persistence.VectorStore;
 import de.bewerbungsatze.ai.LlmService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -20,16 +21,23 @@ public class JobEmbeddingService {
 
     private final LlmService llmService;
     private final VectorStore vectorStore;
+    private final int expectedDimension;
 
-    public JobEmbeddingService(LlmService llmService, VectorStore vectorStore) {
+    public JobEmbeddingService(LlmService llmService,
+                               VectorStore vectorStore,
+                               @Value("${app.embedding.dimension:768}") int expectedDimension) {
         this.llmService = llmService;
         this.vectorStore = vectorStore;
+        this.expectedDimension = expectedDimension;
     }
 
     public boolean embedJob(Job job) {
         String text = jobText(job);
         try {
             float[] vector = llmService.embed((UUID) null, text);
+            if (!dimensionOk(vector, "Job " + job.getId())) {
+                return false;
+            }
             vectorStore.upsertJobEmbedding(job.getId(), vector, "embedding");
             return true;
         } catch (RuntimeException e) {
@@ -41,12 +49,26 @@ public class JobEmbeddingService {
     public boolean embedProfile(UUID userId, String profileText) {
         try {
             float[] vector = llmService.embed(userId, truncate(profileText));
+            if (!dimensionOk(vector, "Profil " + userId)) {
+                return false;
+            }
             vectorStore.upsertProfileEmbedding(userId, vector, "embedding");
             return true;
         } catch (RuntimeException e) {
             log.debug("Profil-Embedding übersprungen für {}: {}", userId, e.getMessage());
             return false;
         }
+    }
+
+    /** Schützt vor stillen Insert-Fehlern, wenn das Modell eine andere Dimension liefert. */
+    private boolean dimensionOk(float[] vector, String what) {
+        if (vector.length != expectedDimension) {
+            log.warn("Embedding für {} verworfen: Dimension {} ≠ Schema-Dimension {}. "
+                            + "Setze EMBEDDING_DIM passend zum Modell (vor dem ersten DB-Start).",
+                    what, vector.length, expectedDimension);
+            return false;
+        }
+        return true;
     }
 
     static String jobText(Job job) {
