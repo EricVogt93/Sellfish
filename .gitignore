@@ -24,3 +24,8 @@ infra/.env
 
 # OS
 .DS_Store
+
+# Playwright
+frontend/test-results/
+frontend/playwright-report/
+frontend/.playwright/
