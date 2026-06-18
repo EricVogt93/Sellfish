@@ -44,7 +44,8 @@ public final class ProfileDtos {
             String[] excludedCompanies,
             String[] keywords,
             String hardFilters,
-            String softWeights) {
+            String softWeights,
+            String[] preferredCountries) {
     }
 
     public record PreferencesResponse(
@@ -55,12 +56,13 @@ public final class ProfileDtos {
             String[] excludedCompanies,
             String[] keywords,
             String hardFilters,
-            String softWeights) {
+            String softWeights,
+            String[] preferredCountries) {
 
         public static PreferencesResponse from(UserPreferences p) {
             return new PreferencesResponse(p.getDesiredTitles(), p.getIndustries(), p.getCompanySize(),
                     p.getContractTypes(), p.getExcludedCompanies(), p.getKeywords(),
-                    p.getHardFilters(), p.getSoftWeights());
+                    p.getHardFilters(), p.getSoftWeights(), p.getPreferredCountries());
         }
     }
 }

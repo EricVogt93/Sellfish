@@ -18,6 +18,9 @@ public class Document extends BaseEntity {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    @Column(name = "org_id")
+    private UUID orgId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DocumentType type;
@@ -55,6 +58,14 @@ public class Document extends BaseEntity {
 
     public UUID getUserId() {
         return userId;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
     }
 
     public DocumentType getType() {

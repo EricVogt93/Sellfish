@@ -57,6 +57,17 @@ public class ProfileService {
         if (req.keywords() != null) pref.setKeywords(req.keywords());
         if (req.hardFilters() != null) pref.setHardFilters(req.hardFilters());
         if (req.softWeights() != null) pref.setSoftWeights(req.softWeights());
+        if (req.preferredCountries() != null) pref.setPreferredCountries(req.preferredCountries());
         return preferencesRepository.save(pref);
+    }
+
+    @Transactional
+    public UserProfile save(UserProfile profile) {
+        return profileRepository.save(profile);
+    }
+
+    @Transactional
+    public UserPreferences save(UserPreferences prefs) {
+        return preferencesRepository.save(prefs);
     }
 }

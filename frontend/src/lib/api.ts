@@ -2,6 +2,7 @@ import { browser } from '$app/environment';
 
 const ACCESS_KEY = 'ba_access_token';
 const REFRESH_KEY = 'ba_refresh_token';
+const ORG_KEY = 'ba_active_org';
 
 export interface TokenResponse {
 	accessToken: string;
@@ -28,6 +29,16 @@ export function clearTokens(): void {
 	if (!browser) return;
 	localStorage.removeItem(ACCESS_KEY);
 	localStorage.removeItem(REFRESH_KEY);
+}
+
+export function getActiveOrgId(): string | null {
+	return browser ? localStorage.getItem(ORG_KEY) : null;
+}
+
+export function setActiveOrgId(orgId: string | null): void {
+	if (!browser) return;
+	if (orgId) localStorage.setItem(ORG_KEY, orgId);
+	else localStorage.removeItem(ORG_KEY);
 }
 
 /** Wird bei endgültig fehlgeschlagener Auth gesetzt, damit die UI zurück zum Login kann. */

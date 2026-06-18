@@ -47,6 +47,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 user, null, user.getAuthorities());
                         auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(auth);
+
+                        String orgId = claims.get("orgId", String.class);
+                        if (orgId != null && !orgId.isBlank()) {
+                            try {
+                                request.setAttribute("ba.orgId", java.util.UUID.fromString(orgId));
+                            } catch (IllegalArgumentException ignored) {}
+                        }
                     }
                 }
             } catch (JwtException | IllegalArgumentException ex) {

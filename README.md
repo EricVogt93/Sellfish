@@ -13,7 +13,7 @@ Treffer.
 - **Architektur:** Hexagonal (Ports & Adapters) — siehe [`docs/hexagonal-architecture.md`](docs/hexagonal-architecture.md)
 - **Backend:** Java 21, Spring Boot 3.4, PostgreSQL + pgvector, Flyway, Spring Security (JWT)
 - **Frontend:** SvelteKit (TypeScript), Node-Adapter
-- **KI:** Eigene, schlanke Multiprovider-Schicht über `RestClient` (OpenAI-kompatibel inkl. ChatGPT/Kimi/NIM/OpenRouter, Anthropic/Claude, Ollama, Google Gemini)
+- **KI:** Eigene, schlanke Multiprovider-Schicht über `RestClient` (OpenAI-kompatibel inkl. ChatGPT/NIM/OpenRouter, Anthropic/Claude, Ollama, Google Gemini)
 - **Secrets:** Infisical (zentrale Keys) + AES-GCM-verschlüsselte Per-User-Keys
 - **Storage:** MinIO (S3-kompatibel) oder lokales Dateisystem
 
@@ -94,3 +94,14 @@ Details: [`docs/deployment.md`](docs/deployment.md).
 | **M7** | Generischer Scraper, LLM-Websuche, Agent-Tool-API, Admin (Nutzer/Quellen/Provider) | ✅ |
 
 Details siehe [`docs/architecture.md`](docs/architecture.md).
+
+## Status & Lizenz
+
+Dieses Projekt ist **quelloffen** (Apache License 2.0, siehe [`LICENSE`](LICENSE) und
+[`NOTICE`](NOTICE)). Es wird ohne Support-Garantie bereitgestellt — Nutzung auf
+eigenes Risiko. Sicherheitsmeldungen siehe [`SECURITY.md`](SECURITY.md).
+
+Da Bewerbungsatze personenbezogene Daten (Lebensläufe, Bewerbungen) verarbeitet,
+obliegt DSGVO-konformer Betrieb der jeweiligen Instanz. Die Software liefert
+dafür Bausteine (Per-User-Verschlüsselung, Datenexport/-löschung), ersetzt aber
+keine organisatorischen Maßnahmen.

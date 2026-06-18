@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -71,7 +72,8 @@ public class JobSearchService {
             embeddingService.embedProfile(userId, profileText(profile.orElse(null),
                     prefs.orElse(null), cvRepository.findByUserId(userId).orElse(null)));
 
-            JobIngestionService.IngestStats stats = ingestionService.ingest(query);
+            JobIngestionService.IngestStats stats = ingestionService.ingest(query,
+                    preferredCountries(prefs.orElse(null)));
             int matches = matchRecomputer.recompute(userId);
 
             run.setSources(stats.sources().toArray(new String[0]));
@@ -101,6 +103,11 @@ public class JobSearchService {
         boolean remoteOnly = profile != null && "REMOTE".equalsIgnoreCase(profile.getRemotePref());
         Integer radius = location != null && !location.isBlank() ? 50 : null;
         return new JobQuery(new ArrayList<>(keywords), location, radius, remoteOnly, 50);
+    }
+
+    private Set<String> preferredCountries(UserPreferences prefs) {
+        if (prefs == null || prefs.getPreferredCountries() == null) return Set.of();
+        return Set.of(prefs.getPreferredCountries());
     }
 
     String profileText(UserProfile profile, UserPreferences prefs, CvStructured cv) {

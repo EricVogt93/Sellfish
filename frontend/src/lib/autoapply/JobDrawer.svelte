@@ -7,6 +7,8 @@
 	import Stars from './Stars.svelte';
 	import FilterChips from './FilterChips.svelte';
 	import { FILTERS, type Job } from './data';
+	import { api } from '$lib/api';
+	import { toast } from './toasts.svelte';
 
 	let {
 		job,
@@ -25,6 +27,35 @@
 		onQuickApply: (id: string) => void;
 		onApply: (ids: string[]) => void;
 	} = $props();
+
+	let interviewQuestions = $state<string | null>(null);
+	let companyProfile = $state<string | null>(null);
+	let loadingQuestions = $state(false);
+	let loadingCompany = $state(false);
+
+	async function loadInterviewPrep() {
+		if (interviewQuestions) { interviewQuestions = null; return; }
+		loadingQuestions = true;
+		try {
+			const res = await api<{ questions: string }>(
+				`/api/generate/interview-questions/${job.matchId}`, { method: 'POST' });
+			interviewQuestions = res.questions;
+		} catch (e) {
+			toast(e instanceof Error ? e.message : 'Failed', 'x', 'var(--accent-error)');
+		} finally { loadingQuestions = false; }
+	}
+
+	async function loadCompanyResearch() {
+		if (companyProfile) { companyProfile = null; return; }
+		loadingCompany = true;
+		try {
+			const res = await api<{ profile: string }>(
+				`/api/generate/company-research/${job.matchId}`, { method: 'POST' });
+			companyProfile = res.profile;
+		} catch (e) {
+			toast(e instanceof Error ? e.message : 'Failed', 'x', 'var(--accent-error)');
+		} finally { loadingCompany = false; }
+	}
 </script>
 
 <div class="aa-scrim" role="presentation" onclick={onClose}></div>
@@ -83,6 +114,26 @@
 			<div class="eyebrow">filter matching · {job.met.length}/{FILTERS.length}</div>
 			<FilterChips {job} />
 		</section>
+
+		<section class="aa-drawer-sec">
+			<div class="eyebrow">ai tools</div>
+			<div class="aa-aitools">
+				<button class="aa-aitool-btn" onclick={loadInterviewPrep} disabled={loadingQuestions}>
+					<Icon name="sparkles" size={13} />
+					{loadingQuestions ? 'Generating…' : interviewQuestions ? 'Hide questions' : 'Interview prep'}
+				</button>
+				<button class="aa-aitool-btn" onclick={loadCompanyResearch} disabled={loadingCompany}>
+					<Icon name="search" size={13} />
+					{loadingCompany ? 'Researching…' : companyProfile ? 'Hide research' : 'Company research'}
+				</button>
+			</div>
+			{#if interviewQuestions}
+				<div class="aa-ai-result" style="white-space:pre-wrap;">{interviewQuestions}</div>
+			{/if}
+			{#if companyProfile}
+				<div class="aa-ai-result" style="white-space:pre-wrap;">{companyProfile}</div>
+			{/if}
+		</section>
 	</div>
 
 	<footer class="aa-drawer-foot">
@@ -95,3 +146,21 @@
 		<span class="aa-hint" style="margin-left:auto;"><Kbd>Esc</Kbd> close</span>
 	</footer>
 </aside>
+
+<style>
+	.aa-aitools { display: flex; gap: 8px; }
+	.aa-aitool-btn {
+		display: flex; align-items: center; gap: 6px;
+		padding: 7px 12px; border: 1px solid var(--border-default);
+		border-radius: 6px; background: var(--bg-elevated);
+		color: var(--text-secondary); font-size: 0.8rem; cursor: pointer;
+	}
+	.aa-aitool-btn:hover { border-color: var(--accent-primary); color: var(--text-primary); }
+	.aa-aitool-btn:disabled { opacity: 0.5; cursor: default; }
+	.aa-ai-result {
+		margin-top: 8px; padding: 12px; background: var(--bg-glass);
+		border: 1px solid var(--border-subtle); border-radius: 8px;
+		font-size: 0.82rem; line-height: 1.6; color: var(--text-secondary);
+		max-height: 400px; overflow-y: auto;
+	}
+</style>

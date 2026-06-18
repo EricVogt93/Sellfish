@@ -87,7 +87,7 @@ class OpenAiCompatibleClientTest {
                         """, MediaType.APPLICATION_JSON));
 
         ResolvedModel model = new ResolvedModel(
-                Provider.OPENAI_COMPATIBLE, "kimi-k2", "https://api.moonshot.cn/v1", "key");
+                Provider.OPENAI_COMPATIBLE, "compatible-model", "https://api.example.com/v1", "key");
         assertThat(client.chat(model, ChatRequest.of("s", "u")).content()).isEqualTo("ok");
         server.verify();
     }

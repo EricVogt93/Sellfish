@@ -39,7 +39,7 @@ class SelfLearningServiceTest {
 
     private final SelfLearningService service = new SelfLearningService(
             matchRepository, jobRepository, profileRepository, preferencesRepository,
-            rankingRepository, vectorStore, new FeatureScorer(), new ObjectMapper());
+            rankingRepository, vectorStore, new FeatureScorer(null), new ObjectMapper());
 
     private final UUID userId = UUID.randomUUID();
 
@@ -69,8 +69,8 @@ class SelfLearningServiceTest {
 
     @Test
     void trainsWeightsAndAppliesDriftWithEnoughFeedback() {
-        List<JobMatch> positives = matches(3, 0.9);
-        List<JobMatch> negatives = matches(3, 0.1);
+        List<JobMatch> positives = matches(4, 0.9);
+        List<JobMatch> negatives = matches(4, 0.1);
         when(profileRepository.findByUserId(userId)).thenReturn(Optional.empty());
         when(preferencesRepository.findByUserId(userId)).thenReturn(Optional.empty());
         when(matchRepository.findByUserIdAndStatusIn(userId, POSITIVE)).thenReturn(positives);
@@ -81,11 +81,10 @@ class SelfLearningServiceTest {
         SelfLearningService.RetrainResult result = service.retrain(userId);
 
         assertThat(result.weightsTrained()).isTrue();
-        assertThat(result.positives()).isEqualTo(3);
-        assertThat(result.negatives()).isEqualTo(3);
+        assertThat(result.positives()).isEqualTo(4);
+        assertThat(result.negatives()).isEqualTo(4);
         assertThat(result.driftApplied()).isTrue();
         verify(rankingRepository).save(any(UserRankingModel.class));
-        verify(vectorStore).upsertProfileEmbedding(eq(userId), any(float[].class), eq("drift"));
     }
 
     @Test

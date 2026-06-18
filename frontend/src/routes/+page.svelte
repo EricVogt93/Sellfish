@@ -13,17 +13,20 @@
 	import ProfileView from '$lib/autoapply/ProfileView.svelte';
 	import UsersView from '$lib/autoapply/UsersView.svelte';
 	import CommandPalette from '$lib/autoapply/CommandPalette.svelte';
+	import OrgSwitcher from '$lib/autoapply/OrgSwitcher.svelte';
 	import { toast } from '$lib/autoapply/toasts.svelte';
 	import { mapMatch, initialsOf, hueOf } from '$lib/autoapply/map';
 	import type { Job } from '$lib/autoapply/data';
 	import { getSession, initSession, logout } from '$lib/api/session.svelte';
 	import { backend, type MatchResponse, type DocumentResponse, type MatchStatus } from '$lib/api/backend';
+	import { goto } from '$app/navigation';
 
 	const NAV = [
 		{ id: 'jobs', label: 'Jobs', icon: 'inbox', key: '1' },
 		{ id: 'applications', label: 'Applications', icon: 'send', key: '2' },
 		{ id: 'profile', label: 'Profile', icon: 'user', key: '3' },
-		{ id: 'users', label: 'Users', icon: 'users', key: '4' }
+		{ id: 'users', label: 'Users', icon: 'users', key: '4' },
+		{ id: 'reports', label: 'Reports', icon: 'layout', key: '5' }
 	];
 
 	const APPLIED = new Set<MatchStatus>(['APPLIED', 'INTERVIEW', 'OFFER', 'REJECTED']);
@@ -166,6 +169,7 @@
 			view = NAV[+e.key - 1].id;
 			return;
 		}
+		if (e.key === '5') { goto('/reports'); return; }
 		if (view !== 'jobs' || jobs.length === 0) return;
 		const max = jobs.length - 1;
 		if (e.key === 'j' || e.key === 'ArrowDown') {
@@ -217,12 +221,13 @@
 			</div>
 			<nav class="aa-nav">
 				{#each NAV as n (n.id)}
-					<button class={`aa-navlink ${view === n.id ? 'is-active' : ''}`} onclick={() => (view = n.id)}>
+					<button class={`aa-navlink ${view === n.id ? 'is-active' : ''}`} onclick={() => n.id === 'reports' ? goto('/reports') : (view = n.id)}>
 						<Icon name={n.icon} size={14} />{n.label}
 						{#if n.id === 'jobs'}<span class="aa-navcount">{openCount}</span>{/if}
 					</button>
 				{/each}
 			</nav>
+			<OrgSwitcher />
 			<div class="aa-topbar-right">
 				<button class="aa-searchbtn" onclick={() => (paletteOpen = true)}>
 					<Icon name="search" size={13} /><span>Search</span><Kbd>Ctrl K</Kbd>

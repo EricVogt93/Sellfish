@@ -21,6 +21,9 @@ public class JobMatch extends BaseEntity {
     @Column(name = "job_id", nullable = false)
     private UUID jobId;
 
+    @Column(name = "org_id")
+    private UUID orgId;
+
     @Column(nullable = false)
     private double score;
 
@@ -48,6 +51,14 @@ public class JobMatch extends BaseEntity {
 
     public UUID getJobId() {
         return jobId;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
     }
 
     public double getScore() {

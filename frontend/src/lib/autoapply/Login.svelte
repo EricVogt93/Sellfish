@@ -1,13 +1,24 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import Icon from './Icon.svelte';
 	import Btn from './Btn.svelte';
 	import { login, register } from '$lib/api/session.svelte';
+	import { api } from '$lib/api';
 
 	let mode = $state<'login' | 'register'>('login');
 	let email = $state('');
 	let password = $state('');
 	let error = $state<string | null>(null);
 	let busy = $state(false);
+	let ssoProviders = $state<{ id: string; name: string }[]>([]);
+
+	onMount(async () => {
+		try {
+			ssoProviders = await api<{ id: string; name: string }[]>('/api/auth/sso/providers');
+		} catch {
+			ssoProviders = [];
+		}
+	});
 
 	async function submit(e: SubmitEvent) {
 		e.preventDefault();
@@ -22,6 +33,18 @@
 			busy = false;
 		}
 	}
+
+	async function ssoLogin(provider: string) {
+		busy = true;
+		error = null;
+		try {
+			const { authUrl } = await api<{ authUrl: string }>(`/api/auth/sso/${provider}/login`);
+			window.location.href = authUrl;
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'SSO unavailable';
+			busy = false;
+		}
+	}
 </script>
 
 <div class="aa-login">
@@ -32,6 +55,17 @@
 		</div>
 		<div class="eyebrow" style="text-align:center;">application autopilot</div>
 		<h1 class="aa-login-title">{mode === 'login' ? 'Sign in' : 'Create account'}</h1>
+
+		{#if ssoProviders.length > 0}
+			<div class="aa-sso-buttons">
+				{#each ssoProviders as p}
+					<button class="aa-sso-btn" onclick={() => ssoLogin(p.id)} disabled={busy}>
+						<Icon name="shield" size={14} />{p.name}
+					</button>
+				{/each}
+			</div>
+			<div class="aa-login-divider"><span>or</span></div>
+		{/if}
 
 		<form onsubmit={submit}>
 			<div class="aa-field">
@@ -107,5 +141,48 @@
 		color: var(--accent-primary-light);
 		cursor: pointer;
 		font: inherit;
+	}
+	.aa-sso-buttons {
+		display: flex;
+		gap: 8px;
+		margin-bottom: var(--space-md);
+	}
+	.aa-sso-btn {
+		flex: 1;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 6px;
+		padding: 9px 12px;
+		border: 1px solid var(--border-color, #e2e8f0);
+		border-radius: var(--radius-lg, 8px);
+		background: var(--surface-elevated, #f8fafc);
+		color: var(--text-primary, #1e293b);
+		font-size: 0.85rem;
+		font-weight: 500;
+		cursor: pointer;
+	}
+	.aa-sso-btn:hover {
+		border-color: var(--accent-primary, #6366f1);
+		background: var(--accent-soft, #eef2ff);
+	}
+	.aa-sso-btn:disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
+	.aa-login-divider {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		margin-bottom: var(--space-md);
+		color: var(--text-muted);
+		font-size: 0.75rem;
+	}
+	.aa-login-divider::before,
+	.aa-login-divider::after {
+		content: '';
+		flex: 1;
+		height: 1px;
+		background: var(--border-color, #e2e8f0);
 	}
 </style>

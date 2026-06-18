@@ -1,6 +1,7 @@
 package de.bewerbungsatze.matching;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.bewerbungsatze.cv.CvStructuredRepository;
 import de.bewerbungsatze.jobs.Job;
 import de.bewerbungsatze.jobs.JobRepository;
 import de.bewerbungsatze.jobs.adapter.persistence.VectorStore;
@@ -29,12 +30,14 @@ class MatchingServiceTest {
     private final PreferencesRepository preferencesRepository = mock(PreferencesRepository.class);
     private final JobRepository jobRepository = mock(JobRepository.class);
     private final JobMatchRepository matchRepository = mock(JobMatchRepository.class);
+    private final CvStructuredRepository cvRepository = mock(CvStructuredRepository.class);
     private final UserRankingModelRepository rankingRepository = mock(UserRankingModelRepository.class);
     private final VectorStore vectorStore = mock(VectorStore.class);
 
     private final MatchingService service = new MatchingService(
             profileRepository, preferencesRepository, jobRepository, matchRepository,
-            rankingRepository, vectorStore, new FeatureScorer(), new ObjectMapper());
+            cvRepository, rankingRepository, vectorStore,
+            new FeatureScorer(null), null, new ObjectMapper());
 
     private Job job(String title, String company) {
         Job j = new Job("BA", "fp-" + UUID.randomUUID(), title);
@@ -56,6 +59,7 @@ class MatchingServiceTest {
         prefs.setDesiredTitles(new String[]{"Java Entwickler"});
         when(profileRepository.findByUserId(userId)).thenReturn(Optional.empty());
         when(preferencesRepository.findByUserId(userId)).thenReturn(Optional.of(prefs));
+        when(cvRepository.findByUserId(userId)).thenReturn(Optional.empty());
         when(rankingRepository.findFirstByUserIdOrderByVersionDesc(userId)).thenReturn(Optional.empty());
 
         Job good = job("Java Entwickler", "Acme");
@@ -87,6 +91,7 @@ class MatchingServiceTest {
         prefs.setExcludedCompanies(new String[]{"EvilCorp"});
         when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
         when(preferencesRepository.findByUserId(userId)).thenReturn(Optional.of(prefs));
+        when(cvRepository.findByUserId(userId)).thenReturn(Optional.empty());
         when(rankingRepository.findFirstByUserIdOrderByVersionDesc(userId)).thenReturn(Optional.empty());
 
         Job evil = job("Dev", "EvilCorp GmbH");
@@ -102,6 +107,7 @@ class MatchingServiceTest {
         UUID userId = UUID.randomUUID();
         when(profileRepository.findByUserId(userId)).thenReturn(Optional.empty());
         when(preferencesRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        when(cvRepository.findByUserId(userId)).thenReturn(Optional.empty());
         when(rankingRepository.findFirstByUserIdOrderByVersionDesc(userId)).thenReturn(Optional.empty());
 
         Job j = job("Dev", "Acme");

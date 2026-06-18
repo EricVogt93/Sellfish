@@ -41,6 +41,8 @@ export interface Me {
 	email: string;
 	role: string;
 	locale: string;
+	currentOrgId: string | null;
+	orgs: { id: string; name: string; slug: string; plan: string }[];
 }
 
 export interface ProfileResponse {
@@ -63,6 +65,7 @@ export interface PreferencesResponse {
 	keywords: string[];
 	hardFilters: string;
 	softWeights: string;
+	preferredCountries: string[];
 }
 
 export interface DocumentResponse {
@@ -115,6 +118,52 @@ export interface AdminUser {
 	role: string;
 	status: string;
 	createdAt: string;
+}
+
+export interface OrgView {
+	id: string;
+	name: string;
+	slug: string;
+	plan: string;
+}
+
+export interface MemberView {
+	userId: string;
+	role: string;
+	joinedAt: string;
+}
+
+export interface LicenseStatus {
+	valid: boolean;
+	subject: string | null;
+	expires: string | null;
+	features: string[];
+}
+
+export interface AuditEvent {
+	id: string;
+	userId: string;
+	orgId: string | null;
+	action: string;
+	targetType: string | null;
+	targetId: string | null;
+	details: string;
+	ip: string | null;
+	ts: string;
+}
+
+export interface AuditPage {
+	content: AuditEvent[];
+	totalElements: number;
+	totalPages: number;
+	number: number;
+}
+
+export interface CountryGroup {
+	code: string;
+	label: string;
+	flag: string;
+	remote: boolean;
 }
 
 export type GenerationType = 'TAILORED_CV' | 'COVER_LETTER' | 'MOTIVATION' | 'APPLICATION_TEXT';
@@ -181,5 +230,39 @@ export const backend = {
 		api<{ weightsTrained: boolean; positives: number; negatives: number; accuracy: number; driftApplied: boolean }>(
 			'/api/learning/retrain',
 			{ method: 'POST' }
-		)
+		),
+
+	// Organisationen
+	listOrgs: () => api<OrgView[]>('/api/orgs'),
+	createOrg: (name: string, slug: string) =>
+		api<OrgView>('/api/orgs', { method: 'POST', body: JSON.stringify({ name, slug }) }),
+	switchOrg: (orgId: string | null) =>
+		api<{ accessToken: string; refreshToken: string | null; tokenType: string; expiresInSeconds: number }>(
+			'/api/orgs/switch', { method: 'POST', body: JSON.stringify({ orgId }) }),
+	listOrgMembers: (orgId: string) => api<MemberView[]>(`/api/orgs/${orgId}/members`),
+	addOrgMember: (orgId: string, userId: string, role: string) =>
+		api<MemberView>(`/api/orgs/${orgId}/members`, {
+			method: 'POST',
+			body: JSON.stringify({ userId, role })
+		}),
+	removeOrgMember: (orgId: string, userId: string) =>
+		api<void>(`/api/orgs/${orgId}/members/${userId}`, { method: 'DELETE' }),
+
+	// Lizenz (Admin)
+	getLicenseStatus: () => api<LicenseStatus>('/api/admin/license/status'),
+	uploadLicense: (licenseKey: string) =>
+		api<LicenseStatus>('/api/admin/license', {
+			method: 'POST',
+			body: JSON.stringify({ licenseKey })
+		}),
+
+	// Audit-Log (Admin)
+	getAudit: (params: { page?: number; size?: number; orgId?: string; userId?: string }) => {
+		const q = new URLSearchParams();
+		if (params.page != null) q.set('page', String(params.page));
+		if (params.size != null) q.set('size', String(params.size));
+		if (params.orgId) q.set('orgId', params.orgId);
+		if (params.userId) q.set('userId', params.userId);
+		return api<AuditPage>(`/api/admin/audit?${q.toString()}`);
+	}
 };

@@ -20,6 +20,9 @@ public class SearchRun {
     @Column(name = "user_id")
     private UUID userId;
 
+    @Column(name = "org_id")
+    private UUID orgId;
+
     @Column(name = "started_at", nullable = false)
     private Instant startedAt = Instant.now();
 
@@ -50,6 +53,14 @@ public class SearchRun {
 
     public UUID getUserId() {
         return userId;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
     }
 
     public Instant getStartedAt() {

@@ -9,17 +9,19 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Aufbereiteter Nutzerkontext (Wünsche, Filter, Profil) für das Scoring.
- */
 public record MatchContext(
         List<String> desiredTitles,
         List<String> keywords,
         String location,
         String remotePref,
-        Set<String> excludedCompanies) {
+        Set<String> excludedCompanies,
+        String profileText) {
 
     public static MatchContext from(UserProfile profile, UserPreferences prefs) {
+        return from(profile, prefs, "");
+    }
+
+    public static MatchContext from(UserProfile profile, UserPreferences prefs, String cvSkills) {
         List<String> titles = prefs == null ? List.of() : asList(prefs.getDesiredTitles());
         List<String> keywords = prefs == null ? List.of() : asList(prefs.getKeywords());
         Set<String> excluded = prefs == null ? Set.of()
@@ -29,7 +31,13 @@ public record MatchContext(
                 .collect(Collectors.toSet());
         String location = profile == null ? null : profile.getLocation();
         String remotePref = profile == null ? "ANY" : profile.getRemotePref();
-        return new MatchContext(titles, keywords, location, remotePref, excluded);
+        StringBuilder pt = new StringBuilder();
+        if (profile != null) {
+            if (profile.getHeadline() != null) pt.append(profile.getHeadline()).append('\n');
+            if (profile.getSummary() != null) pt.append(profile.getSummary()).append('\n');
+        }
+        if (cvSkills != null && !cvSkills.isBlank()) pt.append(cvSkills);
+        return new MatchContext(titles, keywords, location, remotePref, excluded, pt.toString());
     }
 
     private static List<String> asList(String[] arr) {

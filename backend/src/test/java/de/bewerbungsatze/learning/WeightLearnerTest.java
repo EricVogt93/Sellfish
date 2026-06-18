@@ -14,14 +14,12 @@ class WeightLearnerTest {
     void learnsThatSemanticDrivesPositiveFeedback() {
         List<Features> samples = new ArrayList<>();
         List<Double> labels = new ArrayList<>();
-        // Positive Beispiele: hohe semantische Ähnlichkeit
         for (int i = 0; i < 5; i++) {
-            samples.add(new Features(0.85 + i * 0.01, 0.5, 0.5, 0.5, 0.5, 0.5));
+            samples.add(new Features(0.85 + i * 0.01, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, 0.5));
             labels.add(1.0);
         }
-        // Negative Beispiele: niedrige semantische Ähnlichkeit, sonst identisch
         for (int i = 0; i < 5; i++) {
-            samples.add(new Features(0.1 + i * 0.01, 0.5, 0.5, 0.5, 0.5, 0.5));
+            samples.add(new Features(0.1 + i * 0.01, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, 0.5));
             labels.add(0.0);
         }
         double[] y = labels.stream().mapToDouble(Double::doubleValue).toArray();
@@ -30,7 +28,6 @@ class WeightLearnerTest {
 
         assertThat(result.accuracy()).isGreaterThanOrEqualTo(0.9);
         assertThat(result.samples()).isEqualTo(10);
-        // Das semantische Merkmal soll das stärkste Gewicht erhalten.
         var w = result.weights();
         assertThat(w.semantic()).isGreaterThan(w.title());
         assertThat(w.semantic()).isGreaterThan(w.keyword());
@@ -39,6 +36,8 @@ class WeightLearnerTest {
     @Test
     void mismatchedSizesRejected() {
         org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
-                () -> WeightLearner.learn(List.of(new Features(0, 0, 0, 0, 0, 0)), new double[]{1, 0}));
+                () -> WeightLearner.learn(
+                        List.of(new Features(0, 0, 0, 0, 0, 0, 0.0, 0.5)),
+                        new double[]{1, 0}));
     }
 }

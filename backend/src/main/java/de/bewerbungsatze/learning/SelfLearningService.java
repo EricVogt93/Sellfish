@@ -95,8 +95,10 @@ public class SelfLearningService {
         }
 
         boolean driftApplied = applyProfileDrift(userId, positives);
+        boolean negDriftApplied = applyNegativeDrift(userId, negatives);
 
-        return new RetrainResult(weightsTrained, positives.size(), negatives.size(), accuracy, driftApplied);
+        return new RetrainResult(weightsTrained, positives.size(), negatives.size(),
+                accuracy, driftApplied || negDriftApplied);
     }
 
     private void collect(UUID userId, MatchContext ctx, List<JobMatch> matches, double label,
@@ -133,6 +135,22 @@ public class SelfLearningService {
         }
         float[] shifted = VectorMath.blend(profile, centroid, DRIFT_ALPHA);
         vectorStore.upsertProfileEmbedding(userId, shifted, "drift");
+        return true;
+    }
+
+    private boolean applyNegativeDrift(UUID userId, List<JobMatch> negatives) {
+        if (negatives.size() < 3) return false;
+        List<float[]> vectors = new ArrayList<>();
+        for (JobMatch match : negatives) {
+            float[] v = vectorStore.getJobEmbedding(match.getJobId());
+            if (v.length > 0) vectors.add(v);
+        }
+        if (vectors.isEmpty()) return false;
+        float[] profile = vectorStore.getProfileEmbedding(userId);
+        float[] centroid = VectorMath.centroid(vectors);
+        if (profile.length == 0 || profile.length != centroid.length) return false;
+        float[] shifted = VectorMath.repel(profile, centroid, 0.3);
+        vectorStore.upsertProfileEmbedding(userId, shifted, "drift-neg");
         return true;
     }
 

@@ -16,6 +16,9 @@ public class UserPreferences extends BaseEntity {
     @Column(name = "user_id", nullable = false, unique = true)
     private UUID userId;
 
+    @Column(name = "org_id")
+    private UUID orgId;
+
     @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(name = "desired_titles", columnDefinition = "text[]")
     private String[] desiredTitles = new String[0];
@@ -47,6 +50,10 @@ public class UserPreferences extends BaseEntity {
     @Column(name = "soft_weights", columnDefinition = "jsonb", nullable = false)
     private String softWeights = "{}";
 
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(name = "preferred_countries", columnDefinition = "text[]")
+    private String[] preferredCountries = new String[0];
+
     protected UserPreferences() {
     }
 
@@ -56,6 +63,14 @@ public class UserPreferences extends BaseEntity {
 
     public UUID getUserId() {
         return userId;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
     }
 
     public String[] getDesiredTitles() {
@@ -120,5 +135,13 @@ public class UserPreferences extends BaseEntity {
 
     public void setSoftWeights(String softWeights) {
         this.softWeights = softWeights;
+    }
+
+    public String[] getPreferredCountries() {
+        return preferredCountries;
+    }
+
+    public void setPreferredCountries(String[] preferredCountries) {
+        this.preferredCountries = preferredCountries;
     }
 }

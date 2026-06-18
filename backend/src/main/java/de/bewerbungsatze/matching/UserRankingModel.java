@@ -20,6 +20,9 @@ public class UserRankingModel {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    @Column(name = "org_id")
+    private UUID orgId;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", nullable = false)
     private String weights = "{}";
@@ -48,6 +51,14 @@ public class UserRankingModel {
 
     public UUID getUserId() {
         return userId;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
     }
 
     public String getWeights() {

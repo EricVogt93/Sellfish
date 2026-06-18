@@ -10,10 +10,13 @@
 		max_size 30MB
 	}
 
-	# API & Tooling -> Spring-Boot-Backend
+	# API & Tooling -> Spring-Boot-Backend (load-balanced bei --scale backend=N)
 	@backend path /api/* /actuator/* /v3/api-docs* /swagger-ui* /swagger-ui.html
 	handle @backend {
-		reverse_proxy backend:8080
+		reverse_proxy backend:8080 {
+			lb_policy round_robin
+			fail_duration 5s
+		}
 	}
 
 	# Alles übrige -> SvelteKit-Frontend

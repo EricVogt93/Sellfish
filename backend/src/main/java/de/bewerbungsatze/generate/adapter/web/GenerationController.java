@@ -26,9 +26,11 @@ import java.util.UUID;
 public class GenerationController {
 
     private final GenerationService service;
+    private final InterviewPrepService interviewPrep;
 
-    public GenerationController(GenerationService service) {
+    public GenerationController(GenerationService service, InterviewPrepService interviewPrep) {
         this.service = service;
+        this.interviewPrep = interviewPrep;
     }
 
     @PostMapping
@@ -59,5 +61,23 @@ public class GenerationController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
         service.delete(CurrentUser.id(), id);
+    }
+
+    // ── Interview Prep & Company Research ──
+
+    public record InterviewQuestionsResponse(String questions) {}
+
+    @PostMapping("/interview-questions/{matchId}")
+    public InterviewQuestionsResponse interviewQuestions(@PathVariable UUID matchId) {
+        return new InterviewQuestionsResponse(
+                interviewPrep.generateQuestions(CurrentUser.id(), matchId));
+    }
+
+    public record CompanyResearchResponse(String profile) {}
+
+    @PostMapping("/company-research/{matchId}")
+    public CompanyResearchResponse companyResearch(@PathVariable UUID matchId) {
+        return new CompanyResearchResponse(
+                interviewPrep.generateCompanyResearch(CurrentUser.id(), matchId));
     }
 }

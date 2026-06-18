@@ -19,6 +19,9 @@ public class GeneratedDocument extends BaseEntity {
     @Column(name = "job_match_id")
     private UUID jobMatchId;
 
+    @Column(name = "org_id")
+    private UUID orgId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GenerationType type;
@@ -52,6 +55,14 @@ public class GeneratedDocument extends BaseEntity {
 
     public UUID getJobMatchId() {
         return jobMatchId;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
     }
 
     public GenerationType getType() {

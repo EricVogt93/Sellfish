@@ -2,5 +2,7 @@ package de.bewerbungsatze.users;
 
 public enum Role {
     USER,
-    ADMIN
+    ADMIN,
+    ORG_ADMIN,
+    SUPER_ADMIN
 }

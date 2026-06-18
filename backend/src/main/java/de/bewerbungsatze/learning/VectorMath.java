@@ -45,6 +45,21 @@ public final class VectorMath {
         return normalize(out);
     }
 
+    /**
+     * Abstossung: {@code normalize(a - strength * b)}.
+     * Schiebt das Profil-Embedding weg vom Negativ-Centroid.
+     */
+    public static float[] repel(float[] profile, float[] negativeCentroid, double strength) {
+        if (profile.length != negativeCentroid.length) {
+            throw new IllegalArgumentException("Dimensionen müssen übereinstimmen");
+        }
+        float[] out = new float[profile.length];
+        for (int i = 0; i < profile.length; i++) {
+            out[i] = (float) (profile[i] - strength * negativeCentroid[i]);
+        }
+        return normalize(out);
+    }
+
     public static float[] normalize(float[] v) {
         double norm = 0;
         for (float x : v) {

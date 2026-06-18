@@ -16,6 +16,9 @@ public class UserProfile extends BaseEntity {
     @Column(name = "user_id", nullable = false, unique = true)
     private UUID userId;
 
+    @Column(name = "org_id")
+    private UUID orgId;
+
     private String headline;
 
     @Column(columnDefinition = "text")
@@ -48,6 +51,14 @@ public class UserProfile extends BaseEntity {
 
     public UUID getUserId() {
         return userId;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
     }
 
     public String getHeadline() {

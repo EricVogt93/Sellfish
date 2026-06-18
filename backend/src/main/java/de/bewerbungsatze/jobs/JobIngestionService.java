@@ -3,6 +3,7 @@ package de.bewerbungsatze.jobs;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.bewerbungsatze.jobs.adapter.source.Fingerprints;
+import de.bewerbungsatze.jobs.adapter.source.SourceCountries;
 import de.bewerbungsatze.jobs.port.JobQuery;
 import de.bewerbungsatze.jobs.port.JobSource;
 import de.bewerbungsatze.jobs.port.RawJob;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Holt Stellen aus allen aktiven Quellen, dedupliziert sie und persistiert neue Jobs inkl. Embeddings.
@@ -40,7 +42,7 @@ public class JobIngestionService {
         this.objectMapper = objectMapper;
     }
 
-    public IngestStats ingest(JobQuery query) {
+    public IngestStats ingest(JobQuery query, Set<String> preferredCountries) {
         var enabled = sourceConfigRepository.findByEnabledTrue().stream()
                 .collect(java.util.stream.Collectors.toMap(JobSourceConfig::getCode, c -> c));
 
@@ -50,9 +52,12 @@ public class JobIngestionService {
 
         for (JobSource source : sources) {
             JobSourceConfig cfg = enabled.get(source.code());
-            if (cfg == null) {
+            if (cfg == null) continue;
+
+            if (!preferredCountries.isEmpty() && !includesAnyCountry(source.code(), preferredCountries)) {
                 continue;
             }
+
             usedSources.add(source.code());
             Map<String, Object> config = parseConfig(cfg.getConfig());
             List<RawJob> rawJobs;
@@ -64,12 +69,20 @@ public class JobIngestionService {
             }
             fetched += rawJobs.size();
             for (RawJob raw : rawJobs) {
-                if (persist(raw)) {
-                    created++;
-                }
+                if (persist(raw)) created++;
             }
         }
         return new IngestStats(fetched, created, usedSources);
+    }
+
+    static boolean includesAnyCountry(String sourceCode, Set<String> preferred) {
+        if (preferred.isEmpty()) return true;
+        if (preferred.contains("REMOTE") && SourceCountries.isRemote(sourceCode)) return true;
+        Set<String> sourceCountries = SourceCountries.countriesFor(sourceCode);
+        for (String c : preferred) {
+            if (sourceCountries.contains(c)) return true;
+        }
+        return false;
     }
 
     private boolean persist(RawJob raw) {

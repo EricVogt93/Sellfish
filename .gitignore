@@ -21,6 +21,14 @@ infra/.env
 .idea/
 *.iml
 .vscode/
+backend/.classpath
+backend/.factorypath
+backend/.project
+backend/.settings/
+backend/bin/
+
+# Serena (agent tooling, local only)
+.serena/
 
 # OS
 .DS_Store

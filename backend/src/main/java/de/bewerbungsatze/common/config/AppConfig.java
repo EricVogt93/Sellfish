@@ -1,5 +1,8 @@
 package de.bewerbungsatze.common.config;
 
+import de.bewerbungsatze.enterprise.EnterpriseProperties;
+import de.bewerbungsatze.sso.OidcProperties;
+
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +15,9 @@ import org.springframework.web.client.RestClient;
 @EnableConfigurationProperties({
         CryptoProperties.class,
         StorageProperties.class,
-        InfisicalProperties.class
+        InfisicalProperties.class,
+        EnterpriseProperties.class,
+        OidcProperties.class
 })
 public class AppConfig {
 

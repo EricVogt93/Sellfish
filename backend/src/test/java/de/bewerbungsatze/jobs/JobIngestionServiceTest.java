@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,7 +52,7 @@ class JobIngestionServiceTest {
                 List.of(source), sourceConfigRepository, jobRepository, embeddingService, new ObjectMapper());
 
         JobIngestionService.IngestStats stats =
-                service.ingest(new JobQuery(List.of("dev"), "Berlin", null, false, 10));
+                service.ingest(new JobQuery(List.of("dev"), "Berlin", null, false, 10), Set.of());
 
         assertThat(stats.fetched()).isEqualTo(2);
         assertThat(stats.created()).isEqualTo(1);
@@ -69,7 +70,7 @@ class JobIngestionServiceTest {
                 List.of(source), sourceConfigRepository, jobRepository, embeddingService, new ObjectMapper());
 
         JobIngestionService.IngestStats stats =
-                service.ingest(new JobQuery(List.of("x"), null, null, false, 5));
+                service.ingest(new JobQuery(List.of("x"), null, null, false, 5), Set.of());
 
         assertThat(stats.fetched()).isZero();
         assertThat(stats.created()).isZero();

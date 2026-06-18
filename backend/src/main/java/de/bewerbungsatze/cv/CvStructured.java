@@ -22,6 +22,9 @@ public class CvStructured extends BaseEntity {
     @Column(name = "document_id")
     private UUID documentId;
 
+    @Column(name = "org_id")
+    private UUID orgId;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb", nullable = false)
     private String experience = "[]";
@@ -60,6 +63,14 @@ public class CvStructured extends BaseEntity {
 
     public void setDocumentId(UUID documentId) {
         this.documentId = documentId;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
     }
 
     public String getExperience() {

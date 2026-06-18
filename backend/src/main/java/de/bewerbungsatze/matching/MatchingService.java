@@ -2,12 +2,17 @@ package de.bewerbungsatze.matching;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
+import de.bewerbungsatze.cv.CvStructuredRepository;
 import de.bewerbungsatze.jobs.Job;
 import de.bewerbungsatze.jobs.JobRepository;
 import de.bewerbungsatze.jobs.MatchRecomputer;
 import de.bewerbungsatze.jobs.adapter.persistence.VectorStore;
 import de.bewerbungsatze.profile.PreferencesRepository;
 import de.bewerbungsatze.profile.ProfileRepository;
+import de.bewerbungsatze.profile.UserProfile;
+import de.bewerbungsatze.profile.UserPreferences;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,47 +25,53 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-/**
- * Berechnet Job-Matches: Hard-Filter → semantische Ähnlichkeit → gewichteter Feature-Score.
- */
 @Service
 public class MatchingService implements MatchRecomputer {
 
+    private static final Logger log = LoggerFactory.getLogger(MatchingService.class);
     private static final int SEMANTIC_CANDIDATES = 300;
+    private static final int AI_VALIDATE_TOP_N = 50;
 
     private final ProfileRepository profileRepository;
     private final PreferencesRepository preferencesRepository;
     private final JobRepository jobRepository;
     private final JobMatchRepository matchRepository;
+    private final CvStructuredRepository cvRepository;
     private final UserRankingModelRepository rankingModelRepository;
     private final VectorStore vectorStore;
     private final FeatureScorer featureScorer;
+    private final JobValidationService validationService;
     private final ObjectMapper objectMapper;
 
     public MatchingService(ProfileRepository profileRepository,
                            PreferencesRepository preferencesRepository,
                            JobRepository jobRepository,
                            JobMatchRepository matchRepository,
+                           CvStructuredRepository cvRepository,
                            UserRankingModelRepository rankingModelRepository,
                            VectorStore vectorStore,
                            FeatureScorer featureScorer,
+                           JobValidationService validationService,
                            ObjectMapper objectMapper) {
         this.profileRepository = profileRepository;
         this.preferencesRepository = preferencesRepository;
         this.jobRepository = jobRepository;
         this.matchRepository = matchRepository;
+        this.cvRepository = cvRepository;
         this.rankingModelRepository = rankingModelRepository;
         this.vectorStore = vectorStore;
         this.featureScorer = featureScorer;
+        this.validationService = validationService;
         this.objectMapper = objectMapper;
     }
 
     @Override
     @Transactional
     public int recompute(UUID userId) {
-        MatchContext ctx = MatchContext.from(
-                profileRepository.findByUserId(userId).orElse(null),
-                preferencesRepository.findByUserId(userId).orElse(null));
+        UserProfile profile = profileRepository.findByUserId(userId).orElse(null);
+        UserPreferences prefs = preferencesRepository.findByUserId(userId).orElse(null);
+        String cvSkills = cvRepository.findByUserId(userId).map(c -> c.getSkills()).orElse("");
+        MatchContext ctx = MatchContext.from(profile, prefs, cvSkills);
         Weights weights = loadWeights(userId);
 
         Map<UUID, Double> semantic = new HashMap<>();
@@ -76,19 +87,18 @@ public class MatchingService implements MatchRecomputer {
         Map<UUID, JobMatch> existing = matchRepository.findByUserId(userId).stream()
                 .collect(Collectors.toMap(JobMatch::getJobId, m -> m));
 
+        Map<UUID, Double> aiScores = preComputeAiScores(userId, candidates, profile, prefs);
+
         List<JobMatch> scored = new ArrayList<>();
         for (Job job : candidates) {
-            if (featureScorer.isExcluded(job, ctx)) {
-                continue;
-            }
+            if (featureScorer.isExcluded(job, ctx)) continue;
             double sem = semantic.getOrDefault(job.getId(), 0.0);
-            Features features = featureScorer.score(job, ctx, sem);
+            double aiScore = aiScores.getOrDefault(job.getId(), 0.5);
+            Features features = featureScorer.score(job, ctx, sem, aiScore);
             double total = weights.weightedScore(features);
 
             JobMatch match = existing.get(job.getId());
-            if (match == null) {
-                match = new JobMatch(userId, job.getId());
-            }
+            if (match == null) match = new JobMatch(userId, job.getId());
             match.setScore(round(total));
             match.setScoreBreakdown(breakdown(features, weights, total));
             scored.add(match);
@@ -96,11 +106,26 @@ public class MatchingService implements MatchRecomputer {
 
         scored.sort(Comparator.comparingDouble(JobMatch::getScore).reversed());
         int rank = 1;
-        for (JobMatch m : scored) {
-            m.setRank(rank++);
-        }
+        for (JobMatch m : scored) m.setRank(rank++);
         matchRepository.saveAll(scored);
         return scored.size();
+    }
+
+    /** Pre-computiert AI-Relevanz-Scores für die Top-N Kandidaten. */
+    private Map<UUID, Double> preComputeAiScores(UUID userId, List<Job> candidates,
+                                                  UserProfile profile, UserPreferences prefs) {
+        Map<UUID, Double> map = new HashMap<>();
+        int limit = Math.min(AI_VALIDATE_TOP_N, candidates.size());
+        for (int i = 0; i < limit; i++) {
+            Job job = candidates.get(i);
+            try {
+                double score = validationService.relevanceScore(userId, job, profile, prefs);
+                map.put(job.getId(), score);
+            } catch (Exception e) {
+                map.put(job.getId(), 0.5);
+            }
+        }
+        return map;
     }
 
     private Weights loadWeights(UUID userId) {
@@ -108,12 +133,9 @@ public class MatchingService implements MatchRecomputer {
                 .map(model -> {
                     try {
                         Map<String, Object> map = objectMapper.readValue(
-                                model.getWeights(), new TypeReference<Map<String, Object>>() {
-                                });
+                                model.getWeights(), new TypeReference<Map<String, Object>>() {});
                         return map.isEmpty() ? Weights.defaults() : Weights.fromMap(map);
-                    } catch (Exception e) {
-                        return Weights.defaults();
-                    }
+                    } catch (Exception e) { return Weights.defaults(); }
                 })
                 .orElseGet(Weights::defaults);
     }
@@ -123,14 +145,9 @@ public class MatchingService implements MatchRecomputer {
         map.put("features", features.asMap());
         map.put("weights", weights.asMap());
         map.put("total", round(total));
-        try {
-            return objectMapper.writeValueAsString(map);
-        } catch (Exception e) {
-            return "{}";
-        }
+        try { return objectMapper.writeValueAsString(map); }
+        catch (Exception e) { return "{}"; }
     }
 
-    private double round(double v) {
-        return Math.round(v * 10000.0) / 10000.0;
-    }
+    private double round(double v) { return Math.round(v * 10000.0) / 10000.0; }
 }

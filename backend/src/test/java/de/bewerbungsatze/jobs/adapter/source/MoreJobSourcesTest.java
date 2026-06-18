@@ -107,5 +107,63 @@ class MoreJobSourcesTest {
         assertThat(new AshbySource(b.builder()).fetch(query, Map.of())).isEmpty();
         assertThat(new RecruiteeSource(b.builder()).fetch(query, Map.of())).isEmpty();
         assertThat(new SmartRecruitersSource(b.builder()).fetch(query, Map.of())).isEmpty();
+        assertThat(new WorkableSource(b.builder()).fetch(query, Map.of())).isEmpty();
+    }
+
+    @Test
+    void weWorkRemotelyParsesAndFilters() {
+        Bound b = bind();
+        b.server().expect(requestTo(Matchers.containsString("/api/jobs")))
+                .andRespond(withSuccess("""
+                        [
+                          {"id":"w1","slug":"java-eng","title":"Java Engineer","company_name":"Acme",
+                           "region":"EMEA","description":"Spring Boot","published_at":"2026-06-01T10:00:00Z"},
+                          {"id":"w2","slug":"designer","title":"UI Designer","company_name":"Beta",
+                           "region":"Americas","description":"Figma Design"}
+                        ]
+                        """, MediaType.APPLICATION_JSON));
+        WeWorkRemotelySource source = new WeWorkRemotelySource(b.builder());
+
+        List<RawJob> jobs = source.fetch(query, Map.of());
+        assertThat(jobs).hasSize(1);
+        assertThat(jobs.get(0).title()).isEqualTo("Java Engineer");
+        assertThat(jobs.get(0).remote()).isEqualTo("REMOTE");
+    }
+
+    @Test
+    void noDeskParsesAndFilters() {
+        Bound b = bind();
+        b.server().expect(requestTo(Matchers.containsString("/remote-jobs.json")))
+                .andRespond(withSuccess("""
+                        [
+                          {"id":"n1","title":"Java Backend","company":"Acme","location":"Worldwide",
+                           "remote":true,"description":"Spring","date":"2026-06-01","url":"https://nodesk.co/j/n1"},
+                          {"id":"n2","title":"Writer","company":"Beta","remote":true,"description":"Content"}
+                        ]
+                        """, MediaType.APPLICATION_JSON));
+        NoDeskSource source = new NoDeskSource(b.builder());
+
+        List<RawJob> jobs = source.fetch(query, Map.of());
+        assertThat(jobs).hasSize(1);
+        assertThat(jobs.get(0).title()).isEqualTo("Java Backend");
+    }
+
+    @Test
+    void workablePerCompany() {
+        Bound b = bind();
+        b.server().expect(requestTo(Matchers.containsString("/accounts/acme/jobs")))
+                .andRespond(withSuccess("""
+                        {"jobs":[
+                          {"shortcode":"a1","title":"Java Engineer","company":"Acme Inc","city":"Berlin",
+                           "country":"DE","description":"Spring Boot","url":"https://workable.com/j/a1",
+                           "published_on":"2026-06-01T10:00:00Z"}
+                        ]}
+                        """, MediaType.APPLICATION_JSON));
+        WorkableSource source = new WorkableSource(b.builder());
+
+        List<RawJob> jobs = source.fetch(query, Map.of("companies", List.of("acme")));
+        assertThat(jobs).hasSize(1);
+        assertThat(jobs.get(0).title()).isEqualTo("Java Engineer");
+        assertThat(jobs.get(0).location()).contains("Berlin");
     }
 }

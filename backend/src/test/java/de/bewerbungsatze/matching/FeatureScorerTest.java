@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.within;
 
 class FeatureScorerTest {
 
-    private final FeatureScorer scorer = new FeatureScorer();
+    private final FeatureScorer scorer = new FeatureScorer(null);
 
     private Job job(String title, String company, String location, String description) {
         Job j = new Job("BA", "fp-" + title, title);
@@ -26,7 +26,7 @@ class FeatureScorerTest {
 
     private MatchContext ctx(List<String> titles, List<String> keywords, String location,
                              String remotePref, Set<String> excluded) {
-        return new MatchContext(titles, keywords, location, remotePref, excluded);
+        return new MatchContext(titles, keywords, location, remotePref, excluded, "");
     }
 
     @Test
@@ -69,7 +69,7 @@ class FeatureScorerTest {
         Job old = job("Dev", "Acme", "Berlin", "");
         old.setPostedAt(Instant.now().minus(30, ChronoUnit.DAYS));
         Features f = scorer.score(old, ctx(List.of(), List.of(), null, "ANY", Set.of()), 0.0);
-        assertThat(f.recency()).isCloseTo(0.5, within(0.05)); // Halbwertszeit 30 Tage
+        assertThat(f.recency()).isCloseTo(0.5, within(0.05));
     }
 
     @Test

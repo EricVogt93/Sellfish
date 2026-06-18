@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Client für OpenAI und alle OpenAI-kompatiblen Endpunkte (NVIDIA NIM, Kimi, OpenRouter, …).
+ * Client für OpenAI und alle OpenAI-kompatiblen Endpunkte (NVIDIA NIM, OpenRouter, …).
  */
 @Component
 public class OpenAiCompatibleClient implements ChatProvider, EmbeddingProvider {

@@ -37,13 +37,13 @@ public final class WeightLearner {
         }
         Weights weights = sum == 0
                 ? Weights.defaults()
-                : new Weights(w[0], w[1], w[2], w[3], w[4], w[5]);
+                : new Weights(w[0], w[1], w[2], w[3], w[4], w[5], w[6], w[7]);
 
         return new LearnResult(weights, model.accuracy(x, labels), samples.size());
     }
 
     static double[] toArray(Features f) {
-        return new double[]{f.semantic(), f.title(), f.keyword(), f.location(), f.recency(), f.remote()};
+        return f.toArray();
     }
 
     public record LearnResult(Weights weights, double accuracy, int samples) {

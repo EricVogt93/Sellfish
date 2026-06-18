@@ -1,6 +1,7 @@
 package de.bewerbungsatze.admin.adapter.web;
 import de.bewerbungsatze.admin.*;
 
+import de.bewerbungsatze.jobs.adapter.source.SourceCountries;
 import de.bewerbungsatze.ai.LlmProviderConfig;
 import de.bewerbungsatze.ai.Provider;
 import de.bewerbungsatze.ai.Purpose;
@@ -9,6 +10,7 @@ import de.bewerbungsatze.users.Role;
 import de.bewerbungsatze.users.User;
 import de.bewerbungsatze.users.UserStatus;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +27,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin")
+@PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
 public class AdminController {
 
     private final AdminService service;
@@ -116,5 +119,12 @@ public class AdminController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteGlobalLlmConfig(@PathVariable UUID id) {
         service.deleteGlobalLlmConfig(id);
+    }
+
+    // --- Länder-Info für Job-Quellen ---
+
+    @GetMapping("/source-countries")
+    public List<SourceCountries.CountryGroup> sourceCountries() {
+        return SourceCountries.allGroups();
     }
 }

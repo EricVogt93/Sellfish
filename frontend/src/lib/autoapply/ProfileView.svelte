@@ -3,13 +3,14 @@
 	import Icon from './Icon.svelte';
 	import Btn from './Btn.svelte';
 	import { toast } from './toasts.svelte';
-	import { apiDownload } from '$lib/api';
+	import { api, apiDownload } from '$lib/api';
 	import {
 		backend,
 		type ProfileResponse,
 		type PreferencesResponse,
 		type DocumentResponse,
-		type ProviderConfig
+		type ProviderConfig,
+		type CountryGroup
 	} from '$lib/api/backend';
 
 	let profile = $state<ProfileResponse | null>(null);
@@ -22,6 +23,11 @@
 	let keywordsText = $state('');
 	let excludedText = $state('');
 
+	// Country filter
+	let countryGroups = $state<CountryGroup[]>([]);
+	let selectedCountries = $state<Set<string>>(new Set());
+	let remoteOnly = $state(false);
+
 	const PROVIDERS = ['OLLAMA', 'OPENAI', 'NIM', 'OPENAI_COMPATIBLE', 'ANTHROPIC', 'GOOGLE'];
 	const DOC_TYPES = ['CV', 'PROJECT_LIST', 'CERTIFICATE', 'REFERENCE', 'COVER_LETTER', 'OTHER'];
 
@@ -30,17 +36,47 @@
 
 	const toList = (s: string) => s.split(',').map((x) => x.trim()).filter(Boolean);
 
+	async function fetchCountryGroups() {
+		try {
+			const res = await fetch('/api/admin/source-countries');
+			if (res.ok) countryGroups = await res.json();
+		} catch { /* non-admin users can't see this */ }
+	}
+
 	async function loadAll() {
 		profile = await backend.getProfile();
 		prefs = await backend.getPreferences();
 		titlesText = (prefs.desiredTitles ?? []).join(', ');
 		keywordsText = (prefs.keywords ?? []).join(', ');
 		excludedText = (prefs.excludedCompanies ?? []).join(', ');
+		selectedCountries = new Set(prefs.preferredCountries ?? []);
+		remoteOnly = selectedCountries.has('REMOTE');
+		loadPersonal();
 		documents = await backend.listDocuments();
 		providers = await backend.listProviders();
 	}
 
-	onMount(loadAll);
+	onMount(() => { loadAll(); fetchCountryGroups(); });
+
+	function toggleCountry(code: string) {
+		const next = new Set(selectedCountries);
+		if (next.has(code)) next.delete(code);
+		else next.add(code);
+		selectedCountries = next;
+	}
+
+	function toggleRemote() {
+		remoteOnly = !remoteOnly;
+		if (remoteOnly) {
+			const next = new Set(selectedCountries);
+			next.add('REMOTE');
+			selectedCountries = next;
+		} else {
+			const next = new Set(selectedCountries);
+			next.delete('REMOTE');
+			selectedCountries = next;
+		}
+	}
 
 	async function saveIdentity() {
 		if (!profile) return;
@@ -63,7 +99,8 @@
 			prefs = await backend.updatePreferences({
 				desiredTitles: toList(titlesText),
 				keywords: toList(keywordsText),
-				excludedCompanies: toList(excludedText)
+				excludedCompanies: toList(excludedText),
+				preferredCountries: [...selectedCountries]
 			});
 			toast('Preferences saved — affects the next rescan', 'check');
 		} catch (e) {
@@ -119,6 +156,76 @@
 		await backend.deleteProvider(id);
 		providers = providers.filter((p) => p.id !== id);
 	}
+
+	// Beta: Auto-Setup
+	let setupRunning = $state(false);
+
+	// Personal info (stored in profile.meta JSONB)
+	interface PersonalData {
+		fullName?: string;
+		address?: string;
+		postalCode?: string;
+		city?: string;
+		phone?: string;
+		linkedinUrl?: string;
+		githubUrl?: string;
+		portfolioUrl?: string;
+		notes?: string;
+	}
+	let personal = $state<PersonalData>({});
+	let personalDirty = $state(false);
+
+	function loadPersonal() {
+		try {
+			if (profile?.meta) personal = JSON.parse(profile.meta);
+		} catch { personal = {}; }
+	}
+
+	function setField(field: keyof PersonalData, value: string) {
+		personal = { ...personal, [field]: value || undefined };
+		personalDirty = true;
+	}
+
+	async function savePersonal() {
+		if (!profile) return;
+		try {
+			profile = await backend.updateProfile({
+				headline: profile.headline,
+				summary: profile.summary,
+				location: profile.location,
+				remotePref: profile.remotePref,
+				salaryMin: profile.salaryMin,
+				meta: JSON.stringify(personal)
+			});
+			personalDirty = false;
+			toast('Personal info saved', 'check');
+		} catch (e) {
+			toast(e instanceof Error ? e.message : 'Save failed', 'x', 'var(--accent-error)');
+		}
+	}
+
+	async function autoSetup() {
+		setupRunning = true;
+		try {
+			const res = await api<{ status: string; message: string }>('/api/beta/auto-setup', { method: 'POST' });
+			await loadAll();
+			toast(res.status === 'ok' ? 'Auto-setup complete — search started' : res.message,
+				res.status === 'ok' ? 'check' : 'x',
+				res.status === 'ok' ? 'var(--accent-success)' : 'var(--accent-warning)');
+		} catch (e) {
+			toast(e instanceof Error ? e.message : 'Auto-setup failed', 'x', 'var(--accent-error)');
+		} finally { setupRunning = false; }
+	}
+
+	function countryFlag(code: string): string {
+		const flags: Record<string, string> = {
+			DE: '🇩🇪', AT: '🇦🇹', CH: '🇨🇭', GB: '🇬🇧', US: '🇺🇸', CA: '🇨🇦',
+			FR: '🇫🇷', NL: '🇳🇱', IT: '🇮🇹', ES: '🇪🇸', PL: '🇵🇱', CZ: '🇨🇿',
+			SE: '🇸🇪', DK: '🇩🇰', NO: '🇳🇴', FI: '🇫🇮', IE: '🇮🇪', AU: '🇦🇺',
+			REMOTE: '🌍'
+		};
+		return flags[code] || '🏳️';
+	}
 </script>
 
 <div class="aa-view">
@@ -150,6 +257,34 @@
 					</select>
 				</div>
 				<Btn variant="primary" icon="check" onclick={saveIdentity} style="margin-top:4px;">Save identity</Btn>
+				<Btn variant="secondary" icon="sparkles" onclick={autoSetup} style="margin-top:8px;width:100%;justify-content:center;">
+					{setupRunning ? 'AI is analyzing your CV…' : '🅱️ Auto-Setup from CV'}
+				</Btn>
+			</section>
+
+			<section class="aa-card">
+				<div class="aa-card-head">
+					<Icon name="mail" size={15} style="color:var(--accent-secondary);" />
+					<h3>Personal Info</h3>
+					<span class="aa-card-headnote">persistent data for the AI</span>
+				</div>
+				<div class="aa-field-row">
+					<div class="aa-field"><label>Full name</label><input class="aa-input" value={personal.fullName ?? ''} oninput={e => setField('fullName', e.currentTarget.value)} placeholder="Max Mustermann" /></div>
+					<div class="aa-field"><label>Phone</label><input class="aa-input" value={personal.phone ?? ''} oninput={e => setField('phone', e.currentTarget.value)} placeholder="+49 123 456789" /></div>
+				</div>
+				<div class="aa-field"><label>Address</label><input class="aa-input" value={personal.address ?? ''} oninput={e => setField('address', e.currentTarget.value)} placeholder="Musterstraße 1" /></div>
+				<div class="aa-field-row">
+					<div class="aa-field"><label>Postal code</label><input class="aa-input" value={personal.postalCode ?? ''} oninput={e => setField('postalCode', e.currentTarget.value)} placeholder="10115" /></div>
+					<div class="aa-field"><label>City</label><input class="aa-input" value={personal.city ?? ''} oninput={e => setField('city', e.currentTarget.value)} placeholder="Berlin" /></div>
+				</div>
+				<div class="aa-field"><label>LinkedIn URL</label><input class="aa-input" value={personal.linkedinUrl ?? ''} oninput={e => setField('linkedinUrl', e.currentTarget.value)} placeholder="https://linkedin.com/in/..." /></div>
+				<div class="aa-field"><label>GitHub URL</label><input class="aa-input" value={personal.githubUrl ?? ''} oninput={e => setField('githubUrl', e.currentTarget.value)} placeholder="https://github.com/..." /></div>
+				<div class="aa-field"><label>Portfolio URL</label><input class="aa-input" value={personal.portfolioUrl ?? ''} oninput={e => setField('portfolioUrl', e.currentTarget.value)} placeholder="https://..." /></div>
+				<div class="aa-field"><label>Notes (for AI context)</label><textarea class="aa-input" rows={3} value={personal.notes ?? ''} oninput={e => setField('notes', e.currentTarget.value)} placeholder="e.g. I prefer startups, no consulting, willing to relocate to Munich..."></textarea></div>
+				<Btn variant="primary" icon="check" onclick={savePersonal} style="margin-top:4px;">
+					{personalDirty ? 'Save personal info · unsaved changes' : 'Save personal info'}
+				</Btn>
+				<p class="aa-cardnote">These details feed into cover letters, CV tailoring, and the auto-setup. The AI reads this context for every generation.</p>
 			</section>
 
 			<section class="aa-card">
@@ -164,6 +299,37 @@
 				<Btn variant="primary" icon="check" onclick={savePrefs} style="margin-top:4px;">Save preferences</Btn>
 				<p class="aa-cardnote">Titles, keywords and your location drive the match score on the next rescan.</p>
 			</section>
+
+			{#if countryGroups.length > 0}
+			<section class="aa-card">
+				<div class="aa-card-head">
+					<Icon name="mapPin" size={15} style="color:var(--accent-success);" />
+					<h3>Job country filter</h3>
+					<span class="aa-card-headnote">choose where to search</span>
+				</div>
+				<div class="country-grid">
+					<label class="country-item {remoteOnly ? 'remote-active' : ''}">
+						<input type="checkbox" checked={remoteOnly} onchange={toggleRemote} />
+						<span class="country-flag">🌍</span>
+						<span class="country-label">Worldwide Remote</span>
+					</label>
+					{#each countryGroups.filter(g => !g.remote) as c (c.code)}
+						<label class="country-item {selectedCountries.has(c.code) ? 'checked' : ''}">
+							<input type="checkbox"
+								checked={selectedCountries.has(c.code)}
+								onchange={() => toggleCountry(c.code)}
+								disabled={remoteOnly}
+							/>
+							<span class="country-flag">{countryFlag(c.code)}</span>
+							<span class="country-label">{c.label}</span>
+						</label>
+					{/each}
+				</div>
+				{#if remoteOnly}
+					<p class="aa-cardnote">Remote mode: only worldwide remote sources are used. Country filters are disabled.</p>
+				{/if}
+			</section>
+			{/if}
 
 			<section class="aa-card">
 				<div class="aa-card-head">
@@ -239,3 +405,28 @@
 		<div class="aa-empty"><p>Loading…</p></div>
 	{/if}
 </div>
+
+<style>
+	.country-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+		gap: 6px;
+	}
+	.country-item {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		padding: 6px 8px;
+		border: 1px solid var(--border-color, #e2e8f0);
+		border-radius: 6px;
+		cursor: pointer;
+		font-size: 0.82rem;
+	}
+	.country-item:hover { background: var(--surface-hover, #f8fafc); }
+	.country-item.checked { border-color: var(--accent-primary, #6366f1); background: var(--accent-soft, #eef2ff); }
+	.country-item.remote-active { border-color: var(--accent-success, #22c55e); background: #f0fdf4; }
+	.country-item input { accent-color: var(--accent-primary, #6366f1); }
+	.country-item input:disabled { opacity: 0.4; }
+	.country-flag { font-size: 1rem; }
+	.country-label { font-weight: 500; }
+</style>

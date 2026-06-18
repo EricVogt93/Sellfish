@@ -39,7 +39,7 @@ löst den Key auf (Infisical bzw. AES-entschlüsselt) und liefert ein `ResolvedM
 dispatcht an den passenden Client (`ChatProvider`/`EmbeddingProvider`):
 
 - **self-hosted:** `OllamaClient` (`base_url` auf eigene Instanz)
-- **OpenAI/ChatGPT, NVIDIA NIM, Kimi, OpenRouter, …:** `OpenAiCompatibleClient` mit konfigurierbarer Base-URL
+- **OpenAI/ChatGPT, NVIDIA NIM, OpenRouter, …:** `OpenAiCompatibleClient` mit konfigurierbarer Base-URL
 - **Anthropic/Claude:** `AnthropicClient`
 - **Google/Gemini:** `GoogleGeminiClient`
 

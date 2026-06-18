@@ -7,23 +7,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
- * Berechnet und speichert Embeddings für Jobs und Profile (Best-Effort: scheitert leise,
- * wenn kein Embedding-Provider konfiguriert ist oder die Dimension nicht passt).
+ * Berechnet und speichert Embeddings für Jobs und Profile.
+ *
+ * <p>Für lange Job-Texte (über CHUNK_CHARS) werden Chunks gebildet, einzeln embedded
+ * und per Mean-Pooling zu einem Vektor fusioniert. So bleibt der volle Textinhalt
+ * erhalten, ohne das Per-Slot-Token-Limit (llamacpp --ubatch-size 512) zu sprengen.
  */
 @Service
 public class JobEmbeddingService {
 
     private static final Logger log = LoggerFactory.getLogger(JobEmbeddingService.class);
-    // Begrenzung der Embedding-Eingabe. Harte Grenze ist die physical batch size des
-    // Embedding-Servers (llamacpp-embed: --ubatch-size 512) — der gesamte Embedding-Input
-    // muss in EINEN ubatch passen, sonst 500 "input too large to process". 8000 Zeichen
-    // (alter Wert) sprengten das bei langen Board-Beschreibungen -> Embedding scheiterte
-    // still -> Job wurde nie Match-Kandidat (nur BA mit kurzen Texten kam durch).
-    // 1200 Zeichen (~350-450 Tokens) liegen sicher unter 512.
-    private static final int MAX_CHARS = 1200;
+    private static final int CHUNK_CHARS = 1200;
 
     private final LlmService llmService;
     private final VectorStore vectorStore;
@@ -40,8 +39,8 @@ public class JobEmbeddingService {
     public boolean embedJob(Job job) {
         String text = jobText(job);
         try {
-            float[] vector = llmService.embed((UUID) null, text);
-            if (!dimensionOk(vector, "Job " + job.getId())) {
+            float[] vector = embedChunked(job.getId(), text);
+            if (vector == null || !dimensionOk(vector, "Job " + job.getId())) {
                 return false;
             }
             vectorStore.upsertJobEmbedding(job.getId(), vector, "embedding");
@@ -55,7 +54,7 @@ public class JobEmbeddingService {
 
     public boolean embedProfile(UUID userId, String profileText) {
         try {
-            float[] vector = llmService.embed(userId, truncate(profileText));
+            float[] vector = llmService.embed(userId, truncateSingle(profileText));
             if (!dimensionOk(vector, "Profil " + userId)) {
                 return false;
             }
@@ -67,7 +66,85 @@ public class JobEmbeddingService {
         }
     }
 
-    /** Schützt vor stillen Insert-Fehlern, wenn das Modell eine andere Dimension liefert. */
+    private float[] embedChunked(UUID jobId, String text) {
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+        if (text.length() <= CHUNK_CHARS) {
+            return llmService.embed((UUID) null, text);
+        }
+        List<String> chunks = chunk(text, CHUNK_CHARS);
+        List<float[]> vectors = new ArrayList<>();
+        for (String chunk : chunks) {
+            try {
+                float[] v = llmService.embed((UUID) null, chunk);
+                if (v != null && v.length == expectedDimension) {
+                    vectors.add(v);
+                }
+            } catch (RuntimeException e) {
+                log.warn("Chunk-Embedding fehlgeschlagen für Job {}: {}", jobId, e.getMessage());
+            }
+        }
+        if (vectors.isEmpty()) {
+            return llmService.embed((UUID) null, truncateSingle(text));
+        }
+        if (vectors.size() == 1) {
+            return vectors.get(0);
+        }
+        return meanPool(vectors);
+    }
+
+    /** Teilt Text in überlappungsfreie Chunks, möglichst an Satzgrenzen. */
+    static List<String> chunk(String text, int maxLen) {
+        List<String> chunks = new ArrayList<>();
+        int start = 0;
+        while (start < text.length()) {
+            int end = Math.min(start + maxLen, text.length());
+            if (end < text.length()) {
+                int cut = text.lastIndexOf('.', end);
+                if (cut > start + maxLen / 2) {
+                    end = cut + 1;
+                } else {
+                    cut = text.lastIndexOf('\n', end);
+                    if (cut > start + maxLen / 2) end = cut + 1;
+                    else {
+                        cut = text.lastIndexOf(' ', end);
+                        if (cut > start + maxLen / 2) end = cut;
+                    }
+                }
+            }
+            chunks.add(text.substring(start, end).trim());
+            start = end;
+        }
+        return chunks;
+    }
+
+    static float[] meanPool(List<float[]> vectors) {
+        int dim = vectors.get(0).length;
+        double[] sum = new double[dim];
+        for (float[] v : vectors) {
+            for (int i = 0; i < dim; i++) {
+                sum[i] += v[i];
+            }
+        }
+        float[] out = new float[dim];
+        double n = vectors.size();
+        for (int i = 0; i < dim; i++) {
+            out[i] = (float) (sum[i] / n);
+        }
+        return normalize(out);
+    }
+
+    static float[] normalize(float[] v) {
+        double norm = 0;
+        for (float x : v) norm += x * x;
+        norm = Math.sqrt(norm);
+        if (norm == 0) return v.clone();
+        float[] out = new float[v.length];
+        for (int i = 0; i < v.length; i++) out[i] = (float) (v[i] / norm);
+        return out;
+    }
+
     private boolean dimensionOk(float[] vector, String what) {
         if (vector.length != expectedDimension) {
             log.warn("Embedding für {} verworfen: Dimension {} ≠ Schema-Dimension {}. "
@@ -81,22 +158,14 @@ public class JobEmbeddingService {
     static String jobText(Job job) {
         StringBuilder sb = new StringBuilder();
         sb.append(job.getTitle());
-        if (job.getCompany() != null) {
-            sb.append('\n').append(job.getCompany());
-        }
-        if (job.getLocation() != null) {
-            sb.append('\n').append(job.getLocation());
-        }
-        if (job.getDescription() != null) {
-            sb.append('\n').append(job.getDescription());
-        }
-        return truncate(sb.toString());
+        if (job.getCompany() != null) sb.append('\n').append(job.getCompany());
+        if (job.getLocation() != null) sb.append('\n').append(job.getLocation());
+        if (job.getDescription() != null) sb.append('\n').append(job.getDescription());
+        return sb.toString();
     }
 
-    private static String truncate(String s) {
-        if (s == null) {
-            return "";
-        }
-        return s.length() > MAX_CHARS ? s.substring(0, MAX_CHARS) : s;
+    private static String truncateSingle(String s) {
+        if (s == null) return "";
+        return s.length() > CHUNK_CHARS ? s.substring(0, CHUNK_CHARS) : s;
     }
 }

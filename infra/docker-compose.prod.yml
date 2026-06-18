@@ -1,11 +1,15 @@
 name: bewerbungsatze-prod
 
 # Produktions-Setup: zieht die in der CD gebauten Images aus GHCR und stellt
-# alles hinter einem nginx-Reverse-Proxy bereit (Single-Origin auf Port 80).
+# alles hinter einem Caddy-Reverse-Proxy bereit (Single-Origin auf Port 80/443).
 #
-#   cp .env.example .env   # Werte setzen (Secrets!)
+#   cp .env.example .env        # Werte setzen (Secrets!)
 #   docker compose -f docker-compose.prod.yml pull
 #   docker compose -f docker-compose.prod.yml up -d
+#
+# HA-Setup (Backend-Replikation, Session-Sharing via JDBC):
+#   docker compose -f docker-compose.prod.yml up -d --scale backend=2
+#   Erfordert: mindestens 2 Backend-Instanzen + Caddy LB (round_robin).
 
 services:
   postgres:
@@ -41,6 +45,7 @@ services:
   backend:
     image: ${BACKEND_IMAGE:-ghcr.io/ericvogt93/bewerbungsatze-backend}:${IMAGE_TAG:-latest}
     restart: unless-stopped
+    # scale via: docker compose -f docker-compose.prod.yml up -d --scale backend=2
     depends_on:
       postgres:
         condition: service_healthy

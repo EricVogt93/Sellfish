@@ -3,10 +3,13 @@ import de.bewerbungsatze.users.*;
 
 import de.bewerbungsatze.common.error.ApiException;
 import de.bewerbungsatze.common.security.CurrentUser;
+import de.bewerbungsatze.tenant.OrgMemberRepository;
+import de.bewerbungsatze.tenant.OrganizationRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -14,18 +17,32 @@ import java.util.UUID;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final OrgMemberRepository orgMemberRepository;
+    private final OrganizationRepository orgRepository;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository,
+                          OrgMemberRepository orgMemberRepository,
+                          OrganizationRepository orgRepository) {
         this.userRepository = userRepository;
+        this.orgMemberRepository = orgMemberRepository;
+        this.orgRepository = orgRepository;
     }
 
-    public record MeResponse(UUID id, String email, String role, String locale) {
+    public record MeResponse(UUID id, String email, String role, String locale,
+                             UUID currentOrgId, List<OrgRef> orgs) {
+        public record OrgRef(UUID id, String name, String slug, String plan) {}
     }
 
     @GetMapping
     public MeResponse me() {
         User user = userRepository.findById(CurrentUser.id())
                 .orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
-        return new MeResponse(user.getId(), user.getEmail(), user.getRole().name(), user.getLocale());
+        List<MeResponse.OrgRef> orgList = orgMemberRepository.findByUserId(user.getId()).stream()
+                .map(m -> orgRepository.findById(m.getOrgId()).orElse(null))
+                .filter(o -> o != null)
+                .map(o -> new MeResponse.OrgRef(o.getId(), o.getName(), o.getSlug(), o.getPlan()))
+                .toList();
+        return new MeResponse(user.getId(), user.getEmail(), user.getRole().name(),
+                user.getLocale(), user.getCurrentOrgId(), orgList);
     }
 }

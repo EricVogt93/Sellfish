@@ -1,11 +1,14 @@
 package de.bewerbungsatze.auth;
 
+import de.bewerbungsatze.audit.AuditAction;
+import de.bewerbungsatze.audit.AuditService;
 import de.bewerbungsatze.auth.dto.AuthDtos.LoginRequest;
 import de.bewerbungsatze.auth.dto.AuthDtos.RefreshRequest;
 import de.bewerbungsatze.auth.dto.AuthDtos.RegisterRequest;
 import de.bewerbungsatze.auth.dto.AuthDtos.TokenResponse;
 import de.bewerbungsatze.common.config.SecurityProperties;
 import de.bewerbungsatze.common.error.ApiException;
+import de.bewerbungsatze.sso.OidcService;
 import de.bewerbungsatze.users.User;
 import de.bewerbungsatze.users.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -26,17 +29,20 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final SecurityProperties securityProperties;
+    private final AuditService auditService;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
                        JwtService jwtService,
-                       SecurityProperties securityProperties) {
+                       SecurityProperties securityProperties,
+                       AuditService auditService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.securityProperties = securityProperties;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -46,6 +52,7 @@ public class AuthService {
         }
         User user = new User(req.email().toLowerCase(), passwordEncoder.encode(req.password()));
         userRepository.save(user);
+        auditService.record(user.getId(), AuditAction.REGISTER);
         return issueTokens(user);
     }
 
@@ -54,6 +61,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(req.email(), req.password()));
         User user = userRepository.findByEmailIgnoreCase(req.email())
                 .orElseThrow(() -> new BadCredentialsException("Ungültige Anmeldedaten"));
+        auditService.record(user.getId(), AuditAction.LOGIN);
         return issueTokens(user);
     }
 
@@ -73,13 +81,27 @@ public class AuthService {
         return issueTokens(user);
     }
 
+    @Transactional
+    public TokenResponse loginWithSso(OidcService.OidcUser oidcUser) {
+        User user = userRepository.findByOidcSubjectAndOidcProvider(oidcUser.subject(), oidcUser.provider())
+                .orElseGet(() -> {
+                    User newUser = User.sso(oidcUser.email(), oidcUser.subject(), oidcUser.provider());
+                    return userRepository.save(newUser);
+                });
+        auditService.record(user.getId(), AuditAction.SSO_LOGIN);
+        return issueTokens(user);
+    }
+
     private TokenResponse issueTokens(User user) {
-        String access = jwtService.generateAccessToken(user.getId(), user.getEmail());
+        String access = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getCurrentOrgId());
         String refresh = jwtService.generateRefreshToken(user.getId());
-        return new TokenResponse(
-                access,
-                refresh,
-                "Bearer",
+        return new TokenResponse(access, refresh, "Bearer",
+                securityProperties.accessTokenTtlMinutes() * 60);
+    }
+
+    public TokenResponse issueAccessToken(User user) {
+        String access = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getCurrentOrgId());
+        return new TokenResponse(access, null, "Bearer",
                 securityProperties.accessTokenTtlMinutes() * 60);
     }
 }

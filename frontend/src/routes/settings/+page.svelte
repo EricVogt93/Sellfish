@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { api, getAccessToken } from '$lib/api';
+  import { backend, type LicenseStatus } from '$lib/api/backend';
+  import type { AuditEvent, AuditPage } from '$lib/api/backend';
   import { goto } from '$app/navigation';
 
   interface Config {
@@ -25,7 +27,6 @@
     { group: 'opencode-go (Cloud)', label: 'DeepSeek V4 Pro', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'deepseek-v4-pro' },
     { group: 'opencode-go (Cloud)', label: 'DeepSeek V4 Flash', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'deepseek-v4-flash' },
     { group: 'opencode-go (Cloud)', label: 'GLM 5.1', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'glm-5.1' },
-    { group: 'opencode-go (Cloud)', label: 'Kimi K2.6', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'kimi-k2.6' },
     { group: 'opencode-go (Cloud)', label: 'Qwen3.7 Max', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'qwen3.7-max' },
     { group: 'opencode-go (Cloud)', label: 'MiniMax M3', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'minimax-m3' }
   ];
@@ -94,11 +95,12 @@
 
   onMount(async () => {
     if (!getAccessToken()) {
-      await goto('/login');
+      await goto('/');
       return;
     }
     await load();
     await loadGlobal();
+    if (isAdmin) { await loadLicense(); await loadAudit(); }
   });
 
   async function create(event: SubmitEvent) {
@@ -124,6 +126,60 @@
   async function remove(id: string) {
     await api(`/api/llm/configs/${id}`, { method: 'DELETE' });
     await load();
+  }
+
+  // ── Lizenz ──
+
+  let licenseKey = $state('');
+  let licenseLoading = $state(false);
+  let licenseStatus = $state<LicenseStatus | null>(null);
+  let licenseMsg = $state<string | null>(null);
+
+  async function loadLicense() {
+    try {
+      licenseStatus = await backend.getLicenseStatus();
+    } catch {
+      licenseStatus = null;
+    }
+  }
+
+  async function uploadLicense() {
+    if (!licenseKey.trim()) return;
+    licenseLoading = true;
+    licenseMsg = null;
+    try {
+      const s = await backend.uploadLicense(licenseKey.trim());
+      licenseStatus = s;
+      licenseKey = '';
+      licenseMsg = '✓ License activated';
+    } catch (e) {
+      licenseMsg = '✗ ' + (e instanceof Error ? e.message : 'Error');
+    } finally {
+      licenseLoading = false;
+    }
+  }
+
+  // ── Audit-Log ──
+
+  let auditEvents = $state<AuditEvent[]>([]);
+  let auditPage = $state(0);
+  let auditTotal = $state(0);
+  let auditTotalPages = $state(1);
+  let auditLoading = $state(false);
+
+  async function loadAudit(p = 0) {
+    auditLoading = true;
+    try {
+      const res = await backend.getAudit({ page: p, size: 50 });
+      auditEvents = res.content;
+      auditPage = res.number;
+      auditTotal = res.totalElements;
+      auditTotalPages = res.totalPages;
+    } catch {
+      auditEvents = [];
+    } finally {
+      auditLoading = false;
+    }
   }
 </script>
 
@@ -158,6 +214,45 @@
   <p class="hint">
     Lokale Modelle laufen frei &amp; privat im Homelab. Cloud-Modelle (opencode-go) brauchen den
     Key nur beim ersten Mal — danach reicht das Dropdown.
+  </p>
+</section>
+{/if}
+
+{#if isAdmin && licenseStatus !== null}
+<section class="switcher">
+  <h1>Enterprise-Lizenz</h1>
+  <p class="cur">
+    Status:
+    <strong>{licenseStatus.valid ? 'Aktiv' : 'Keine Lizenz'}</strong>
+    {#if licenseStatus.valid && licenseStatus.subject}
+      <span class="tag">{licenseStatus.subject}</span>
+    {/if}
+  </p>
+  {#if licenseStatus.valid && licenseStatus.expires}
+    <p class="cur">Gültig bis: <strong>{new Date(licenseStatus.expires).toLocaleDateString()}</strong></p>
+  {/if}
+  {#if licenseStatus.features.length > 0}
+    <p class="cur">
+      Features:
+      {#each licenseStatus.features as f}
+        <span class="feat-tag">{f}</span>
+      {/each}
+    </p>
+  {/if}
+  <div class="switchrow">
+    <input
+      placeholder="Lizenz-Key einfügen…"
+      bind:value={licenseKey}
+      style="flex:1 1 20rem; font-family: monospace; font-size: 0.8rem;"
+    />
+    <button onclick={uploadLicense} disabled={licenseLoading}>
+      {licenseLoading ? 'Aktiviere…' : 'Aktivieren'}
+    </button>
+  </div>
+  {#if licenseMsg}<p class="msg">{licenseMsg}</p>{/if}
+  <p class="hint">
+    Enterprise-Lizenzen sind RSA-signiert und werden offline validiert. Kopiere den Key in dieses Feld
+    um Features wie SSO, Multi-Tenant, Audit-Log und HA freizuschalten.
   </p>
 </section>
 {/if}
@@ -201,6 +296,42 @@
     </tbody>
   </table>
 </section>
+
+{#if isAdmin}
+<section>
+  <h1>Audit-Log</h1>
+  {#if auditLoading}
+    <p class="msg">Lade…</p>
+  {:else if auditEvents.length === 0}
+    <p class="msg">Keine Ereignisse.</p>
+  {:else}
+    <div class="audit-bar">
+      <span>{auditTotal} Ereignisse gesamt</span>
+      <div class="audit-pager">
+        <button onclick={() => loadAudit(auditPage - 1)} disabled={auditPage <= 0 || auditLoading}>←</button>
+        <span>Seite {auditPage + 1} / {auditTotalPages}</span>
+        <button onclick={() => loadAudit(auditPage + 1)} disabled={auditPage >= auditTotalPages - 1 || auditLoading}>→</button>
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr><th>Zeit</th><th>User</th><th>Aktion</th><th>Target</th><th>IP</th></tr>
+      </thead>
+      <tbody>
+        {#each auditEvents as e}
+          <tr>
+            <td class="audit-ts">{new Date(e.ts).toLocaleString()}</td>
+            <td class="audit-uid">{e.userId?.slice(0, 8)}…</td>
+            <td><span class="audit-action">{e.action}</span></td>
+            <td>{e.targetType ? e.targetType + ': ' + e.targetId?.slice(0, 8) + '…' : '–'}</td>
+            <td class="audit-ip">{e.ip || '–'}</td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  {/if}
+</section>
+{/if}
 
 <style>
   form {
@@ -279,5 +410,47 @@
   .hint {
     font-size: 0.8rem;
     color: #6b7280;
+  }
+  .feat-tag {
+    display: inline-block;
+    margin: 0 0.2rem;
+    padding: 0.05rem 0.5rem;
+    border-radius: 999px;
+    background: #dbeafe;
+    color: #1e40af;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .audit-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  .audit-pager {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  .audit-pager button:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .audit-ts {
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+  .audit-uid,
+  .audit-ip {
+    font-family: monospace;
+    font-size: 0.72rem;
+  }
+  .audit-action {
+    font-size: 0.75rem;
+    padding: 1px 6px;
+    border-radius: 3px;
+    background: #f1f5f9;
   }
 </style>

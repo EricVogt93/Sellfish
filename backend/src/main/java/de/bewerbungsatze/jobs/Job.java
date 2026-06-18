@@ -8,6 +8,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Entity
 @Table(name = "jobs")
@@ -18,6 +19,9 @@ public class Job extends BaseEntity {
 
     @Column(name = "external_ref")
     private String externalRef;
+
+    @Column(name = "org_id")
+    private UUID orgId;
 
     @Column(nullable = false, unique = true)
     private String fingerprint;
@@ -65,6 +69,14 @@ public class Job extends BaseEntity {
 
     public void setExternalRef(String externalRef) {
         this.externalRef = externalRef;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
     }
 
     public String getFingerprint() {

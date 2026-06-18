@@ -25,6 +25,9 @@ public class FeedbackEvent {
     @Column(name = "job_id")
     private UUID jobId;
 
+    @Column(name = "org_id")
+    private UUID orgId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private FeedbackType type;
@@ -55,6 +58,14 @@ public class FeedbackEvent {
 
     public UUID getJobId() {
         return jobId;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public void setOrgId(UUID orgId) {
+        this.orgId = orgId;
     }
 
     public FeedbackType getType() {

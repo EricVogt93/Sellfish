@@ -1,6 +1,7 @@
 package de.bewerbungsatze.common.config;
 
 import de.bewerbungsatze.auth.JwtAuthenticationFilter;
+import de.bewerbungsatze.tenant.OrgFilter;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,10 +28,12 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
+    private final OrgFilter orgFilter;
     private final CorsProperties corsProperties;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter, CorsProperties corsProperties) {
+    public SecurityConfig(JwtAuthenticationFilter jwtFilter, OrgFilter orgFilter, CorsProperties corsProperties) {
         this.jwtFilter = jwtFilter;
+        this.orgFilter = orgFilter;
         this.corsProperties = corsProperties;
     }
 
@@ -44,20 +47,25 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
-                                "/api/auth/refresh").permitAll()
+                                "/api/auth/refresh",
+                                "/api/auth/sso/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/actuator/health", "/actuator/info").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html").permitAll()
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/admin/license/status").permitAll()
+                        .requestMatchers("/api/admin/license/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers("/api/admin/audit/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
+                        .requestMatchers("/api/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                         .anyRequest().authenticated())
                 // Token-API: nicht authentifiziert => 401 (Default wäre 403).
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(
                         (request, response, authException) ->
                                 response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED,
                                         "Unauthorized")))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(orgFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

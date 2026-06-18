@@ -10,78 +10,68 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
-/**
- * Berechnet die regelbasierten Merkmale eines Jobs für einen Nutzer (jeweils 0..1).
- */
 @Component
 public class FeatureScorer {
 
     private static final double RECENCY_HALF_LIFE_DAYS = 30.0;
 
-    public Features score(Job job, MatchContext ctx, double semantic) {
+    private final JobValidationService validationService;
+
+    public FeatureScorer(JobValidationService validationService) {
+        this.validationService = validationService;
+    }
+
+    /** Alle Features inkl. Skill-Overlap. AI-Relevanz separat via AI-Service. */
+    public Features score(Job job, MatchContext ctx, double semantic, double aiRelevance) {
+        String jobText = jobTextForSkills(job);
         return new Features(
                 clamp(semantic),
                 titleScore(job, ctx),
                 keywordScore(job, ctx),
                 locationScore(job, ctx),
                 recencyScore(job),
-                remoteScore(job, ctx));
+                remoteScore(job, ctx),
+                SkillExtractor.overlap(jobText, ctx.profileText()),
+                aiRelevance);
     }
 
-    /** True, wenn der Job hart ausgeschlossen werden soll. */
+    /** Score ohne AI (zur Verwendung im Self-Learning, das keine LLM-Calls macht). */
+    public Features score(Job job, MatchContext ctx, double semantic) {
+        return score(job, ctx, semantic, 0.5);
+    }
+
     public boolean isExcluded(Job job, MatchContext ctx) {
-        if (job.getCompany() == null || ctx.excludedCompanies().isEmpty()) {
-            return false;
-        }
+        if (job.getCompany() == null || ctx.excludedCompanies().isEmpty()) return false;
         String company = job.getCompany().toLowerCase(Locale.ROOT);
         return ctx.excludedCompanies().stream().anyMatch(company::contains);
     }
 
     private double titleScore(Job job, MatchContext ctx) {
-        if (ctx.desiredTitles().isEmpty()) {
-            return 0.0;
-        }
+        if (ctx.desiredTitles().isEmpty()) return 0.0;
         Set<String> jobTokens = TextTokens.tokenize(job.getTitle());
-        if (jobTokens.isEmpty()) {
-            return 0.0;
-        }
+        if (jobTokens.isEmpty()) return 0.0;
         int matched = 0;
         for (String title : ctx.desiredTitles()) {
-            Set<String> titleTokens = TextTokens.tokenize(title);
-            if (!titleTokens.isEmpty() && overlaps(titleTokens, jobTokens)) {
-                matched++;
-            }
+            if (!TextTokens.tokenize(title).isEmpty() && overlaps(TextTokens.tokenize(title), jobTokens)) matched++;
         }
         return (double) matched / ctx.desiredTitles().size();
     }
 
     private double keywordScore(Job job, MatchContext ctx) {
-        if (ctx.keywords().isEmpty()) {
-            return 0.0;
-        }
+        if (ctx.keywords().isEmpty()) return 0.0;
         String haystack = (job.getTitle() + " " + nz(job.getDescription())).toLowerCase(Locale.ROOT);
-        long matched = ctx.keywords().stream()
-                .map(k -> k.toLowerCase(Locale.ROOT))
-                .filter(haystack::contains)
-                .count();
+        long matched = ctx.keywords().stream().map(k -> k.toLowerCase(Locale.ROOT)).filter(haystack::contains).count();
         return (double) matched / ctx.keywords().size();
     }
 
     private double locationScore(Job job, MatchContext ctx) {
-        if (ctx.location() == null || ctx.location().isBlank()) {
-            return 0.0;
-        }
-        if ("REMOTE".equalsIgnoreCase(ctx.remotePref())) {
-            return 1.0;
-        }
-        Set<String> wanted = TextTokens.tokenize(ctx.location());
-        return TextTokens.containsAny(job.getLocation(), wanted) ? 1.0 : 0.0;
+        if (ctx.location() == null || ctx.location().isBlank()) return 0.0;
+        if ("REMOTE".equalsIgnoreCase(ctx.remotePref())) return 1.0;
+        return TextTokens.containsAny(job.getLocation(), TextTokens.tokenize(ctx.location())) ? 1.0 : 0.0;
     }
 
     private double recencyScore(Job job) {
-        if (job.getPostedAt() == null) {
-            return 0.5;
-        }
+        if (job.getPostedAt() == null) return 0.5;
         double days = Math.max(0, Duration.between(job.getPostedAt(), Instant.now()).toHours() / 24.0);
         return Math.pow(0.5, days / RECENCY_HALF_LIFE_DAYS);
     }
@@ -99,17 +89,16 @@ public class FeatureScorer {
         };
     }
 
+    private String jobTextForSkills(Job job) {
+        return (nz(job.getTitle()) + " " + nz(job.getDescription()));
+    }
+
     private boolean overlaps(Set<String> a, Set<String> b) {
         Set<String> copy = new HashSet<>(a);
         copy.retainAll(b);
         return !copy.isEmpty();
     }
 
-    private String nz(String s) {
-        return s == null ? "" : s;
-    }
-
-    private double clamp(double v) {
-        return Math.max(0.0, Math.min(1.0, v));
-    }
+    private String nz(String s) { return s == null ? "" : s; }
+    private double clamp(double v) { return Math.max(0.0, Math.min(1.0, v)); }
 }

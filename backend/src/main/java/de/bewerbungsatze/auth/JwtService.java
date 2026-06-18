@@ -32,15 +32,19 @@ public class JwtService {
     }
 
     public String generateAccessToken(UUID userId, String email) {
+        return generateAccessToken(userId, email, null);
+    }
+
+    public String generateAccessToken(UUID userId, String email, UUID orgId) {
         Instant now = Instant.now();
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .subject(userId.toString())
                 .claim("email", email)
                 .claim(CLAIM_TYPE, TYPE_ACCESS)
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(now.plus(props.accessTokenTtlMinutes(), ChronoUnit.MINUTES)))
-                .signWith(key)
-                .compact();
+                .expiration(Date.from(now.plus(props.accessTokenTtlMinutes(), ChronoUnit.MINUTES)));
+        if (orgId != null) builder.claim("orgId", orgId.toString());
+        return builder.signWith(key).compact();
     }
 
     public String generateRefreshToken(UUID userId) {
