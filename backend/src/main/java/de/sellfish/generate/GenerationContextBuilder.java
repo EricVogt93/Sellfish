@@ -33,38 +33,38 @@ public class GenerationContextBuilder {
     public String build(UUID userId, Job job) {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("# Zielstelle\n");
-        sb.append("Titel: ").append(job.getTitle()).append('\n');
+        sb.append("# Target role\n");
+        sb.append("Title: ").append(job.getTitle()).append('\n');
         if (job.getCompany() != null) {
-            sb.append("Unternehmen: ").append(job.getCompany()).append('\n');
+            sb.append("Company: ").append(job.getCompany()).append('\n');
         }
         if (job.getLocation() != null) {
-            sb.append("Ort: ").append(job.getLocation()).append('\n');
+            sb.append("Location: ").append(job.getLocation()).append('\n');
         }
         if (job.getDescription() != null) {
-            sb.append("Beschreibung:\n").append(job.getDescription()).append('\n');
+            sb.append("Description:\n").append(job.getDescription()).append('\n');
         }
 
-        sb.append("\n# Bewerberprofil\n");
+        sb.append("\n# Applicant profile\n");
         UserProfile profile = profileRepository.findByUserId(userId).orElse(null);
         if (profile != null) {
-            appendIf(sb, "Kurzprofil", profile.getHeadline());
-            appendIf(sb, "Zusammenfassung", profile.getSummary());
-            appendIf(sb, "Standort", profile.getLocation());
+            appendIf(sb, "Headline", profile.getHeadline());
+            appendIf(sb, "Summary", profile.getSummary());
+            appendIf(sb, "Location", profile.getLocation());
         }
 
         CvStructured cv = cvRepository.findByUserId(userId).orElse(null);
         if (cv != null) {
-            appendIf(sb, "Berufserfahrung (JSON)", cv.getExperience());
-            appendIf(sb, "Ausbildung (JSON)", cv.getEducation());
-            appendIf(sb, "Fähigkeiten (JSON)", cv.getSkills());
-            appendIf(sb, "Sprachen (JSON)", cv.getLanguages());
-            appendIf(sb, "Zertifikate (JSON)", cv.getCertifications());
+            appendIf(sb, "Experience (JSON)", cv.getExperience());
+            appendIf(sb, "Education (JSON)", cv.getEducation());
+            appendIf(sb, "Skills (JSON)", cv.getSkills());
+            appendIf(sb, "Languages (JSON)", cv.getLanguages());
+            appendIf(sb, "Certifications (JSON)", cv.getCertifications());
         }
 
         List<Project> projects = projectRepository.findByUserIdOrderByCreatedAtDesc(userId);
         if (!projects.isEmpty()) {
-            sb.append("\n## Projekte\n");
+            sb.append("\n## Projects\n");
             for (Project p : projects) {
                 sb.append("- ").append(p.getTitle());
                 if (p.getRole() != null) {

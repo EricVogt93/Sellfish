@@ -14,6 +14,7 @@
 	import UsersView from '$lib/sellfish/UsersView.svelte';
 	import CommandPalette from '$lib/sellfish/CommandPalette.svelte';
 	import OrgSwitcher from '$lib/sellfish/OrgSwitcher.svelte';
+	import Onboarding from '$lib/sellfish/Onboarding.svelte';
 	import { toast } from '$lib/sellfish/toasts.svelte';
 	import { mapMatch, initialsOf, hueOf } from '$lib/sellfish/map';
 	import type { Job } from '$lib/sellfish/data';
@@ -259,6 +260,13 @@
 
 	<main class="aa-main">
 		{#if view === 'jobs'}
+			<Onboarding
+				hasMatches={jobs.length > 0}
+				hasDocuments={documents.some((d) => d.hasStruct)}
+				onNavigate={(v) => (view = v)}
+				onRescan={rescan}
+				{searching}
+			/>
 			<JobsView
 				{jobs}
 				{ratings}
