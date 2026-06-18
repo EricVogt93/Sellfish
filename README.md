@@ -11,6 +11,8 @@
 ![SvelteKit 5](https://img.shields.io/badge/SvelteKit-5-ff3e00?style=flat-square)
 ![PostgreSQL + pgvector](https://img.shields.io/badge/PostgreSQL-+pgvector-blue?style=flat-square)
 
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-☕-yellow?style=flat-square)](https://www.buymeacoffee.com/ericvogt)
+
 </div>
 
 ---
