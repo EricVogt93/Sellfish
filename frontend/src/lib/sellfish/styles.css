@@ -169,7 +169,7 @@ code {
 ::selection { background: var(--accent-primary); color: var(--text-primary); }
 
 /* =====================================================================
-   autoapply — app chrome
+   Sellfish — app chrome
    Design system: ds_Homepage (Eric Vogt) — dark, violet/cyan neon, glass
    ===================================================================== */
 * { margin: 0; padding: 0; box-sizing: border-box; }

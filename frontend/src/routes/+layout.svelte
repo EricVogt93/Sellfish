@@ -1,5 +1,5 @@
 <script lang="ts">
-	import '$lib/autoapply/styles.css';
+	import '$lib/sellfish/styles.css';
 
 	let { children } = $props();
 </script>

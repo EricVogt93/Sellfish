@@ -272,7 +272,7 @@
 					<div class="aa-field"><label>Full name</label><input class="aa-input" value={personal.fullName ?? ''} oninput={e => setField('fullName', e.currentTarget.value)} placeholder="Max Mustermann" /></div>
 					<div class="aa-field"><label>Phone</label><input class="aa-input" value={personal.phone ?? ''} oninput={e => setField('phone', e.currentTarget.value)} placeholder="+49 123 456789" /></div>
 				</div>
-				<div class="aa-field"><label>Address</label><input class="aa-input" value={personal.address ?? ''} oninput={e => setField('address', e.currentTarget.value)} placeholder="Musterstraße 1" /></div>
+				<div class="aa-field"><label>Address</label><input class="aa-input" value={personal.address ?? ''} oninput={e => setField('address', e.currentTarget.value)} placeholder="123 Main St" /></div>
 				<div class="aa-field-row">
 					<div class="aa-field"><label>Postal code</label><input class="aa-input" value={personal.postalCode ?? ''} oninput={e => setField('postalCode', e.currentTarget.value)} placeholder="10115" /></div>
 					<div class="aa-field"><label>City</label><input class="aa-input" value={personal.city ?? ''} oninput={e => setField('city', e.currentTarget.value)} placeholder="Berlin" /></div>

@@ -1,4 +1,4 @@
-// ── autoapply · Toast-Store (Svelte 5 runes) ──
+// ── Sellfish · Toast-Store (Svelte 5 runes) ──
 export interface Toast {
 	id: number;
 	msg: string;

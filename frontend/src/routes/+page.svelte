@@ -1,22 +1,22 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import Icon from '$lib/autoapply/Icon.svelte';
-	import Kbd from '$lib/autoapply/Kbd.svelte';
-	import Avatar from '$lib/autoapply/Avatar.svelte';
-	import CursorGlow from '$lib/autoapply/CursorGlow.svelte';
-	import Toasts from '$lib/autoapply/Toasts.svelte';
-	import Login from '$lib/autoapply/Login.svelte';
-	import JobsView from '$lib/autoapply/JobsView.svelte';
-	import JobDrawer from '$lib/autoapply/JobDrawer.svelte';
-	import ApplyModal from '$lib/autoapply/ApplyModal.svelte';
-	import ApplicationsView from '$lib/autoapply/ApplicationsView.svelte';
-	import ProfileView from '$lib/autoapply/ProfileView.svelte';
-	import UsersView from '$lib/autoapply/UsersView.svelte';
-	import CommandPalette from '$lib/autoapply/CommandPalette.svelte';
-	import OrgSwitcher from '$lib/autoapply/OrgSwitcher.svelte';
-	import { toast } from '$lib/autoapply/toasts.svelte';
-	import { mapMatch, initialsOf, hueOf } from '$lib/autoapply/map';
-	import type { Job } from '$lib/autoapply/data';
+	import Icon from '$lib/sellfish/Icon.svelte';
+	import Kbd from '$lib/sellfish/Kbd.svelte';
+	import Avatar from '$lib/sellfish/Avatar.svelte';
+	import CursorGlow from '$lib/sellfish/CursorGlow.svelte';
+	import Toasts from '$lib/sellfish/Toasts.svelte';
+	import Login from '$lib/sellfish/Login.svelte';
+	import JobsView from '$lib/sellfish/JobsView.svelte';
+	import JobDrawer from '$lib/sellfish/JobDrawer.svelte';
+	import ApplyModal from '$lib/sellfish/ApplyModal.svelte';
+	import ApplicationsView from '$lib/sellfish/ApplicationsView.svelte';
+	import ProfileView from '$lib/sellfish/ProfileView.svelte';
+	import UsersView from '$lib/sellfish/UsersView.svelte';
+	import CommandPalette from '$lib/sellfish/CommandPalette.svelte';
+	import OrgSwitcher from '$lib/sellfish/OrgSwitcher.svelte';
+	import { toast } from '$lib/sellfish/toasts.svelte';
+	import { mapMatch, initialsOf, hueOf } from '$lib/sellfish/map';
+	import type { Job } from '$lib/sellfish/data';
 	import { getSession, initSession, logout } from '$lib/api/session.svelte';
 	import { backend, type MatchResponse, type DocumentResponse, type MatchStatus } from '$lib/api/backend';
 	import { goto } from '$app/navigation';
@@ -201,7 +201,7 @@
 </script>
 
 <svelte:head>
-	<title>autoapply — application autopilot</title>
+	<title>Sellfish — AI job-search autopilot</title>
 </svelte:head>
 
 <svelte:window onkeydown={onKey} />
@@ -217,7 +217,7 @@
 		<div class="aa-topbar-inner">
 			<div class="aa-brand">
 				<span class="aa-brandmark"><Icon name="zap" size={14} strokeWidth={2.2} /></span>
-				<span class="aa-brandname">auto<span class="gradient-text">apply</span></span>
+				<span class="aa-brandname">Sell<span class="gradient-text">fish</span></span>
 			</div>
 			<nav class="aa-nav">
 				{#each NAV as n (n.id)}

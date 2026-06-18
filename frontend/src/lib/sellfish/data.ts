@@ -1,4 +1,4 @@
-// ── autoapply · UI-Typen, Filter-Set (= Score-Merkmale) und Stages ──
+// ── Sellfish · UI-Typen, Filter-Set (= Score-Merkmale) und Stages ──
 
 export interface Filter {
 	id: string;

@@ -33,7 +33,7 @@
 </script>
 
 <svelte:head>
-	<title>SSO Callback — autoapply</title>
+	<title>SSO Callback — Sellfish</title>
 </svelte:head>
 
 <div class="aa-callback">

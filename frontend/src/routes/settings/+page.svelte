@@ -17,18 +17,18 @@
 
   const PROVIDERS = ['OLLAMA', 'OPENAI', 'NIM', 'OPENAI_COMPATIBLE', 'ANTHROPIC', 'GOOGLE'];
 
-  // Kuratierte Modell-Presets fuer den Schnell-Umschalter (ohne Keys – der Key wird
-  // serverseitig pro Provider/baseUrl wiederverwendet, einmal hinterlegt reicht).
-  const LOCAL_BASE = 'http://llamacpp.ai.svc.cluster.local:8000/v1';
-  const GO_BASE = 'https://opencode.ai/zen/go/v1';
+  // Curated model presets for the quick switcher (key reused server-side per
+  // provider/baseUrl — set it once and the dropdown is enough afterwards).
+  const LOCAL_BASE = 'http://localhost:11434/v1';   // local Ollama (free, private)
+  const OR_BASE = 'https://openrouter.ai/api/v1';   // OpenRouter (public aggregator, one key)
   interface Preset { label: string; group: string; provider: string; baseUrl: string; model: string; }
   const MODEL_PRESETS: Preset[] = [
-    { group: 'Lokal (Homelab, privat & frei)', label: 'gpt-oss-20b — lokal, schnell', provider: 'OPENAI_COMPATIBLE', baseUrl: LOCAL_BASE, model: 'gpt-oss-20b' },
-    { group: 'opencode-go (Cloud)', label: 'DeepSeek V4 Pro', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'deepseek-v4-pro' },
-    { group: 'opencode-go (Cloud)', label: 'DeepSeek V4 Flash', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'deepseek-v4-flash' },
-    { group: 'opencode-go (Cloud)', label: 'GLM 5.1', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'glm-5.1' },
-    { group: 'opencode-go (Cloud)', label: 'Qwen3.7 Max', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'qwen3.7-max' },
-    { group: 'opencode-go (Cloud)', label: 'MiniMax M3', provider: 'OPENAI_COMPATIBLE', baseUrl: GO_BASE, model: 'minimax-m3' }
+    { group: 'Local (Ollama — free & private)', label: 'Llama 3.3 (70B) — local', provider: 'OPENAI_COMPATIBLE', baseUrl: LOCAL_BASE, model: 'llama3.3' },
+    { group: 'Local (Ollama — free & private)', label: 'Qwen 2.5 (32B) — local', provider: 'OPENAI_COMPATIBLE', baseUrl: LOCAL_BASE, model: 'qwen2.5:32b' },
+    { group: 'OpenRouter (cloud — one key, many models)', label: 'GPT-4o mini — cheap & fast', provider: 'OPENAI_COMPATIBLE', baseUrl: OR_BASE, model: 'openai/gpt-4o-mini' },
+    { group: 'OpenRouter (cloud — one key, many models)', label: 'Claude 3.5 Sonnet', provider: 'OPENAI_COMPATIBLE', baseUrl: OR_BASE, model: 'anthropic/claude-3.5-sonnet' },
+    { group: 'OpenRouter (cloud — one key, many models)', label: 'Gemini 2.0 Flash', provider: 'OPENAI_COMPATIBLE', baseUrl: OR_BASE, model: 'google/gemini-2.0-flash-001' },
+    { group: 'OpenRouter (cloud — one key, many models)', label: 'DeepSeek V3', provider: 'OPENAI_COMPATIBLE', baseUrl: OR_BASE, model: 'deepseek/deepseek-chat' }
   ];
   const GROUPS = [...new Set(MODEL_PRESETS.map((p) => p.group))];
 
@@ -85,7 +85,7 @@
       });
       switchKey = '';
       await loadGlobal();
-      switchMsg = `✓ Generierungs-Modell aktiv: ${p.model}`;
+      switchMsg = `✓ Generation model active: ${p.model}`;
     } catch (e) {
       switchMsg = '✗ ' + (e instanceof Error ? e.message : 'Fehler');
     } finally {
@@ -128,7 +128,7 @@
     await load();
   }
 
-  // ── Lizenz ──
+  // ── License ──
 
   let licenseKey = $state('');
   let licenseLoading = $state(false);
@@ -185,14 +185,14 @@
 
 {#if isAdmin}
 <section class="switcher">
-  <h1>KI-Modell (Generierung)</h1>
+  <h1>AI Model (Generation)</h1>
   <p class="cur">
-    Aktiv:
-    <strong>{activeChat ? activeChat.model : '— keins gesetzt'}</strong>
-    {#if activeChat}<span class="tag">{activeChat.baseUrl && activeChat.baseUrl.includes('opencode') ? 'Cloud' : 'lokal'}</span>{/if}
+    Active:
+    <strong>{activeChat ? activeChat.model : '— none set'}</strong>
+    {#if activeChat}<span class="tag">{activeChat.baseUrl && activeChat.baseUrl.includes('openrouter') ? 'Cloud' : 'local'}</span>{/if}
   </p>
   <div class="switchrow">
-    <select bind:value={selectedModel} aria-label="Modell wählen">
+    <select bind:value={selectedModel} aria-label="Select model">
       {#each GROUPS as g}
         <optgroup label={g}>
           {#each MODEL_PRESETS.filter((m) => m.group === g) as m}
@@ -202,58 +202,58 @@
       {/each}
     </select>
     <input
-      placeholder="API-Key (nur 1× pro Cloud-Provider)"
+      placeholder="API key (once per cloud provider)"
       type="password"
       bind:value={switchKey}
     />
     <button onclick={switchModel} disabled={switching}>
-      {switching ? 'Wechsle…' : 'Aktivieren'}
+      {switching ? 'Switching…' : 'Activate'}
     </button>
   </div>
   {#if switchMsg}<p class="msg">{switchMsg}</p>{/if}
   <p class="hint">
-    Lokale Modelle laufen frei &amp; privat im Homelab. Cloud-Modelle (opencode-go) brauchen den
-    Key nur beim ersten Mal — danach reicht das Dropdown.
+    Local models run free &amp; private on your own machine (Ollama). Cloud models (OpenRouter)
+    need an API key once — afterwards the dropdown is enough.
   </p>
 </section>
 {/if}
 
 {#if isAdmin && licenseStatus !== null}
 <section class="switcher">
-  <h1>Enterprise-Lizenz</h1>
+  <h1>Enterprise license</h1>
   <p class="cur">
     Status:
-    <strong>{licenseStatus.valid ? 'Aktiv' : 'Keine Lizenz'}</strong>
+    <strong>{licenseStatus.valid ? 'Active' : 'No license'}</strong>
     {#if licenseStatus.valid && licenseStatus.subject}
       <span class="tag">{licenseStatus.subject}</span>
     {/if}
   </p>
-  {#if licenseStatus.valid && licenseStatus.expires}
-    <p class="cur">Gültig bis: <strong>{new Date(licenseStatus.expires).toLocaleDateString()}</strong></p>
-  {/if}
-  {#if licenseStatus.features.length > 0}
-    <p class="cur">
-      Features:
-      {#each licenseStatus.features as f}
-        <span class="feat-tag">{f}</span>
-      {/each}
+    {#if licenseStatus.valid && licenseStatus.expires}
+      <p class="cur">Valid until: <strong>{new Date(licenseStatus.expires).toLocaleDateString()}</strong></p>
+    {/if}
+    {#if licenseStatus.features.length > 0}
+      <p class="cur">
+        Features:
+        {#each licenseStatus.features as f}
+          <span class="feat-tag">{f}</span>
+        {/each}
+      </p>
+    {/if}
+    <div class="switchrow">
+      <input
+        placeholder="Paste license key…"
+        bind:value={licenseKey}
+        style="flex:1 1 20rem; font-family: monospace; font-size: 0.8rem;"
+      />
+      <button onclick={uploadLicense} disabled={licenseLoading}>
+        {licenseLoading ? 'Activating…' : 'Activate'}
+      </button>
+    </div>
+    {#if licenseMsg}<p class="msg">{licenseMsg}</p>{/if}
+    <p class="hint">
+      Enterprise licenses are RSA-signed and validated offline. Paste the key here to unlock
+      features like SSO, multi-tenant, audit log, and HA.
     </p>
-  {/if}
-  <div class="switchrow">
-    <input
-      placeholder="Lizenz-Key einfügen…"
-      bind:value={licenseKey}
-      style="flex:1 1 20rem; font-family: monospace; font-size: 0.8rem;"
-    />
-    <button onclick={uploadLicense} disabled={licenseLoading}>
-      {licenseLoading ? 'Aktiviere…' : 'Aktivieren'}
-    </button>
-  </div>
-  {#if licenseMsg}<p class="msg">{licenseMsg}</p>{/if}
-  <p class="hint">
-    Enterprise-Lizenzen sind RSA-signiert und werden offline validiert. Kopiere den Key in dieses Feld
-    um Features wie SSO, Multi-Tenant, Audit-Log und HA freizuschalten.
-  </p>
 </section>
 {/if}
 
@@ -263,22 +263,22 @@
     <select bind:value={form.provider}>
       {#each PROVIDERS as p}<option value={p}>{p}</option>{/each}
     </select>
-    <input placeholder="Modell (z. B. llama3.1)" bind:value={form.model} required />
-    <input placeholder="Base-URL (optional)" bind:value={form.baseUrl} />
-    <input placeholder="API-Key (optional)" type="password" bind:value={form.apiKey} />
-    <input placeholder="Infisical-Pfad (optional)" bind:value={form.keyRef} />
+    <input placeholder="Model (e.g. llama3.1)" bind:value={form.model} required />
+    <input placeholder="Base URL (optional)" bind:value={form.baseUrl} />
+    <input placeholder="API key (optional)" type="password" bind:value={form.apiKey} />
+    <input placeholder="Infisical path (optional)" bind:value={form.keyRef} />
     <select bind:value={form.purpose}>
       <option value="CHAT">Chat</option>
       <option value="EMBEDDING">Embedding</option>
     </select>
-    <label class="cb"><input type="checkbox" bind:checked={form.isDefault} /> Standard</label>
-    <button type="submit">Hinzufügen</button>
+    <label class="cb"><input type="checkbox" bind:checked={form.isDefault} /> Default</label>
+    <button type="submit">Add</button>
   </form>
   {#if message}<p class="msg">{message}</p>{/if}
 
   <table>
     <thead>
-      <tr><th>Provider</th><th>Modell</th><th>Zweck</th><th>Key</th><th></th></tr>
+      <tr><th>Provider</th><th>Model</th><th>Purpose</th><th>Key</th><th></th></tr>
     </thead>
     <tbody>
       {#each configs as c}
@@ -289,7 +289,7 @@
           <td>{c.hasKey ? '✓' : '–'}</td>
           <td>
             <button onclick={() => test(c.id)}>Test</button>
-            <button class="del" onclick={() => remove(c.id)}>Löschen</button>
+            <button class="del" onclick={() => remove(c.id)}>Delete</button>
           </td>
         </tr>
       {/each}
@@ -299,23 +299,23 @@
 
 {#if isAdmin}
 <section>
-  <h1>Audit-Log</h1>
+  <h1>Audit log</h1>
   {#if auditLoading}
-    <p class="msg">Lade…</p>
+    <p class="msg">Loading…</p>
   {:else if auditEvents.length === 0}
-    <p class="msg">Keine Ereignisse.</p>
+    <p class="msg">No events.</p>
   {:else}
     <div class="audit-bar">
-      <span>{auditTotal} Ereignisse gesamt</span>
+      <span>{auditTotal} events total</span>
       <div class="audit-pager">
         <button onclick={() => loadAudit(auditPage - 1)} disabled={auditPage <= 0 || auditLoading}>←</button>
-        <span>Seite {auditPage + 1} / {auditTotalPages}</span>
+        <span>Page {auditPage + 1} / {auditTotalPages}</span>
         <button onclick={() => loadAudit(auditPage + 1)} disabled={auditPage >= auditTotalPages - 1 || auditLoading}>→</button>
       </div>
     </div>
     <table>
       <thead>
-        <tr><th>Zeit</th><th>User</th><th>Aktion</th><th>Target</th><th>IP</th></tr>
+        <tr><th>Time</th><th>User</th><th>Action</th><th>Target</th><th>IP</th></tr>
       </thead>
       <tbody>
         {#each auditEvents as e}

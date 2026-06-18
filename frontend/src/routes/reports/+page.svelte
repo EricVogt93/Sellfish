@@ -104,7 +104,7 @@
 </script>
 
 <svelte:head>
-	<title>Reports — autoapply</title>
+	<title>Reports — Sellfish</title>
 </svelte:head>
 
 <div class="rp-page">
