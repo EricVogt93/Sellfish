@@ -1,0 +1,95 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug!
+
+        > **Beta notice:** Bewerbungsatze is in active development. There is no
+        > support SLA, but reports are reviewed and addressed when possible.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the bug. What did you expect, and what actually happened?
+      placeholder: |
+        **Expected:** ...
+        **Actual:** ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps to trigger the bug.
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the system is affected?
+      options:
+        - Backend (API / matching / generation)
+        - Frontend (UI / SvelteKit)
+        - Job ingestion (sources)
+        - Auth / Security
+        - AI / LLM provider
+        - Self-learning
+        - Enterprise (tenant / SSO / audit / reports)
+        - Infra / Deployment
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version / Commit
+      description: Git commit hash, tag, or image tag you're running.
+      placeholder: "e.g. 8c83ec1 or v0.1.0 or latest"
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: How are you running Bewerbungsatze?
+      placeholder: |
+        - OS: ...
+        - Docker: yes/no
+        - Java: ...
+        - Node: ...
+        - Database: Postgres X + pgvector Y
+        - LLM provider: ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Error output
+      description: Relevant log output or error messages (paste as-is). No need for backticks.
+      render: shell
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues for duplicates
+          required: true
+        - label: This is not a security issue (security reports go to SECURITY.md)
+          required: true

@@ -2,62 +2,63 @@
 
 ## Pipelines (GitHub Actions)
 
-| Workflow | Trigger | Zweck |
-|----------|---------|-------|
-| `ci.yml`     | Push (alle Branches), PR        | Backend `mvn verify` (Unit- **und** Testcontainers-Integrationstests), Frontend `check` + `build`, Jar als Artefakt |
-| `cd.yml`     | Push auf `main`, Tags `v*`, manuell | Baut Docker-Images für Backend & Frontend und pusht sie nach **GHCR** (`ghcr.io/<owner>/bewerbungsatze-{backend,frontend}`) |
-| `deploy.yml` | manuell (`workflow_dispatch`)   | Optionaler SSH-Deploy auf den Zielserver (`docker compose pull && up -d`) |
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `ci.yml` | Push (all branches), PR | Backend `mvn verify` (unit **and** Testcontainers integration tests), frontend `check` + `build`, jar artifact |
+| `cd.yml` | Push to `main`, tags `v*`, manual | Builds Docker images for backend & frontend and pushes to **GHCR** (`ghcr.io/<owner>/bewerbungsatze-{backend,frontend}`) |
+| `deploy.yml` | Manual (`workflow_dispatch`) | Optional SSH deploy to the target server (`docker compose pull && up -d`) |
 
-Die Integrationstests laufen in CI gegen einen echten PostgreSQL+pgvector-Container
-(Testcontainers nutzt den Docker-Daemon des Runners) — damit wird der Stack bei jedem
-Push real verifiziert.
+Integration tests run in CI against a real PostgreSQL + pgvector container (Testcontainers uses
+the runner's Docker daemon) — the stack is verified end-to-end on every push.
 
-### Image-Tags
-`cd.yml` vergibt: `latest` (nur `main`), `sha-<kurz>`, sowie bei Git-Tags `v1.2.3` und die SemVer-Version.
+### Image Tags
+`cd.yml` assigns: `latest` (only `main`), `sha-<short>`, and for Git tags `v1.2.3` plus the
+SemVer version.
 
-## Produktion starten
+## Starting Production
 
-Voraussetzung: Docker + Docker Compose auf dem Server. Die öffentliche Domain wird **nicht**
-im Repo hinterlegt, sondern pro Installation in der `.env` gesetzt (Open-Source-tauglich).
+Prerequisite: Docker + Docker Compose on the server. The public domain is **not** stored in
+the repo — each installation sets it in `.env` (open-source friendly).
 
 ```bash
 git clone <repo> /opt/bewerbungsatze
 cd /opt/bewerbungsatze/infra
 cp .env.example .env
-# In .env setzen:
-#   SITE_ADDRESS=<deine-domain>           z. B. jobs.example.com  -> Auto-TLS via Let's Encrypt
-#   PUBLIC_ORIGIN=https://<deine-domain>
+# In .env set:
+#   SITE_ADDRESS=<your-domain>           e.g. jobs.example.com  -> auto-TLS via Let's Encrypt
+#   PUBLIC_ORIGIN=https://<your-domain>
 #   JWT_SECRET / CRYPTO_MASTER_KEY        (openssl rand -base64 32)
-#   DB_PASSWORD / MINIO_SECRET_KEY        (starke Werte)
+#   DB_PASSWORD / MINIO_SECRET_KEY        (strong values)
 docker compose -f docker-compose.prod.yml pull
 docker compose -f docker-compose.prod.yml up -d
 ```
 
-Voraussetzungen für Auto-TLS: DNS-A/AAAA-Record der Domain zeigt auf den Server,
-Ports 80 **und** 443 sind erreichbar. Caddy holt und erneuert die Zertifikate automatisch.
+Requirements for auto-TLS: the domain's DNS A/AAAA record points to the server, and ports
+80 **and** 443 are reachable. Caddy fetches and renews certificates automatically.
 
-Danach (Single-Origin über Caddy):
-- Frontend: `https://<deine-domain>/`
-- API: `https://<deine-domain>/api/...`
-- Swagger UI: `https://<deine-domain>/swagger-ui.html`
-- Health: `https://<deine-domain>/actuator/health`
+After that (single origin via Caddy):
+- Frontend: `https://<your-domain>/`
+- API: `https://<your-domain>/api/...`
+- Swagger UI: `https://<your-domain>/swagger-ui.html`
+- Health: `https://<your-domain>/actuator/health`
 
-Ohne Domain (lokal/hinter eigenem Proxy): `SITE_ADDRESS=:80` lassen → alles unter `http://<host>/`.
+Without a domain (local / behind your own proxy): leave `SITE_ADDRESS=:80` → everything under
+`http://<host>/`.
 
-Komponenten: `caddy` (Reverse Proxy + TLS) → `frontend` (SvelteKit/Node) + `backend` (Spring Boot),
-`postgres` (pgvector), `minio` (Objekt-Storage). Daten in Volumes `pgdata`/`miniodata`/`caddydata`.
+Components: `caddy` (reverse proxy + TLS) → `frontend` (SvelteKit/Node) + `backend` (Spring Boot),
+`postgres` (pgvector), `minio` (object storage). Data in volumes `pgdata`/`miniodata`/`caddydata`.
 
-### Secrets (Pflicht in Prod)
-`openssl rand -base64 32` für `JWT_SECRET` und `CRYPTO_MASTER_KEY`; starke `DB_PASSWORD`/`MINIO_SECRET_KEY`.
-LLM-Provider-Keys idealerweise über Infisical (`INFISICAL_*`) statt im Klartext.
+### Secrets (mandatory in production)
+`openssl rand -base64 32` for `JWT_SECRET` and `CRYPTO_MASTER_KEY`; strong `DB_PASSWORD` /
+`MINIO_SECRET_KEY`. LLM provider keys ideally via Infisical (`INFISICAL_*`) rather than plaintext.
 
-## Automatischer Deploy (optional)
+## Automatic Deploy (optional)
 
-`deploy.yml` manuell starten (Actions → Deploy → Run). Erforderliche Repository-Secrets:
-`SSH_HOST`, `SSH_USER`, `SSH_KEY` (privater Key), optional `SSH_PORT`, `DEPLOY_PATH`, `GHCR_TOKEN`
-(PAT mit `read:packages`, falls die Images privat sind). Der Workflow zieht auf dem Server die
-neuen Images und startet die Prod-Compose neu.
+Start `deploy.yml` manually (Actions → Deploy → Run). Required repository secrets:
+`SSH_HOST`, `SSH_USER`, `SSH_KEY` (private key), optionally `SSH_PORT`, `DEPLOY_PATH`,
+`GHCR_TOKEN` (PAT with `read:packages`, if images are private). The workflow pulls the new
+images on the server and restarts the production compose stack.
 
 ## TLS
-Bereits eingebaut: Caddy terminiert TLS automatisch (Let's Encrypt), sobald `SITE_ADDRESS`
-eine Domain ist. Kein certbot, keine manuelle Zertifikatspflege.
+Built in: Caddy terminates TLS automatically (Let's Encrypt) as soon as `SITE_ADDRESS` is a
+domain. No certbot, no manual certificate management.

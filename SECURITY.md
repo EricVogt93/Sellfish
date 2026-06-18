@@ -1,28 +1,26 @@
-# Sicherheitsrichtlinie (Security Policy)
+# Security Policy
 
 ## Status
 
-Dieses Projekt ist **quelloffen ohne Support-Garantie**. Es wird kein SLA oder
-garantierter Response-Zeit für Sicherheitsmeldungen geboten, aber Meldungen
-werden ernst genommen und nach Möglichkeit bearbeitet.
+This project is **open source without support guarantee**. There is no SLA or guaranteed
+response time for security reports, but reports are taken seriously and addressed when possible.
 
-## Meldung einer Sicherheitslücke
+## Reporting a Vulnerability
 
-Bitte **keine öffentlichen Issues** für Sicherheitsprobleme öffnen.
+Please **do not open public issues** for security problems.
 
-Melde Verdachtsfälle stattdessen per E-Mail an den Maintainer (siehe GitHub-Profil)
-oder nutze GitHubs privates Vulnerability-Reporting:
+Instead, report suspected vulnerabilities by email to the maintainer (see GitHub profile)
+or use GitHub's private vulnerability reporting:
 `Security` → `Report a vulnerability`.
 
-Gib dabei nach Möglichkeit an:
-- Beschreibung der Schwachstelle und ihrer Auswirkung
-- Schritte zur Reproduktion
-- Betroffene Version/Commit
+Include where possible:
+- Description of the vulnerability and its impact
+- Steps to reproduce
+- Affected version/commit
 
-## Hinweis zur Datenverarbeitung
+## Data Processing Notice
 
-Bewerbungsatze verarbeitet personenbezogene Daten (Lebensläufe, Bewerbungsunterlagen,
-Nutzerprofile). Betreiber einer Instanz sind selbst für die DSGVO-konforme
-Betrieb (Verschlüsselung, Speicherfristen, Löschkonzepte) verantwortlich. Die
-Software liefert dafür Bausteine (AES-GCM-verschlüsselte Per-User-Keys,
-Account-Datenexport und -Löschung), ersetzt aber keine organisatorischen Maßnahmen.
+Bewerbungsatze processes personal data (CVs, application documents, user profiles). Operators
+of an instance are responsible for GDPR-compliant operation (encryption, retention periods,
+deletion concepts). The software provides building blocks for this (AES-GCM-encrypted per-user
+keys, account data export and deletion), but does not replace organizational measures.

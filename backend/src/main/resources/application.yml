@@ -57,8 +57,8 @@ spring:
 
 app:
   enterprise:
-    # Enterprise-Feature-Toggles. Bei enabled=true wird zusaetzlich zur Liste unten
-    # auch eine RSA-signierte Lizenz akzeptiert (Upload via /api/admin/license).
+    # Enterprise feature toggles. When enabled=true, an RSA-signed license is additionally
+    # accepted (upload via /api/admin/license) on top of the flags below.
     enabled: ${ENTERPRISE_ENABLED:false}
     public-key: ${ENTERPRISE_PUBLIC_KEY:}
     features:
@@ -68,25 +68,25 @@ app:
       audit-log: false
       ha: false
   sso:
-    # SSO/OIDC. enabled=true aktiviert /api/auth/sso/{provider}/login und Callback.
-    # Die Provider-Liste wird als YAML-Liste konfiguriert.
+    # SSO/OIDC. enabled=true activates /api/auth/sso/{provider}/login and the callback.
+    # The provider list is configured as a YAML list.
     enabled: ${SSO_ENABLED:false}
     redirect-uri: ${SSO_REDIRECT_URI:http://localhost:5173/auth/callback}
     providers: []
   embedding:
-    # Vektor-Dimension; muss zum gewählten Embedding-Modell passen (z. B. nomic-embed-text=768,
-    # OpenAI text-embedding-3-small=1536). Greift nur beim ersten Anlegen des Schemas.
+    # Vector dimension; must match your embedding model (e.g. nomic-embed-text=768,
+    # OpenAI text-embedding-3-small=1536). Only takes effect on first schema creation.
     dimension: ${EMBEDDING_DIM:768}
   security:
     jwt:
-      # Base64-kodiertes HMAC-Secret. In Produktion via ENV / Infisical setzen!
+      # Base64-encoded HMAC secret. In production, set via env / Infisical!
       secret: ${JWT_SECRET:Y2hhbmdlLW1lLXRoaXMtaXMtYS1kZXYtb25seS1zZWNyZXQtMzJieXRlcyE=}
       access-token-ttl-minutes: ${JWT_ACCESS_TTL:30}
       refresh-token-ttl-days: ${JWT_REFRESH_TTL:14}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:5173}
   crypto:
-    # Master-Key (Base64, 32 Byte) für AES-GCM-Verschlüsselung von Per-User-API-Keys.
+    # Master key (Base64, 32 bytes) for AES-GCM encryption of per-user API keys.
     master-key: ${CRYPTO_MASTER_KEY:ZGV2LW9ubHktbWFzdGVyLWtleS0zMi1ieXRlcy1vayE=}
   infisical:
     enabled: ${INFISICAL_ENABLED:false}

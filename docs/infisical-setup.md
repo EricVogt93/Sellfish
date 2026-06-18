@@ -1,31 +1,31 @@
-# Infisical anbinden (M2)
+# Infisical Setup
 
-Zentrale LLM-API-Keys werden zur Laufzeit aus deiner Infisical-Instanz geladen, nicht in Git/DB.
+Central LLM API keys are loaded at runtime from your Infisical instance, not stored in Git or the DB.
 
-## Machine Identity anlegen
+## Create a Machine Identity
 1. In Infisical: **Access Control → Machine Identities → Create Identity**.
-2. Auth-Methode **Universal Auth** → `Client ID` und `Client Secret` erzeugen.
-3. Der Identity Lese-Zugriff auf das Projekt/Environment geben, in dem die Keys liegen.
+2. Auth method **Universal Auth** → generate a `Client ID` and `Client Secret`.
+3. Grant the identity read access to the project/environment where the keys are stored.
 
-## Secrets ablegen
-Lege die Provider-Keys im Projekt ab, z. B.:
+## Store Secrets
+Place the provider keys in the project, e.g.:
 ```
 /llm/openai-key
 /llm/anthropic-key
 /llm/nim-key
 ```
-Diese Pfade werden in `llm_provider_config.key_ref` referenziert.
+These paths are referenced in `llm_provider_config.key_ref`.
 
-## Backend konfigurieren
-Per ENV (siehe `infra/.env.example`):
+## Configure the Backend
+Via environment variables (see `infra/.env.example`):
 ```
 INFISICAL_ENABLED=true
-INFISICAL_URL=https://app.infisical.com   # oder deine self-hosted URL
+INFISICAL_URL=https://app.infisical.com   # or your self-hosted URL
 INFISICAL_CLIENT_ID=...
 INFISICAL_CLIENT_SECRET=...
 INFISICAL_PROJECT_ID=...
 INFISICAL_ENV=prod
 ```
 
-Das Backend nutzt das offizielle Infisical-Java-SDK; bei `INFISICAL_ENABLED=false` werden nur
-Per-User-Keys (verschlüsselt in der DB) verwendet – praktisch für lokale Entwicklung.
+The backend uses the official Infisical Java SDK. When `INFISICAL_ENABLED=false`, only
+per-user keys (encrypted in the DB) are used — practical for local development.

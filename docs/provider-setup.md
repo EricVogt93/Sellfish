@@ -1,18 +1,18 @@
-# LLM-Provider einrichten (M2)
+# LLM Provider Setup
 
-Provider werden in der Tabelle `llm_provider_config` gepflegt – global (`user_id = NULL`, durch Admin)
-oder pro Nutzer. Jeder Eintrag hat einen `purpose` (`CHAT` oder `EMBEDDING`).
+Providers are managed in the `llm_provider_config` table — either globally (`user_id = NULL`,
+set by an admin) or per user. Each entry has a `purpose` (`CHAT` or `EMBEDDING`).
 
-## Felder
+## Fields
 - `provider`: `OLLAMA` | `OPENAI` | `ANTHROPIC` | `GOOGLE` | `NIM` | `OPENAI_COMPATIBLE`
-- `model`: z. B. `llama3.1`, `gpt-4o`, `claude-sonnet-4-6`, `nomic-embed-text`
-- `base_url`: bei self-hosted/kompatiblen Endpunkten setzen (z. B. `http://ollama:11434`)
-- `key_ref`: Infisical-Secret-Pfad für zentrale Keys **oder**
-- `key_enc`: AES-GCM-verschlüsselter Per-User-Key (vom Backend gesetzt, nie im Klartext)
+- `model`: e.g. `llama3.1`, `gpt-4o`, `claude-sonnet-4-6`, `nomic-embed-text`
+- `base_url`: set for self-hosted or compatible endpoints (e.g. `http://ollama:11434`)
+- `key_ref`: Infisical secret path for central keys **or**
+- `key_enc`: AES-GCM-encrypted per-user key (set by the backend, never stored in plaintext)
 
-## Beispiele
+## Examples
 
-**Self-hosted Ollama (kostenlos, kein Key):**
+**Self-hosted Ollama (free, no key):**
 ```
 provider=OLLAMA, model=llama3.1, base_url=http://ollama:11434, purpose=CHAT
 provider=OLLAMA, model=nomic-embed-text, base_url=http://ollama:11434, purpose=EMBEDDING
@@ -23,7 +23,7 @@ provider=OLLAMA, model=nomic-embed-text, base_url=http://ollama:11434, purpose=E
 provider=OPENAI, model=gpt-4o, key_ref=/llm/openai-key, purpose=CHAT
 ```
 
-**NVIDIA NIM (OpenAI-kompatibel):**
+**NVIDIA NIM (OpenAI-compatible):**
 ```
 provider=OPENAI_COMPATIBLE, model=meta/llama-3.1-70b-instruct,
 base_url=https://integrate.api.nvidia.com/v1, key_ref=/llm/nim-key, purpose=CHAT
@@ -34,8 +34,8 @@ base_url=https://integrate.api.nvidia.com/v1, key_ref=/llm/nim-key, purpose=CHAT
 provider=ANTHROPIC, model=claude-sonnet-4-6, key_ref=/llm/anthropic-key, purpose=CHAT
 ```
 
-> **Embedding-Dimension:** Über `EMBEDDING_DIM` (Default 768, passend zu `nomic-embed-text`)
-> konfigurierbar — z. B. `1536` für OpenAI `text-embedding-3-small`. Der Wert legt beim **ersten**
-> DB-Start die pgvector-Spalten an und kann danach nicht mehr per ENV geändert werden (dann
-> Folge-Migration nötig). Liefert ein Modell eine abweichende Dimension, werden dessen Embeddings
-> mit einer Warnung verworfen statt still zu scheitern.
+> **Embedding dimension:** Configurable via `EMBEDDING_DIM` (default 768, matching
+> `nomic-embed-text`) — e.g. `1536` for OpenAI `text-embedding-3-small`. This value creates
+> the pgvector columns on the **first** DB start and cannot be changed via env afterward
+> (requires a follow-up migration). If a model produces a different dimension, its embeddings
+> are discarded with a warning instead of failing silently.
