@@ -1,6 +1,6 @@
 <div align="center">
 
-# Bewerbungsatze
+# Sellfish
 
 **AI-powered, self-hostable job-search and application-assistant platform**
 
@@ -16,13 +16,13 @@
 ---
 
 > [!IMPORTANT]
-> **Beta.** Bewerbungsatze is under active development. Features may change, database
+> **Beta.** Sellfish is under active development. Features may change, database
 > schemas may migrate, and there is no stability or support guarantee. Back up your data.
 > See the [Roadmap](#roadmap) for what's done and what's in progress.
 
 ---
 
-## What is Bewerbungsatze?
+## What is Sellfish?
 
 A self-hostable application that finds relevant job listings for each user — based on
 their CV, preferences, hard filters, and **learned signals** — and helps them apply:
@@ -56,7 +56,7 @@ Global secrets can optionally be loaded from [Infisical](https://infisical.com).
 
 ## Job Sources
 
-Bewerbungsatze aggregates listings from 33 sources across 18 countries plus worldwide-remote.
+Sellfish aggregates listings from 33 sources across 18 countries plus worldwide-remote.
 Sources marked **API key** require credentials configured per source (via the admin UI or
 `job_sources` table). All others are free/public (public APIs or HTML scraping).
 
@@ -209,7 +209,7 @@ All values come from environment variables (defaults are dev-only). See
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `DB_PASSWORD` | `bewerbungsatze` | Postgres password (production: use a real secret!) |
+| `DB_PASSWORD` | `sellfish` | Postgres password (production: use a real secret!) |
 | `JWT_SECRET` | dev-only (Base64, 32 bytes) | JWT signing key (`openssl rand -base64 32`) |
 | `CRYPTO_MASTER_KEY` | dev-only (Base64, 32 bytes) | AES-GCM master key for per-user keys |
 | `EMBEDDING_DIM` | `768` | Vector dimension (settable only before first DB start) |
@@ -247,6 +247,6 @@ This project is **open source** (Apache License 2.0 — see [`LICENSE`](LICENSE)
 [`NOTICE`](NOTICE)). It is provided without support guarantee — use at your own risk.
 Security reports: see [`SECURITY.md`](SECURITY.md).
 
-Since Bewerbungsatze processes personal data (CVs, applications), GDPR-compliant operation
+Since Sellfish processes personal data (CVs, applications), GDPR-compliant operation
 is the responsibility of each instance operator. The software provides building blocks
 (per-user encryption, data export/deletion) but does not replace organizational measures.

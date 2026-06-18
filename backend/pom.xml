@@ -11,17 +11,17 @@
         <relativePath/>
     </parent>
 
-    <groupId>de.bewerbungsatze</groupId>
-    <artifactId>bewerbungsatze-backend</artifactId>
+    <groupId>de.sellfish</groupId>
+    <artifactId>sellfish-backend</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>bewerbungsatze-backend</name>
-    <description>AI-gestützte Job-Such- und Bewerbungs-Plattform</description>
-    <url>https://github.com/EricVogt93/Bewerbungsatze</url>
+    <name>sellfish-backend</name>
+    <description>AI-powered, self-hostable job-search and application-assistant platform</description>
+    <url>https://github.com/EricVogt93/Sellfish</url>
 
     <scm>
-        <connection>scm:git:https://github.com/EricVogt93/Bewerbungsatze.git</connection>
-        <developerConnection>scm:git:git@github.com:EricVogt93/Bewerbungsatze.git</developerConnection>
-        <url>https://github.com/EricVogt93/Bewerbungsatze</url>
+        <connection>scm:git:https://github.com/EricVogt93/Sellfish.git</connection>
+        <developerConnection>scm:git:git@github.com:EricVogt93/Sellfish.git</developerConnection>
+        <url>https://github.com/EricVogt93/Sellfish</url>
     </scm>
 
     <licenses>

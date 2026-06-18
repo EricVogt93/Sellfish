@@ -1,4 +1,4 @@
-// ── Typisierte Backend-Endpunkte (Bewerbungsatze API) ──
+// ── Typisierte Backend-Endpunkte (Sellfish API) ──
 import { api, apiUpload } from '$lib/api';
 
 export type MatchStatus =

@@ -1,6 +1,6 @@
-# Bewerbungsatze — Wiki
+# Sellfish — Wiki
 
-Comprehensive reference for every functional area of Bewerbungsatze. This document describes
+Comprehensive reference for every functional area of Sellfish. This document describes
 what each module does, how the pieces fit together, and the key API surfaces.
 
 > **Status: Beta.** This wiki reflects the current state of the codebase. Features may
@@ -36,7 +36,7 @@ what each module does, how the pieces fit together, and the key API surfaces.
 
 ## Architecture Overview
 
-Bewerbungsatze is a **modular monolith**: a single deployable Spring Boot backend plus a
+Sellfish is a **modular monolith**: a single deployable Spring Boot backend plus a
 SvelteKit frontend and PostgreSQL. Background work (job search, embeddings, self-learning
 retraining) runs asynchronously via schedulers.
 
@@ -64,7 +64,7 @@ The backend follows **hexagonal architecture** (Ports & Adapters):
                    └──────────┘        └──────────────┘      └──────────────┘
 ```
 
-### Backend Modules (`de.bewerbungsatze.*`)
+### Backend Modules (`de.sellfish.*`)
 
 | Package | Responsibility |
 |---------|----------------|
@@ -429,7 +429,7 @@ external AI agents like Claude Desktop, Cursor, or Continue:
 - `listMatches` — list current matches (filterable by status)
 - `generateDocument` — generate a CV, cover letter, motivation, or application text
 
-The `McpTool` / `McpToolParam` annotations (`de.bewerbungsatze.agent.mcp`) mark tool methods.
+The `McpTool` / `McpToolParam` annotations (`de.sellfish.agent.mcp`) mark tool methods.
 These are stubs that will be replaced by Spring AI's native annotations once available in 1.0.4+.
 
 ---
@@ -537,7 +537,7 @@ app:
     providers:
       - id: authentik
         label: Authentik
-        issuer-uri: https://auth.example.com/application/o/bewerbungsatze/
+        issuer-uri: https://auth.example.com/application/o/sellfish/
         client-id: ...
         client-secret: ...
 ```

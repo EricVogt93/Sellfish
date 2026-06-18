@@ -5,7 +5,7 @@
 | Workflow | Trigger | Purpose |
 |----------|---------|---------|
 | `ci.yml` | Push (all branches), PR | Backend `mvn verify` (unit **and** Testcontainers integration tests), frontend `check` + `build`, jar artifact |
-| `cd.yml` | Push to `main`, tags `v*`, manual | Builds Docker images for backend & frontend and pushes to **GHCR** (`ghcr.io/<owner>/bewerbungsatze-{backend,frontend}`) |
+| `cd.yml` | Push to `main`, tags `v*`, manual | Builds Docker images for backend & frontend and pushes to **GHCR** (`ghcr.io/<owner>/sellfish-{backend,frontend}`) |
 | `deploy.yml` | Manual (`workflow_dispatch`) | Optional SSH deploy to the target server (`docker compose pull && up -d`) |
 
 Integration tests run in CI against a real PostgreSQL + pgvector container (Testcontainers uses
@@ -21,8 +21,8 @@ Prerequisite: Docker + Docker Compose on the server. The public domain is **not*
 the repo — each installation sets it in `.env` (open-source friendly).
 
 ```bash
-git clone <repo> /opt/bewerbungsatze
-cd /opt/bewerbungsatze/infra
+git clone <repo> /opt/sellfish
+cd /opt/sellfish/infra
 cp .env.example .env
 # In .env set:
 #   SITE_ADDRESS=<your-domain>           e.g. jobs.example.com  -> auto-TLS via Let's Encrypt

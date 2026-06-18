@@ -20,7 +20,7 @@ Include where possible:
 
 ## Data Processing Notice
 
-Bewerbungsatze processes personal data (CVs, application documents, user profiles). Operators
+Sellfish processes personal data (CVs, application documents, user profiles). Operators
 of an instance are responsible for GDPR-compliant operation (encryption, retention periods,
 deletion concepts). The software provides building blocks for this (AES-GCM-encrypted per-user
 keys, account data export and deletion), but does not replace organizational measures.

@@ -1,4 +1,4 @@
--- Bewerbungsatze – initiales Schema
+-- Sellfish – initiales Schema
 -- Erfordert die pgvector-Extension (Image: pgvector/pgvector).
 
 CREATE EXTENSION IF NOT EXISTS vector;

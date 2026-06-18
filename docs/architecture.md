@@ -1,10 +1,10 @@
 # Architecture
 
-Bewerbungsatze is a **modular monolith** (a single deployable Spring Boot backend) plus a
+Sellfish is a **modular monolith** (a single deployable Spring Boot backend) plus a
 SvelteKit frontend and PostgreSQL. Background work (job search, embeddings, self-learning
 retraining) runs asynchronously via schedulers.
 
-## Backend Modules (`de.bewerbungsatze.*`)
+## Backend Modules (`de.sellfish.*`)
 
 | Package | Responsibility |
 |---------|----------------|

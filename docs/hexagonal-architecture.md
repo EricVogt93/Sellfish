@@ -7,7 +7,7 @@ The backend is organized following **Ports & Adapters**. Each business context
 ## Layers per Context
 
 ```
-de.bewerbungsatze.<context>
+de.sellfish.<context>
 ├── (core)                      Domain entities, value objects, use-case services,
 │                               repository abstractions (Spring Data ports)
 ├── port/                       Driven ports (interfaces) the core defines for the outside
