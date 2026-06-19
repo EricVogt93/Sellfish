@@ -1,6 +1,7 @@
 package de.sellfish.common.config;
 
 import de.sellfish.auth.JwtAuthenticationFilter;
+import de.sellfish.common.security.RateLimitFilter;
 import de.sellfish.tenant.OrgFilter;
 import java.util.Arrays;
 import java.util.List;
@@ -28,11 +29,17 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtFilter;
     private final OrgFilter orgFilter;
+    private final RateLimitFilter rateLimitFilter;
     private final CorsProperties corsProperties;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtFilter, OrgFilter orgFilter, CorsProperties corsProperties) {
+    public SecurityConfig(
+            JwtAuthenticationFilter jwtFilter,
+            OrgFilter orgFilter,
+            RateLimitFilter rateLimitFilter,
+            CorsProperties corsProperties) {
         this.jwtFilter = jwtFilter;
         this.orgFilter = orgFilter;
+        this.rateLimitFilter = rateLimitFilter;
         this.corsProperties = corsProperties;
     }
 
@@ -61,6 +68,7 @@ public class SecurityConfig {
                 // Token-API: nicht authentifiziert => 401 (Default wäre 403).
                 .exceptionHandling(ex -> ex.authenticationEntryPoint((request, response, authException) ->
                         response.sendError(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized")))
+                .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(orgFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
