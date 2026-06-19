@@ -1,6 +1,7 @@
 package de.sellfish.jobs.adapter.source;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.common.text.Strings;
 import de.sellfish.jobs.port.JobQuery;
 import de.sellfish.jobs.port.JobSource;
 import de.sellfish.jobs.port.RawJob;
@@ -160,7 +161,7 @@ public class WhoIsHiringSource implements JobSource {
 
     private boolean matches(RawJob job, JobQuery query) {
         if (query.keywords() == null || query.keywords().isEmpty()) return true;
-        String haystack = (job.title() + " " + nz(job.description())).toLowerCase(Locale.ROOT);
+        String haystack = (job.title() + " " + Strings.nz(job.description())).toLowerCase(Locale.ROOT);
         return query.keywords().stream().anyMatch(k -> haystack.contains(k.toLowerCase(Locale.ROOT)));
     }
 
@@ -169,9 +170,5 @@ public class WhoIsHiringSource implements JobSource {
                 .replaceAll("&[a-z]+;", " ")
                 .replaceAll("\\s+", " ")
                 .trim();
-    }
-
-    private String nz(String s) {
-        return s == null ? "" : s;
     }
 }

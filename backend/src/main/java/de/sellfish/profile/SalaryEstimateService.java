@@ -4,6 +4,7 @@ import de.sellfish.ai.LlmService;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
 import de.sellfish.common.json.JsonExtractor;
+import de.sellfish.common.text.Strings;
 import de.sellfish.cv.CvStructured;
 import de.sellfish.cv.CvStructuredRepository;
 import java.util.UUID;
@@ -75,9 +76,9 @@ public class SalaryEstimateService {
 
     private String buildContext(UserProfile profile, CvStructured cv) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Headline: ").append(nz(profile.getHeadline())).append('\n');
-        sb.append("Summary: ").append(nz(profile.getSummary())).append('\n');
-        sb.append("Location: ").append(nz(profile.getLocation())).append('\n');
+        sb.append("Headline: ").append(Strings.nz(profile.getHeadline())).append('\n');
+        sb.append("Summary: ").append(Strings.nz(profile.getSummary())).append('\n');
+        sb.append("Location: ").append(Strings.nz(profile.getLocation())).append('\n');
         sb.append("Remote preference: ").append(profile.getRemotePref()).append('\n');
         if (profile.getSalaryMin() != null && profile.getSalaryMin() > 0) {
             sb.append("Current salary expectation: ")
@@ -85,12 +86,14 @@ public class SalaryEstimateService {
                     .append('\n');
         }
         if (cv != null) {
-            sb.append("Skills: ").append(nz(cv.getSkills())).append('\n');
+            sb.append("Skills: ").append(Strings.nz(cv.getSkills())).append('\n');
             sb.append("Experience: ")
-                    .append(truncate(nz(cv.getExperience()), 2000))
+                    .append(Strings.truncate(Strings.nz(cv.getExperience()), 2000))
                     .append('\n');
-            sb.append("Education: ").append(nz(cv.getEducation())).append('\n');
-            sb.append("Certifications: ").append(nz(cv.getCertifications())).append('\n');
+            sb.append("Education: ").append(Strings.nz(cv.getEducation())).append('\n');
+            sb.append("Certifications: ")
+                    .append(Strings.nz(cv.getCertifications()))
+                    .append('\n');
         }
         return sb.toString();
     }
@@ -112,14 +115,6 @@ public class SalaryEstimateService {
         } catch (Exception e) {
             return SalaryEstimate.empty("Could not parse salary estimate.");
         }
-    }
-
-    private static String nz(String s) {
-        return s == null || s.isBlank() ? "—" : s;
-    }
-
-    private static String truncate(String s, int max) {
-        return s.length() > max ? s.substring(0, max) + "..." : s;
     }
 
     public record SalaryEstimate(

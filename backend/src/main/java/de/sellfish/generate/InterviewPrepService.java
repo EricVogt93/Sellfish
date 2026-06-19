@@ -4,6 +4,7 @@ import de.sellfish.ai.LlmService;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
 import de.sellfish.common.error.ApiException;
+import de.sellfish.common.text.Strings;
 import de.sellfish.jobs.Job;
 import de.sellfish.jobs.JobRepository;
 import de.sellfish.matching.JobMatch;
@@ -44,7 +45,10 @@ public class InterviewPrepService {
 
                 Interview Questions:
                 """
-                        .formatted(job.getTitle(), nz(job.getCompany()), truncate(nz(job.getDescription()), 2000));
+                        .formatted(
+                                job.getTitle(),
+                                Strings.nz(job.getCompany()),
+                                Strings.truncate(Strings.nz(job.getDescription()), 2000));
 
         ChatResult result = llmService.chat(
                 userId,
@@ -75,20 +79,15 @@ public class InterviewPrepService {
 
                 Company Profile for %s:
                 """
-                        .formatted(job.getCompany(), truncate(nz(job.getDescription()), 1500), job.getCompany());
+                        .formatted(
+                                job.getCompany(),
+                                Strings.truncate(Strings.nz(job.getDescription()), 1500),
+                                job.getCompany());
 
         ChatResult result = llmService.chat(
                 userId,
                 ChatRequest.of(
                         "You are a company research analyst. Be concise and honest. Acknowledge uncertainty.", prompt));
         return result.content() != null ? result.content() : "Could not research company.";
-    }
-
-    private String nz(String s) {
-        return s == null ? "" : s;
-    }
-
-    private String truncate(String s, int max) {
-        return s.length() > max ? s.substring(0, max) + "..." : s;
     }
 }

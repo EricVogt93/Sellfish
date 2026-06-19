@@ -1,5 +1,6 @@
 package de.sellfish.matching;
 
+import de.sellfish.common.text.Strings;
 import de.sellfish.common.text.TextTokens;
 import de.sellfish.jobs.Job;
 import java.time.Duration;
@@ -58,7 +59,7 @@ public class FeatureScorer {
 
     private double keywordScore(Job job, MatchContext ctx) {
         if (ctx.keywords().isEmpty()) return 0.0;
-        String haystack = (job.getTitle() + " " + nz(job.getDescription())).toLowerCase(Locale.ROOT);
+        String haystack = (job.getTitle() + " " + Strings.nz(job.getDescription())).toLowerCase(Locale.ROOT);
         long matched = ctx.keywords().stream()
                 .map(k -> k.toLowerCase(Locale.ROOT))
                 .filter(haystack::contains)
@@ -82,7 +83,7 @@ public class FeatureScorer {
     private double remoteScore(Job job, MatchContext ctx) {
         String pref = ctx.remotePref() == null ? "ANY" : ctx.remotePref().toUpperCase(Locale.ROOT);
         boolean jobRemote = TextTokens.containsAny(
-                nz(job.getRemote()) + " " + nz(job.getDescription()),
+                Strings.nz(job.getRemote()) + " " + Strings.nz(job.getDescription()),
                 Set.of(
                         "remote",
                         "work from home",
@@ -106,17 +107,13 @@ public class FeatureScorer {
     }
 
     private String jobTextForSkills(Job job) {
-        return (nz(job.getTitle()) + " " + nz(job.getDescription()));
+        return (Strings.nz(job.getTitle()) + " " + Strings.nz(job.getDescription()));
     }
 
     private boolean overlaps(Set<String> a, Set<String> b) {
         Set<String> copy = new HashSet<>(a);
         copy.retainAll(b);
         return !copy.isEmpty();
-    }
-
-    private String nz(String s) {
-        return s == null ? "" : s;
     }
 
     private double clamp(double v) {

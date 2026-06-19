@@ -3,6 +3,7 @@ package de.sellfish.matching;
 import de.sellfish.ai.LlmService;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
+import de.sellfish.common.text.Strings;
 import de.sellfish.jobs.Job;
 import de.sellfish.profile.UserPreferences;
 import de.sellfish.profile.UserProfile;
@@ -59,6 +60,7 @@ public class JobValidationService {
                     || text.contains("real")
                     || text.contains("legitimate");
         } catch (Exception e) {
+            log.debug("isLegitimate check failed, defaulting to legitimate: {}", e.getMessage());
             return true;
         }
     }
@@ -69,20 +71,20 @@ public class JobValidationService {
         sb.append("Reply with ONLY a single number (0-100).\n\n");
 
         sb.append("--- JOB ---\n");
-        sb.append("Title: ").append(nz(job.getTitle())).append('\n');
-        sb.append("Company: ").append(nz(job.getCompany())).append('\n');
-        sb.append("Location: ").append(nz(job.getLocation())).append('\n');
+        sb.append("Title: ").append(Strings.nz(job.getTitle())).append('\n');
+        sb.append("Company: ").append(Strings.nz(job.getCompany())).append('\n');
+        sb.append("Location: ").append(Strings.nz(job.getLocation())).append('\n');
         sb.append("Description: ")
-                .append(truncate(nz(job.getDescription()), 1500))
+                .append(Strings.truncate(Strings.nz(job.getDescription()), 1500))
                 .append('\n');
 
         sb.append("\n--- USER PROFILE ---\n");
         if (profile != null) {
-            sb.append("Headline: ").append(nz(profile.getHeadline())).append('\n');
+            sb.append("Headline: ").append(Strings.nz(profile.getHeadline())).append('\n');
             sb.append("Summary: ")
-                    .append(truncate(nz(profile.getSummary()), 500))
+                    .append(Strings.truncate(Strings.nz(profile.getSummary()), 500))
                     .append('\n');
-            sb.append("Location: ").append(nz(profile.getLocation())).append('\n');
+            sb.append("Location: ").append(Strings.nz(profile.getLocation())).append('\n');
         }
         if (prefs != null) {
             sb.append("Desired titles: ").append(arr(prefs.getDesiredTitles())).append('\n');
@@ -94,9 +96,9 @@ public class JobValidationService {
 
     private String buildQualityPrompt(Job job) {
         return "Is this a legitimate job posting? Reply ONLY 'yes' or 'no'.\n\n"
-                + "Title: " + nz(job.getTitle()) + "\n"
-                + "Company: " + nz(job.getCompany()) + "\n"
-                + "Description: " + truncate(nz(job.getDescription()), 800) + "\n"
+                + "Title: " + Strings.nz(job.getTitle()) + "\n"
+                + "Company: " + Strings.nz(job.getCompany()) + "\n"
+                + "Description: " + Strings.truncate(Strings.nz(job.getDescription()), 800) + "\n"
                 + "Legitimate? (yes/no): ";
     }
 
@@ -112,15 +114,7 @@ public class JobValidationService {
         return 0.5;
     }
 
-    private String nz(String s) {
-        return s == null ? "" : s;
-    }
-
     private String arr(String[] a) {
         return a == null ? "" : String.join(", ", a);
-    }
-
-    private String truncate(String s, int max) {
-        return s.length() > max ? s.substring(0, max) + "..." : s;
     }
 }

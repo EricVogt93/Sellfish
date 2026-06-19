@@ -1,6 +1,7 @@
 package de.sellfish.jobs.adapter.source;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.common.text.Strings;
 import de.sellfish.jobs.port.JobQuery;
 import de.sellfish.jobs.port.JobSource;
 import de.sellfish.jobs.port.RawJob;
@@ -58,8 +59,8 @@ public class WeWorkRemotelySource implements JobSource {
 
     private boolean matches(RawJob job, JobQuery query) {
         if (query.keywords() == null || query.keywords().isEmpty()) return true;
-        String haystack =
-                (job.title() + " " + nz(job.company()) + " " + nz(job.description())).toLowerCase(Locale.ROOT);
+        String haystack = (job.title() + " " + Strings.nz(job.company()) + " " + Strings.nz(job.description()))
+                .toLowerCase(Locale.ROOT);
         return query.keywords().stream().anyMatch(k -> haystack.contains(k.toLowerCase(Locale.ROOT)));
     }
 
@@ -84,9 +85,5 @@ public class WeWorkRemotelySource implements JobSource {
         if (id != null && slug != null) return BASE_URL + "/jobs/" + id + "/" + slug;
         String url = JobSourceSupport.text(item, "url");
         return url != null && url.startsWith("/") ? BASE_URL + url : url;
-    }
-
-    private String nz(String s) {
-        return s == null ? "" : s;
     }
 }

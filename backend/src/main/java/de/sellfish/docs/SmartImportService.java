@@ -168,7 +168,7 @@ public class SmartImportService {
             case "CV", "RESUME", "RÉSUMÉ", "LEBENSLAUF" -> DocumentType.CV;
             case "CERTIFICATE", "ZERTIFIKAT" -> DocumentType.CERTIFICATE;
             case "REFERENCE", "ARBEITSZEUGNIS", "EMPLOYMENT_REFERENCE" -> DocumentType.REFERENCE;
-            case "COVER_LETTER", "ANschreiben", "COVER LETTER" -> DocumentType.COVER_LETTER;
+            case "COVER_LETTER", "Anschreiben", "COVER LETTER" -> DocumentType.COVER_LETTER;
             case "PROJECT_LIST", "PROJECTS" -> DocumentType.PROJECT_LIST;
             default -> DocumentType.OTHER;
         };
