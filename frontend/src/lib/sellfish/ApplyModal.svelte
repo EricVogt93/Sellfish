@@ -95,6 +95,31 @@
 		attached = n;
 	}
 
+	let copied = $state(false);
+	async function copyLetter() {
+		const text = letters[job?.id ?? ''];
+		if (!text) return;
+		try {
+			await navigator.clipboard.writeText(text);
+			copied = true;
+			setTimeout(() => (copied = false), 1800);
+		} catch {
+			/* clipboard blocked — user can select the textarea manually */
+		}
+	}
+
+	function downloadLetter() {
+		const text = letters[job?.id ?? ''];
+		if (!text || !job) return;
+		const safe = (job.company || 'cover-letter').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+		const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+		const a = document.createElement('a');
+		a.href = URL.createObjectURL(blob);
+		a.download = `${safe}-${docType.toLowerCase()}.md`;
+		a.click();
+		URL.revokeObjectURL(a.href);
+	}
+
 	onMount(() => {
 		void runGeneration(docType);
 	});
@@ -202,14 +227,21 @@
 					</aside>
 				</div>
 
-				<footer class="aa-review-foot">
-					<Btn variant="ghost" icon="refresh" onclick={() => regenerate(docType)}>Regenerate</Btn>
-					<div style="flex:1;"></div>
-					<Btn variant="ghost" onclick={onClose}>Cancel</Btn>
-					<Btn variant="primary" icon="send" onclick={doSend}>
-						Mark {jobs.length > 1 ? `all ${jobs.length}` : 'as'} applied
-					</Btn>
-				</footer>
+			<footer class="aa-review-foot">
+				<Btn variant="ghost" icon="refresh" onclick={() => regenerate(docType)}>Regenerate</Btn>
+				<Btn variant="ghost" icon="copy" onclick={copyLetter}>{copied ? 'Copied!' : 'Copy'}</Btn>
+				<Btn variant="ghost" icon="download" onclick={downloadLetter}>Download</Btn>
+				<div style="flex:1;"></div>
+				{#if job?.url}
+					<a class="aa-extlink" href={job.url} target="_blank" rel="noopener noreferrer">
+						<Icon name="external" size={13} /> Open job page
+					</a>
+				{/if}
+				<Btn variant="ghost" onclick={onClose}>Cancel</Btn>
+				<Btn variant="primary" icon="send" onclick={doSend}>
+					Mark {jobs.length > 1 ? `all ${jobs.length}` : 'as'} applied
+				</Btn>
+			</footer>
 			</div>
 		{:else if step === 'done'}
 			<div class="aa-gen">
@@ -230,3 +262,23 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	.aa-extlink {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		font-size: 0.82rem;
+		font-weight: 600;
+		padding: 0.45rem 0.8rem;
+		border-radius: 8px;
+		border: 1px solid var(--accent-secondary, #06b6d4);
+		color: var(--accent-secondary, #06b6d4);
+		text-decoration: none;
+		white-space: nowrap;
+	}
+	.aa-extlink:hover {
+		background: var(--accent-secondary, #06b6d4);
+		color: #04121a;
+	}
+</style>
