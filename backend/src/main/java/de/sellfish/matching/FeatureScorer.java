@@ -80,7 +80,9 @@ public class FeatureScorer {
         String pref = ctx.remotePref() == null ? "ANY" : ctx.remotePref().toUpperCase(Locale.ROOT);
         boolean jobRemote = TextTokens.containsAny(
                 nz(job.getRemote()) + " " + nz(job.getDescription()),
-                Set.of("remote", "homeoffice", "home office", "telearbeit"));
+                Set.of("remote", "work from home", "wfh", "fully remote", "distributed team",
+                        "anywhere", "home-based", "homeoffice", "home office", "telearbeit",
+                        "fernarbeit", "remote-first", "100% remote"));
         return switch (pref) {
             case "REMOTE" -> jobRemote ? 1.0 : 0.2;
             case "HYBRID" -> jobRemote ? 0.8 : 0.5;
