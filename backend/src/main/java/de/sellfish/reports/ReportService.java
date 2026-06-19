@@ -27,6 +27,7 @@ public class ReportService {
         Instant since = Instant.now().minus(days, ChronoUnit.DAYS);
         String org = orgId != null ? " AND m.org_id = :orgId" : "";
         String jobOrg = orgId != null ? " AND j.org_id = :orgId" : "";
+        String genOrg = orgId != null ? " AND g.org_id = :orgId" : "";
 
         String sql = "SELECT"
                 + " (SELECT count(*) FROM job_matches m WHERE m.created_at >= :since" + org + "),"
@@ -34,7 +35,7 @@ public class ReportService {
                 + "),"
                 + " (SELECT count(*) FROM job_matches m WHERE m.status IN ('INTERVIEW','OFFER') AND m.updated_at >= :since"
                 + org + "),"
-                + " (SELECT count(*) FROM generated_documents g WHERE g.created_at >= :since" + org + "),"
+                + " (SELECT count(*) FROM generated_documents g WHERE g.created_at >= :since" + genOrg + "),"
                 + " (SELECT count(*) FROM jobs j WHERE j.created_at >= :since" + jobOrg + "),"
                 + " (SELECT count(*) FROM users)";
 
