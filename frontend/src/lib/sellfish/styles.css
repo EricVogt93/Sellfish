@@ -1954,3 +1954,46 @@ select.aa-input {
 .aa-chip-input::placeholder {
 	color: var(--text-muted);
 }
+
+/* ── smart import ── */
+.aa-smart-dropzone {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 14px;
+	margin-top: 12px;
+	border: 2px dashed var(--accent-primary);
+	border-radius: 12px;
+	background: hsl(256 60% 50% / 0.05);
+}
+.aa-dropzone-smart {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	font-size: 0.82rem;
+	color: var(--text-secondary);
+}
+.aa-smart-progress {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 12px;
+	margin-top: 8px;
+	border-radius: 8px;
+	background: hsl(256 60% 50% / 0.08);
+	color: var(--accent-primary-light);
+	font-size: 0.82rem;
+	animation: aa-glowpulse 1.4s ease-in-out infinite;
+}
+.aa-smart-result {
+	padding: 10px 12px;
+	margin-top: 8px;
+	border-radius: 8px;
+	background: hsl(140 60% 50% / 0.06);
+	border: 1px solid hsl(140 60% 50% / 0.2);
+	font-size: 0.82rem;
+}
+.aa-smart-line {
+	margin: 4px 0;
+	color: var(--text-secondary);
+}
