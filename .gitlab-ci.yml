@@ -1,41 +1,29 @@
-# Sellfish — GitLab CI (test pipeline)
-# Runs backend unit + integration tests (Testcontainers: Postgres+pgvector, MinIO)
-# on a Docker-capable runner via Docker-in-Docker.
+# Sellfish — GitLab CI
+# Unit tests run on any runner (no Docker needed). Integration tests (Testcontainers)
+# require a Docker-capable runner with working DinD networking; run them via
+# `mvn verify` locally or on a runner that exposes Docker.
 stages:
   - test
 
-# Per-build network so the build container can reach DinD service's published
-# container ports (required for Testcontainers in GitLab DinD).
 variables:
-  FF_NETWORK_PER_BUILD: "true"
-  DOCKER_DRIVER: overlay2
-  DOCKER_TLS_CERTDIR: ""
+  MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
 
 test:backend:
   stage: test
   image: maven:3.9-eclipse-temurin-21
-  services:
-    - name: docker:24.0-dind
-      alias: docker
-      command: ["--tls=false"]
-  variables:
-    DOCKER_HOST: tcp://docker:2375
-    TESTCONTAINERS_RYUK_DISABLED: "true"
-    MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   cache:
     key: maven-${CI_COMMIT_REF_SLUG}
     paths:
       - .m2/repository
   script:
     - cd backend
-    - mvn -B verify
+    - mvn -B test
     - |
-      awk -F, 'NR>1{tm+=$8; tc+=$9} END{tot=tm+tc; printf "Line coverage: %.1f%% (%d/%d)\n", tc/tot*100, tc, tot}' \
+      awk -F, 'NR>1{tm+=$8; tc+=$9} END{tot=tm+tc; printf "Unit line coverage: %.1f%% (%d/%d)\n", tc/tot*100, tc, tot}' \
         target/site/jacoco/jacoco.csv || true
   artifacts:
     when: always
     paths:
       - backend/target/site/jacoco/
       - backend/target/surefire-reports/
-      - backend/target/failsafe-reports/
     expire_in: 1 week
