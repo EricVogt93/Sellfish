@@ -45,8 +45,7 @@ class AccountServiceTest {
     private final LlmProviderConfigRepository llmConfigRepository = mock(LlmProviderConfigRepository.class);
     private final StorageService storage = mock(StorageService.class);
 
-    private final AccountService service = new AccountService(
-            userRepository,
+    private final UserDataReaders readers = new UserDataReaders(
             profileRepository,
             preferencesRepository,
             cvRepository,
@@ -55,8 +54,9 @@ class AccountServiceTest {
             matchRepository,
             generatedRepository,
             feedbackRepository,
-            llmConfigRepository,
-            storage);
+            llmConfigRepository);
+
+    private final AccountService service = new AccountService(userRepository, readers, storage);
 
     private void emptyCollections(UUID userId) {
         when(profileRepository.findByUserId(userId)).thenReturn(Optional.empty());

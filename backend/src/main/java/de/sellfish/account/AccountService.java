@@ -1,19 +1,10 @@
 package de.sellfish.account;
 
 import de.sellfish.ai.LlmProviderConfig;
-import de.sellfish.ai.LlmProviderConfigRepository;
 import de.sellfish.common.error.ApiException;
-import de.sellfish.cv.CvStructuredRepository;
-import de.sellfish.cv.ProjectRepository;
 import de.sellfish.docs.Document;
-import de.sellfish.docs.DocumentRepository;
-import de.sellfish.feedback.FeedbackEventRepository;
 import de.sellfish.generate.GeneratedDocument;
-import de.sellfish.generate.GeneratedDocumentRepository;
 import de.sellfish.matching.JobMatch;
-import de.sellfish.matching.JobMatchRepository;
-import de.sellfish.profile.PreferencesRepository;
-import de.sellfish.profile.ProfileRepository;
 import de.sellfish.storage.port.StorageService;
 import de.sellfish.users.User;
 import de.sellfish.users.UserRepository;
@@ -26,7 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * DSGVO-Funktionen: vollständiger Datenexport und Account-Löschung eines Nutzers.
+ * GDPR functions: full data export and account deletion.
+ * Uses UserDataReaders facade (3 deps) instead of 11 individual repositories.
  */
 @Service
 public class AccountService {
@@ -34,39 +26,12 @@ public class AccountService {
     private static final Logger log = LoggerFactory.getLogger(AccountService.class);
 
     private final UserRepository userRepository;
-    private final ProfileRepository profileRepository;
-    private final PreferencesRepository preferencesRepository;
-    private final CvStructuredRepository cvRepository;
-    private final ProjectRepository projectRepository;
-    private final DocumentRepository documentRepository;
-    private final JobMatchRepository matchRepository;
-    private final GeneratedDocumentRepository generatedRepository;
-    private final FeedbackEventRepository feedbackRepository;
-    private final LlmProviderConfigRepository llmConfigRepository;
+    private final UserDataReaders readers;
     private final StorageService storage;
 
-    public AccountService(
-            UserRepository userRepository,
-            ProfileRepository profileRepository,
-            PreferencesRepository preferencesRepository,
-            CvStructuredRepository cvRepository,
-            ProjectRepository projectRepository,
-            DocumentRepository documentRepository,
-            JobMatchRepository matchRepository,
-            GeneratedDocumentRepository generatedRepository,
-            FeedbackEventRepository feedbackRepository,
-            LlmProviderConfigRepository llmConfigRepository,
-            StorageService storage) {
+    public AccountService(UserRepository userRepository, UserDataReaders readers, StorageService storage) {
         this.userRepository = userRepository;
-        this.profileRepository = profileRepository;
-        this.preferencesRepository = preferencesRepository;
-        this.cvRepository = cvRepository;
-        this.projectRepository = projectRepository;
-        this.documentRepository = documentRepository;
-        this.matchRepository = matchRepository;
-        this.generatedRepository = generatedRepository;
-        this.feedbackRepository = feedbackRepository;
-        this.llmConfigRepository = llmConfigRepository;
+        this.readers = readers;
         this.storage = storage;
     }
 
@@ -83,25 +48,25 @@ public class AccountService {
         account.put("createdAt", user.getCreatedAt());
         data.put("account", account);
 
-        data.put("profile", profileRepository.findByUserId(userId).orElse(null));
-        data.put("preferences", preferencesRepository.findByUserId(userId).orElse(null));
-        data.put("cv", cvRepository.findByUserId(userId).orElse(null));
-        data.put("projects", projectRepository.findByUserIdOrderByCreatedAtDesc(userId));
+        data.put("profile", readers.profiles().findByUserId(userId).orElse(null));
+        data.put("preferences", readers.preferences().findByUserId(userId).orElse(null));
+        data.put("cv", readers.cv().findByUserId(userId).orElse(null));
+        data.put("projects", readers.projects().findByUserIdOrderByCreatedAtDesc(userId));
         data.put(
                 "documents",
-                documentRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                readers.documents().findByUserIdOrderByCreatedAtDesc(userId).stream()
                         .map(this::documentView)
                         .toList());
         data.put(
                 "matches",
-                matchRepository.findByUserId(userId).stream()
+                readers.matches().findByUserId(userId).stream()
                         .map(this::matchView)
                         .toList());
-        data.put("generatedDocuments", generatedRepository.findByUserIdOrderByCreatedAtDesc(userId));
-        data.put("feedback", feedbackRepository.findByUserIdOrderByTsDesc(userId));
+        data.put("generatedDocuments", readers.generatedDocs().findByUserIdOrderByCreatedAtDesc(userId));
+        data.put("feedback", readers.feedback().findByUserIdOrderByTsDesc(userId));
         data.put(
                 "llmProviders",
-                llmConfigRepository.findByUserId(userId).stream()
+                readers.llmConfigs().findByUserId(userId).stream()
                         .map(this::providerView)
                         .toList());
         return data;
@@ -112,25 +77,23 @@ public class AccountService {
         if (!userRepository.existsById(userId)) {
             throw ApiException.notFound("User not found");
         }
-        // Dateien zuerst löschen (kein DB-Cascade in den Objekt-Storage).
-        for (Document doc : documentRepository.findByUserIdOrderByCreatedAtDesc(userId)) {
+        // Delete files first (no DB cascade into object storage).
+        for (Document doc : readers.documents().findByUserIdOrderByCreatedAtDesc(userId)) {
             safeDelete(doc.getStorageKey());
         }
-        for (GeneratedDocument doc : generatedRepository.findByUserIdOrderByCreatedAtDesc(userId)) {
+        for (GeneratedDocument doc : readers.generatedDocs().findByUserIdOrderByCreatedAtDesc(userId)) {
             safeDelete(doc.getStorageKey());
         }
-        // Alle übrigen Daten per FK ON DELETE CASCADE.
+        // All other data via FK ON DELETE CASCADE.
         userRepository.deleteById(userId);
     }
 
     private void safeDelete(String key) {
-        if (key == null || key.isBlank()) {
-            return;
-        }
+        if (key == null || key.isBlank()) return;
         try {
             storage.delete(key);
         } catch (RuntimeException e) {
-            log.warn("storage object {} could not be deleted: {}", key, e.getMessage());
+            log.warn("Storage object {} could not be deleted: {}", key, e.getMessage());
         }
     }
 
@@ -160,7 +123,7 @@ public class AccountService {
         v.put("model", c.getModel());
         v.put("purpose", c.getPurpose());
         v.put("baseUrl", c.getBaseUrl());
-        // Bewusst without Schlüsselmaterial.
+        // Intentionally without key material.
         return v;
     }
 }
