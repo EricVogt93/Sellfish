@@ -48,6 +48,8 @@ export function setUnauthorizedHandler(fn: () => void): void {
 }
 
 async function parseError(res: Response): Promise<string> {
+	if (res.status === 401) return 'Invalid email or password'
+	if (res.status === 403) return "You don't have access to this"
 	try {
 		const problem = await res.json()
 		return problem.detail ?? problem.message ?? `HTTP ${res.status}`

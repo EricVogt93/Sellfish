@@ -50,8 +50,7 @@
 
 	async function fetchCountryGroups() {
 		try {
-			const res = await fetch('/api/admin/source-countries')
-			if (res.ok) countryGroups = await res.json()
+			countryGroups = await api('/api/admin/source-countries')
 		} catch {
 			/* non-admin users can't see this */
 		}

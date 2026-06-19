@@ -39,6 +39,9 @@ class GenerationServiceOwnershipTest {
     @Mock
     GeneratedDocumentRepository repository;
 
+    @Mock
+    de.sellfish.profile.ProfileRepository profileRepository;
+
     @InjectMocks
     GenerationService service;
 

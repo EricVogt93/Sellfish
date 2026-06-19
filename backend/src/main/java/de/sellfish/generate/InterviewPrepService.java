@@ -3,6 +3,7 @@ package de.sellfish.generate;
 import de.sellfish.ai.LlmService;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
+import de.sellfish.common.error.ApiException;
 import de.sellfish.jobs.Job;
 import de.sellfish.jobs.JobRepository;
 import de.sellfish.matching.JobMatch;
@@ -25,10 +26,11 @@ public class InterviewPrepService {
     }
 
     public String generateQuestions(UUID userId, UUID matchId) {
-        JobMatch match =
-                matchRepository.findById(matchId).orElseThrow(() -> new RuntimeException("Match nicht gefunden"));
-        Job job =
-                jobRepository.findById(match.getJobId()).orElseThrow(() -> new RuntimeException("Job nicht gefunden"));
+        JobMatch match = matchRepository
+                .findById(matchId)
+                .filter(m -> m.getUserId().equals(userId))
+                .orElseThrow(() -> ApiException.notFound("Match not found"));
+        Job job = jobRepository.findById(match.getJobId()).orElseThrow(() -> ApiException.notFound("Job not found"));
 
         String prompt =
                 """
@@ -52,10 +54,11 @@ public class InterviewPrepService {
     }
 
     public String generateCompanyResearch(UUID userId, UUID matchId) {
-        JobMatch match =
-                matchRepository.findById(matchId).orElseThrow(() -> new RuntimeException("Match nicht gefunden"));
-        Job job =
-                jobRepository.findById(match.getJobId()).orElseThrow(() -> new RuntimeException("Job nicht gefunden"));
+        JobMatch match = matchRepository
+                .findById(matchId)
+                .filter(m -> m.getUserId().equals(userId))
+                .orElseThrow(() -> ApiException.notFound("Match not found"));
+        Job job = jobRepository.findById(match.getJobId()).orElseThrow(() -> ApiException.notFound("Job not found"));
 
         if (job.getCompany() == null || job.getCompany().isBlank()) {
             return "No company name available for research.";

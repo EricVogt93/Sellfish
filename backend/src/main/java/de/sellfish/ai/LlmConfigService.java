@@ -64,11 +64,11 @@ public class LlmConfigService {
         try {
             if (config.getPurpose() == Purpose.EMBEDDING) {
                 float[] vector = llmService.embed(model, "ping");
-                return new LlmConfigDtos.TestResult(true, "Embedding-Dimension: " + vector.length);
+                return new LlmConfigDtos.TestResult(true, "Embedding dimension: " + vector.length);
             }
-            var result = llmService.chat(model, ChatRequest.of("Antworte mit genau einem Wort.", "Sag 'pong'."));
+            var result = llmService.chat(model, ChatRequest.of("Reply with exactly one word.", "Say 'pong'."));
             return new LlmConfigDtos.TestResult(
-                    true, "Antwort: " + result.content().strip());
+                    true, "Response: " + result.content().strip());
         } catch (RuntimeException e) {
             return new LlmConfigDtos.TestResult(false, e.getMessage());
         }
@@ -89,9 +89,9 @@ public class LlmConfigService {
 
     private LlmProviderConfig owned(UUID userId, UUID id) {
         LlmProviderConfig config =
-                repository.findById(id).orElseThrow(() -> ApiException.notFound("Konfiguration nicht gefunden"));
+                repository.findById(id).orElseThrow(() -> ApiException.notFound("Configuration not found"));
         if (config.getUserId() == null || !config.getUserId().equals(userId)) {
-            throw ApiException.notFound("Konfiguration nicht gefunden");
+            throw ApiException.notFound("Configuration not found");
         }
         return config;
     }

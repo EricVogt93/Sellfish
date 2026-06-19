@@ -44,6 +44,7 @@ class InterviewPrepServiceTest {
         UUID matchId = UUID.randomUUID();
         UUID jobId = UUID.randomUUID();
         JobMatch match = mock(JobMatch.class);
+        when(match.getUserId()).thenReturn(userId);
         when(match.getJobId()).thenReturn(jobId);
         when(matchRepository.findById(matchId)).thenReturn(Optional.of(match));
         Job job = mock(Job.class);
@@ -67,22 +68,26 @@ class InterviewPrepServiceTest {
 
     @Test
     void companyResearchReturnsMessageWhenNoCompany() {
+        UUID userId = UUID.randomUUID();
         UUID matchId = UUID.randomUUID();
         JobMatch match = mock(JobMatch.class);
+        when(match.getUserId()).thenReturn(userId);
         when(matchRepository.findById(matchId)).thenReturn(Optional.of(match));
         Job job = mock(Job.class);
         when(job.getCompany()).thenReturn(null);
         when(jobRepository.findById(any())).thenReturn(Optional.of(job));
 
-        String result = service.generateCompanyResearch(UUID.randomUUID(), matchId);
+        String result = service.generateCompanyResearch(userId, matchId);
         assertThat(result).contains("No company name");
         verifyNoInteractions(llmService);
     }
 
     @Test
     void companyResearchUsesLlmWhenCompanyPresent() {
+        UUID userId = UUID.randomUUID();
         UUID matchId = UUID.randomUUID();
         JobMatch match = mock(JobMatch.class);
+        when(match.getUserId()).thenReturn(userId);
         when(matchRepository.findById(matchId)).thenReturn(Optional.of(match));
         Job job = mock(Job.class);
         when(job.getCompany()).thenReturn("Acme");
@@ -91,6 +96,6 @@ class InterviewPrepServiceTest {
         when(llmService.chat(any(UUID.class), any(ChatRequest.class)))
                 .thenReturn(new ChatResult("Acme is a tech company.", "m", null, null));
 
-        assertThat(service.generateCompanyResearch(UUID.randomUUID(), matchId)).contains("Acme is a tech");
+        assertThat(service.generateCompanyResearch(userId, matchId)).contains("Acme is a tech");
     }
 }

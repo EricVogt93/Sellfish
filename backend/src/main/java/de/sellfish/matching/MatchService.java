@@ -46,15 +46,13 @@ public class MatchService {
         JobMatch match = matchRepository
                 .findById(matchId)
                 .filter(m -> m.getUserId().equals(userId))
-                .orElseThrow(() -> ApiException.notFound("Match nicht gefunden"));
+                .orElseThrow(() -> ApiException.notFound("Match not found"));
         match.setStatus(status);
         matchRepository.save(match);
 
         feedbackRepository.save(new FeedbackEvent(userId, match.getJobId(), toFeedbackType(status)));
 
-        Job job = jobRepository
-                .findById(match.getJobId())
-                .orElseThrow(() -> ApiException.notFound("Stelle nicht gefunden"));
+        Job job = jobRepository.findById(match.getJobId()).orElseThrow(() -> ApiException.notFound("Job not found"));
         return MatchResponse.of(match, job);
     }
 

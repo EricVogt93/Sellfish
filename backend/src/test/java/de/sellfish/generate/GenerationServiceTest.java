@@ -26,9 +26,17 @@ class GenerationServiceTest {
     private final GenerationContextBuilder contextBuilder = mock(GenerationContextBuilder.class);
     private final LlmService llmService = mock(LlmService.class);
     private final GeneratedDocumentRepository repository = mock(GeneratedDocumentRepository.class);
+    private final de.sellfish.profile.ProfileRepository profileRepository =
+            mock(de.sellfish.profile.ProfileRepository.class);
 
-    private final GenerationService service =
-            new GenerationService(matchRepository, jobRepository, contextBuilder, llmService, repository);
+    private final GenerationService service = new GenerationService(
+            matchRepository, jobRepository, contextBuilder, llmService, repository, profileRepository);
+
+    private de.sellfish.profile.UserProfile profileWithHeadline(UUID userId) {
+        de.sellfish.profile.UserProfile p = new de.sellfish.profile.UserProfile(userId);
+        p.setHeadline("Backend Engineer");
+        return p;
+    }
 
     private JobMatch matchFor(UUID userId, UUID matchId, UUID jobId) {
         JobMatch m = new JobMatch(userId, jobId);
@@ -45,6 +53,7 @@ class GenerationServiceTest {
 
         when(matchRepository.findById(matchId)).thenReturn(Optional.of(matchFor(userId, matchId, jobId)));
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(job));
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(profileWithHeadline(userId)));
         when(contextBuilder.build(eq(userId), eq(job))).thenReturn("CONTEXT");
         when(llmService.chat(eq(userId), any(ChatRequest.class)))
                 .thenReturn(new ChatResult("Sehr geehrte Damen und Herren …", "gpt-4o", 100, 200));
@@ -69,6 +78,7 @@ class GenerationServiceTest {
         UUID jobId = UUID.randomUUID();
         when(matchRepository.findById(matchId)).thenReturn(Optional.of(matchFor(userId, matchId, jobId)));
         when(jobRepository.findById(jobId)).thenReturn(Optional.of(new Job("BA", "fp", "Dev")));
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.of(profileWithHeadline(userId)));
         when(contextBuilder.build(any(), any())).thenReturn("CONTEXT");
         when(llmService.chat(any(UUID.class), any(ChatRequest.class)))
                 .thenReturn(new ChatResult("text", "m", null, null));
@@ -92,6 +102,19 @@ class GenerationServiceTest {
                 .thenReturn(Optional.of(matchFor(UUID.randomUUID(), matchId, UUID.randomUUID())));
         assertThatThrownBy(() -> service.generate(userId, matchId, GenerationType.TAILORED_CV))
                 .isInstanceOf(ApiException.class);
+    }
+
+    @Test
+    void rejectsEmptyProfile() {
+        UUID userId = UUID.randomUUID();
+        UUID matchId = UUID.randomUUID();
+        UUID jobId = UUID.randomUUID();
+        when(matchRepository.findById(matchId)).thenReturn(Optional.of(matchFor(userId, matchId, jobId)));
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(new Job("BA", "fp", "Dev")));
+        when(profileRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> service.generate(userId, matchId, GenerationType.COVER_LETTER))
+                .isInstanceOf(ApiException.class)
+                .hasMessageContaining("profile");
     }
 
     @Test

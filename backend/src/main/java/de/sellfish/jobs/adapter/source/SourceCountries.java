@@ -62,12 +62,12 @@ public final class SourceCountries {
 
     public static java.util.List<CountryGroup> allGroups() {
         return java.util.List.of(
-                new CountryGroup("DE", "Germany", "DE", true),
-                new CountryGroup("AT", "Austria", "DE", false),
-                new CountryGroup("CH", "Switzerland", "DE", false),
+                new CountryGroup("DE", "Germany", "DE", false),
+                new CountryGroup("AT", "Austria", "AT", false),
+                new CountryGroup("CH", "Switzerland", "CH", false),
                 new CountryGroup("GB", "UK", "GB", false),
                 new CountryGroup("US", "USA", "US", false),
-                new CountryGroup("CA", "Kanada", "CA", false),
+                new CountryGroup("CA", "Canada", "CA", false),
                 new CountryGroup("FR", "France", "FR", false),
                 new CountryGroup("NL", "Netherlands", "NL", false),
                 new CountryGroup("IT", "Italy", "IT", false),

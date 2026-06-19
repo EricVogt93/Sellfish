@@ -152,7 +152,7 @@ public class OidcService {
         return properties.providers().stream()
                 .filter(p -> p.id().equalsIgnoreCase(providerId))
                 .findFirst()
-                .orElseThrow(() -> ApiException.notFound("SSO-Provider nicht configured: " + providerId));
+                .orElseThrow(() -> ApiException.notFound("SSO provider not configured: " + providerId));
     }
 
     private JsonNode parse(String json, String context) {

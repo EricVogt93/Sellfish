@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import { api } from '$lib/api'
+	import { api, getAccessToken } from '$lib/api'
 	import { getSession } from '$lib/api/session.svelte'
+	import { goto } from '$app/navigation'
 
 	const session = getSession()
 
@@ -41,6 +42,10 @@
 	}
 
 	onMount(async () => {
+		if (!getAccessToken()) {
+			await goto('/')
+			return
+		}
 		try {
 			const [s, dm, dg, sd, t, ss, st] = await Promise.all([
 				api<typeof summary>('/api/reports/summary?days=30'),
@@ -58,6 +63,9 @@
 			teamStats = t
 			salaryStats = ss
 			salaryByTitle = st
+		} catch {
+			await goto('/')
+			return
 		} finally {
 			loading = false
 		}
@@ -122,7 +130,7 @@
 
 	function fmtEur(v: number | null): string {
 		if (v == null) return '—'
-		return '€' + Math.round(v).toLocaleString('de-DE')
+		return '€' + Math.round(v).toLocaleString('en-IE')
 	}
 </script>
 

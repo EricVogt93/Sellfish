@@ -77,6 +77,7 @@
 				onSent(jobs.map((j) => j.id))
 			}
 			step = 'done'
+			setTimeout(onClose, 2500)
 		} catch (e) {
 			errorMsg = e instanceof Error ? e.message : 'Sending failed'
 			step = 'error'
@@ -167,6 +168,7 @@
 						</div>
 					{/each}
 				</div>
+				<Btn variant="ghost" onclick={onClose} style="margin-top:18px;">Cancel</Btn>
 			</div>
 		{:else if step === 'sending'}
 			<div class="aa-gen">
@@ -184,9 +186,6 @@
 				</div>
 				<h3 class="aa-gen-title">Couldn’t generate</h3>
 				<div class="aa-gen-sub" style="max-width:300px;">{errorMsg}</div>
-				<div class="aa-gen-sub" style="margin-top:6px;">
-					Configure an AI provider under Profile → AI provider, then try again.
-				</div>
 				<Btn variant="secondary" onclick={onClose} style="margin-top:18px;">Close</Btn>
 			</div>
 		{:else if step === 'review' && job}

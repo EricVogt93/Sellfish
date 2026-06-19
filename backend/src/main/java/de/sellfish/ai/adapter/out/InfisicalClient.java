@@ -62,7 +62,7 @@ public class InfisicalClient {
             String value = response.path("secret").path("secretValue").asText(null);
             return Optional.ofNullable(value);
         } catch (RestClientException e) {
-            throw new IllegalStateException("Infisical-Secret '" + ref + "' nicht ladbar: " + e.getMessage(), e);
+            throw new IllegalStateException("Infisical-Secret '" + ref + "' could not be loaded: " + e.getMessage(), e);
         }
     }
 

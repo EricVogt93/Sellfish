@@ -42,7 +42,7 @@ public class OpenAiCompatibleClient implements ChatProvider, EmbeddingProvider {
         return switch (model.provider()) {
             case OPENAI -> "https://api.openai.com/v1";
             case NIM -> "https://integrate.api.nvidia.com/v1";
-            default -> throw new LlmException("base_url ist für Provider " + model.provider() + " erforderlich");
+            default -> throw new LlmException("base_url is required for provider " + model.provider() + " required");
         };
     }
 

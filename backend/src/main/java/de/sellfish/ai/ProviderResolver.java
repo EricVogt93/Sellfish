@@ -26,7 +26,7 @@ public class ProviderResolver {
     public ResolvedModel resolve(UUID userId, Purpose purpose) {
         LlmProviderConfig config = pickConfig(userId, purpose)
                 .orElseThrow(() -> new LlmException(
-                        "Keine aktive LLM-Konfiguration für Zweck " + purpose + " (weder nutzer- noch systemweit)"));
+                        "No active LLM configuration for purpose " + purpose + " (neither user nor system-wide)"));
         return new ResolvedModel(
                 config.getProvider(), config.getModel(), config.getBaseUrl(), secretResolver.resolveApiKey(config));
     }

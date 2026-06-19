@@ -72,7 +72,7 @@ public class AccountService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> export(UUID userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+        User user = userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("User not found"));
 
         Map<String, Object> data = new LinkedHashMap<>();
         Map<String, Object> account = new LinkedHashMap<>();
@@ -110,7 +110,7 @@ public class AccountService {
     @Transactional
     public void deleteAccount(UUID userId) {
         if (!userRepository.existsById(userId)) {
-            throw ApiException.notFound("Nutzer nicht gefunden");
+            throw ApiException.notFound("User not found");
         }
         // Dateien zuerst löschen (kein DB-Cascade in den Objekt-Storage).
         for (Document doc : documentRepository.findByUserIdOrderByCreatedAtDesc(userId)) {

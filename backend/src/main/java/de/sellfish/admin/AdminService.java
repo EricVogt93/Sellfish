@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Administrative Funktionen: Nutzerverwaltung, Job-Quellen und globale LLM-Konfiguration.
+ * Administrative functions: user management, job sources and global LLM configuration.
  */
 @Service
 public class AdminService {
@@ -67,7 +67,7 @@ public class AdminService {
     public JobSourceConfig updateJobSource(String code, Boolean enabled, String config) {
         JobSourceConfig source = jobSourceRepository
                 .findByCode(code)
-                .orElseThrow(() -> ApiException.notFound("Job-Quelle nicht gefunden: " + code));
+                .orElseThrow(() -> ApiException.notFound("Job source not found: " + code));
         if (enabled != null) {
             source.setEnabled(enabled);
         }
@@ -94,7 +94,7 @@ public class AdminService {
         List<LlmProviderConfig> globals = llmConfigRepository.findAllGlobal();
 
         // API-Key pro Provider (baseUrl) wiederverwenden: bleibt das Feld leer, ziehen wir den
-        // bereits gespeicherten Key derselben baseUrl. So laesst sich das Modell per Dropdown
+        // reuse the stored key of the same baseUrl. This lets you switch the model via the dropdown
         // umschalten, without den Schluessel jedes Mal neu einzugeben.
         String keyEnc = null;
         if (apiKey != null && !apiKey.isBlank()) {
@@ -142,16 +142,15 @@ public class AdminService {
 
     @Transactional
     public void deleteGlobalLlmConfig(UUID id) {
-        LlmProviderConfig config = llmConfigRepository
-                .findById(id)
-                .orElseThrow(() -> ApiException.notFound("Konfiguration nicht gefunden"));
+        LlmProviderConfig config =
+                llmConfigRepository.findById(id).orElseThrow(() -> ApiException.notFound("Configuration not found"));
         if (config.getUserId() != null) {
-            throw ApiException.badRequest("Keine globale Konfiguration");
+            throw ApiException.badRequest("No global configuration");
         }
         llmConfigRepository.delete(config);
     }
 
     private User user(UUID userId) {
-        return userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+        return userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("User not found"));
     }
 }

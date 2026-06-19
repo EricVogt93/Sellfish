@@ -19,8 +19,8 @@ public class CvParsingService {
 
     private static final String CV_SYSTEM =
             """
-            Du bist ein Parser für Lebensläufe. Extrahiere die Angaben aus dem Text und
-            antworte ausschließlich mit gültigem JSON in exakt dieser Struktur:
+            You are a CV parser. Extract the details from the text and reply with ONLY
+            valid JSON in exactly this structure:
             {
               "experience":     [{"title":"","company":"","period":"","description":""}],
               "education":       [{"degree":"","institution":"","period":""}],
@@ -28,14 +28,14 @@ public class CvParsingService {
               "languages":       [{"language":"","level":""}],
               "certifications":  ["..."]
             }
-            Erfinde nichts. Lass unbekannte Felder leer. Keine Erklärungen, nur JSON.
+            Do not invent anything. Leave unknown fields empty. No explanations, only JSON.
             """;
 
     private static final String PROJECTS_SYSTEM =
             """
-            Du extrahierst eine Project list. Antworte ausschließlich mit gültigem JSON-Array:
+            You extract a project list. Reply with ONLY a valid JSON array:
             [{"title":"","role":"","period":"","tech":["..."],"description":""}]
-            Erfinde nichts. Keine Erklärungen, nur JSON.
+            Do not invent anything. No explanations, only JSON.
             """;
 
     private final LlmService llmService;

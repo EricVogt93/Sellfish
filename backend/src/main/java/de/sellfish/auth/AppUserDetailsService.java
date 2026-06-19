@@ -20,6 +20,6 @@ public class AppUserDetailsService implements UserDetailsService {
         return userRepository
                 .findByEmailIgnoreCase(username)
                 .map(AppUserDetails::new)
-                .orElseThrow(() -> new UsernameNotFoundException("Unbekannter Nutzer: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("Unknown user: " + username));
     }
 }

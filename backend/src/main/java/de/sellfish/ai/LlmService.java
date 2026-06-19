@@ -50,13 +50,13 @@ public class LlmService {
         return chatProviders.stream()
                 .filter(p -> p.supports(provider))
                 .findFirst()
-                .orElseThrow(() -> new LlmException("Kein Chat-Client für Provider " + provider));
+                .orElseThrow(() -> new LlmException("No chat client for provider " + provider));
     }
 
     private EmbeddingProvider embeddingProvider(Provider provider) {
         return embeddingProviders.stream()
                 .filter(p -> p.supports(provider))
                 .findFirst()
-                .orElseThrow(() -> new LlmException("Provider " + provider + " unterstützt keine Embeddings"));
+                .orElseThrow(() -> new LlmException("Provider " + provider + " does not support embeddings"));
     }
 }

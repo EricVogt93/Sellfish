@@ -39,7 +39,7 @@ public class DocumentService {
     @Transactional
     public Document upload(UUID userId, DocumentType type, String filename, String mime, byte[] content) {
         if (content == null || content.length == 0) {
-            throw ApiException.badRequest("Leere Datei");
+            throw ApiException.badRequest("Empty file");
         }
         String key = storage.newKey(userId, type.name().toLowerCase(), filename);
         storage.store(key, content, mime);
@@ -90,14 +90,14 @@ public class DocumentService {
     public void reparse(UUID userId, UUID id) {
         Document doc = owned(userId, id);
         if (doc.getParsedText() == null || doc.getParsedText().isBlank()) {
-            throw ApiException.badRequest("Kein extrahierter Text vorhanden");
+            throw ApiException.badRequest("No extracted text available");
         }
         if (doc.getType() == DocumentType.CV) {
             cvParsingService.parseCv(userId, id, doc.getParsedText());
         } else if (doc.getType() == DocumentType.PROJECT_LIST) {
             cvParsingService.parseProjects(userId, doc.getParsedText());
         } else {
-            throw ApiException.badRequest("Strukturierung nur für CV und Project list verfügbar");
+            throw ApiException.badRequest("Structuring is only available for CV and project lists");
         }
         doc.setParsedStruct("{\"parsed\":true}");
         repository.save(doc);
@@ -130,9 +130,9 @@ public class DocumentService {
     }
 
     private Document owned(UUID userId, UUID id) {
-        Document doc = repository.findById(id).orElseThrow(() -> ApiException.notFound("Dokument nicht gefunden"));
+        Document doc = repository.findById(id).orElseThrow(() -> ApiException.notFound("Document not found"));
         if (!doc.getUserId().equals(userId)) {
-            throw ApiException.notFound("Dokument nicht gefunden");
+            throw ApiException.notFound("Document not found");
         }
         return doc;
     }

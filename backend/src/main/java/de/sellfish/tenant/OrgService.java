@@ -44,15 +44,15 @@ public class OrgService {
     @Transactional
     public Organization create(UUID userId, String name, String slug) {
         if (!licenseService.isEnterpriseFeatureEnabled("multi-tenant")) {
-            throw ApiException.badRequest("Multi-Tenant ist ein Enterprise-Feature");
+            throw ApiException.badRequest("Multi-tenant is an enterprise feature");
         }
         if (orgRepository.existsBySlug(slug)) {
-            throw ApiException.conflict("Organisation mit Slug '" + slug + "' existiert bereits");
+            throw ApiException.conflict("Organization with slug '" + slug + "' already exists");
         }
         Organization org = new Organization(name, slug);
         org = orgRepository.save(org);
         memberRepository.save(new OrganizationMember(org.getId(), userId, OrgMemberRole.OWNER));
-        User user = userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+        User user = userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("User not found"));
         user.setCurrentOrgId(org.getId());
         userRepository.save(user);
         auditService.record(
@@ -71,9 +71,9 @@ public class OrgService {
         if (orgId != null) {
             memberRepository
                     .findByOrgIdAndUserId(orgId, userId)
-                    .orElseThrow(() -> ApiException.notFound("Nicht Mitglied dieser Organisation"));
+                    .orElseThrow(() -> ApiException.notFound("Not a member of this organization"));
         }
-        User user = userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+        User user = userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("User not found"));
         user.setCurrentOrgId(orgId);
         userRepository.save(user);
     }
@@ -82,7 +82,7 @@ public class OrgService {
     public OrganizationMember addMember(UUID orgId, UUID requestingUserId, UUID newUserId, OrgMemberRole role) {
         requireOrgRole(orgId, requestingUserId, OrgMemberRole.ADMIN);
         if (memberRepository.findByOrgIdAndUserId(orgId, newUserId).isPresent()) {
-            throw ApiException.conflict("Nutzer ist bereits Mitglied");
+            throw ApiException.conflict("User is already a member");
         }
         var member = memberRepository.save(new OrganizationMember(orgId, newUserId, role));
         auditService.record(requestingUserId, AuditAction.USER_INVITE, "organization", orgId.toString());
@@ -94,14 +94,14 @@ public class OrgService {
         requireOrgRole(orgId, requestingUserId, OrgMemberRole.ADMIN);
         OrganizationMember target = memberRepository
                 .findByOrgIdAndUserId(orgId, targetUserId)
-                .orElseThrow(() -> ApiException.notFound("Mitglied nicht gefunden"));
+                .orElseThrow(() -> ApiException.notFound("Member not found"));
         if (target.getRole() == OrgMemberRole.OWNER) {
-            throw ApiException.badRequest("Owner kann nicht entfernt werden");
+            throw ApiException.badRequest("Owner cannot be removed");
         }
         memberRepository.delete(target);
         auditService.record(requestingUserId, AuditAction.ORG_LEAVE, "organization", orgId.toString());
         User targetUser =
-                userRepository.findById(targetUserId).orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+                userRepository.findById(targetUserId).orElseThrow(() -> ApiException.notFound("User not found"));
         if (orgId.equals(targetUser.getCurrentOrgId())) {
             targetUser.setCurrentOrgId(null);
             userRepository.save(targetUser);
@@ -120,15 +120,15 @@ public class OrgService {
     private void requireOrgAccess(UUID orgId, UUID userId) {
         memberRepository
                 .findByOrgIdAndUserId(orgId, userId)
-                .orElseThrow(() -> ApiException.notFound("Kein Zugriff auf diese Organisation"));
+                .orElseThrow(() -> ApiException.notFound("No access to this organization"));
     }
 
     private void requireOrgRole(UUID orgId, UUID userId, OrgMemberRole minRole) {
         OrganizationMember member = memberRepository
                 .findByOrgIdAndUserId(orgId, userId)
-                .orElseThrow(() -> ApiException.notFound("Kein Zugriff auf diese Organisation"));
+                .orElseThrow(() -> ApiException.notFound("No access to this organization"));
         if (member.getRole().ordinal() > minRole.ordinal()) {
-            throw ApiException.badRequest("Fehlende Berechtigung");
+            throw ApiException.badRequest("Missing permission");
         }
     }
 }

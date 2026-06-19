@@ -34,9 +34,8 @@ public class UserController {
 
     @GetMapping
     public MeResponse me() {
-        User user = userRepository
-                .findById(CurrentUser.id())
-                .orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+        User user =
+                userRepository.findById(CurrentUser.id()).orElseThrow(() -> ApiException.notFound("User not found"));
         List<MeResponse.OrgRef> orgList = orgMemberRepository.findByUserId(user.getId()).stream()
                 .map(m -> orgRepository.findById(m.getOrgId()).orElse(null))
                 .filter(o -> o != null)

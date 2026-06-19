@@ -13,7 +13,7 @@
 		{@const on = n <= (hover || value)}
 		<button
 			class="aa-star"
-			aria-label={`${n} stars`}
+			aria-label={`${n} ${n === 1 ? 'star' : 'stars'}`}
 			onmouseenter={() => (hover = n)}
 			onclick={(e) => {
 				e.stopPropagation()

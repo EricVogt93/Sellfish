@@ -22,18 +22,21 @@ public class GenerationService {
     private final GenerationContextBuilder contextBuilder;
     private final LlmService llmService;
     private final GeneratedDocumentRepository repository;
+    private final de.sellfish.profile.ProfileRepository profileRepository;
 
     public GenerationService(
             JobMatchRepository matchRepository,
             JobRepository jobRepository,
             GenerationContextBuilder contextBuilder,
             LlmService llmService,
-            GeneratedDocumentRepository repository) {
+            GeneratedDocumentRepository repository,
+            de.sellfish.profile.ProfileRepository profileRepository) {
         this.matchRepository = matchRepository;
         this.jobRepository = jobRepository;
         this.contextBuilder = contextBuilder;
         this.llmService = llmService;
         this.repository = repository;
+        this.profileRepository = profileRepository;
     }
 
     @Transactional
@@ -41,10 +44,18 @@ public class GenerationService {
         JobMatch match = matchRepository
                 .findById(jobMatchId)
                 .filter(m -> m.getUserId().equals(userId))
-                .orElseThrow(() -> ApiException.notFound("Match nicht gefunden"));
-        Job job = jobRepository
-                .findById(match.getJobId())
-                .orElseThrow(() -> ApiException.notFound("Stelle nicht gefunden"));
+                .orElseThrow(() -> ApiException.notFound("Match not found"));
+        Job job = jobRepository.findById(match.getJobId()).orElseThrow(() -> ApiException.notFound("Job not found"));
+
+        // Guard: refuse to generate from an empty profile — otherwise the model
+        // produces a useless "I can't write this" refusal and the user ships it.
+        de.sellfish.profile.UserProfile profile =
+                profileRepository.findByUserId(userId).orElse(null);
+        boolean profileEmpty = profile == null || (isBlank(profile.getHeadline()) && isBlank(profile.getSummary()));
+        if (profileEmpty) {
+            throw ApiException.badRequest(
+                    "Complete your profile (headline or summary) before generating application documents.");
+        }
 
         String context = contextBuilder.build(userId, job);
         // max_tokens grosszuegig: opencode-go-Modelle (deepseek/glm/...) sind Reasoning-Modelle
@@ -99,11 +110,14 @@ public class GenerationService {
     }
 
     private GeneratedDocument owned(UUID userId, UUID id) {
-        GeneratedDocument doc =
-                repository.findById(id).orElseThrow(() -> ApiException.notFound("Dokument nicht gefunden"));
+        GeneratedDocument doc = repository.findById(id).orElseThrow(() -> ApiException.notFound("Document not found"));
         if (!doc.getUserId().equals(userId)) {
-            throw ApiException.notFound("Dokument nicht gefunden");
+            throw ApiException.notFound("Document not found");
         }
         return doc;
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.isBlank();
     }
 }

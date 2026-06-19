@@ -50,7 +50,7 @@
 <div class="aa-view">
 	<header class="aa-pagehead">
 		<div>
-			<div class="eyebrow">inbox · {jobs.length} matches today</div>
+			<div class="eyebrow">inbox · {jobs.length} matches</div>
 			<h1 class="aa-h1">Jobs</h1>
 		</div>
 		<div class="aa-pagehead-right">

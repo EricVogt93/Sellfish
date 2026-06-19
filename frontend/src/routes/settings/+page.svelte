@@ -17,65 +17,12 @@
 
 	const PROVIDERS = ['OLLAMA', 'OPENAI', 'NIM', 'OPENAI_COMPATIBLE', 'ANTHROPIC', 'GOOGLE']
 
-	// Curated model presets for the quick switcher (key reused server-side per
-	// provider/baseUrl — set it once and the dropdown is enough afterwards).
-	const LOCAL_BASE = 'http://localhost:11434/v1' // local Ollama (free, private)
-	const OR_BASE = 'https://openrouter.ai/api/v1' // OpenRouter (public aggregator, one key)
-	interface Preset {
-		label: string
-		group: string
-		provider: string
-		baseUrl: string
-		model: string
-	}
-	const MODEL_PRESETS: Preset[] = [
-		{
-			group: 'Local (Ollama — free & private)',
-			label: 'Llama 3.3 (70B) — local',
-			provider: 'OPENAI_COMPATIBLE',
-			baseUrl: LOCAL_BASE,
-			model: 'llama3.3'
-		},
-		{
-			group: 'Local (Ollama — free & private)',
-			label: 'Qwen 2.5 (32B) — local',
-			provider: 'OPENAI_COMPATIBLE',
-			baseUrl: LOCAL_BASE,
-			model: 'qwen2.5:32b'
-		},
-		{
-			group: 'OpenRouter (cloud — one key, many models)',
-			label: 'GPT-4o mini — cheap & fast',
-			provider: 'OPENAI_COMPATIBLE',
-			baseUrl: OR_BASE,
-			model: 'openai/gpt-4o-mini'
-		},
-		{
-			group: 'OpenRouter (cloud — one key, many models)',
-			label: 'Claude 3.5 Sonnet',
-			provider: 'OPENAI_COMPATIBLE',
-			baseUrl: OR_BASE,
-			model: 'anthropic/claude-3.5-sonnet'
-		},
-		{
-			group: 'OpenRouter (cloud — one key, many models)',
-			label: 'Gemini 2.0 Flash',
-			provider: 'OPENAI_COMPATIBLE',
-			baseUrl: OR_BASE,
-			model: 'google/gemini-2.0-flash-001'
-		},
-		{
-			group: 'OpenRouter (cloud — one key, many models)',
-			label: 'DeepSeek V3',
-			provider: 'OPENAI_COMPATIBLE',
-			baseUrl: OR_BASE,
-			model: 'deepseek/deepseek-chat'
-		}
-	]
-	const GROUPS = [...new Set(MODEL_PRESETS.map((p) => p.group))]
-
+	// Quick switcher is driven by the actually-configured CHAT providers, not a
+	// hardcoded list — so it always reflects reality and "Activate" promotes the
+	// selected existing config to the default generation model.
 	let globalConfigs = $state<Config[]>([])
-	let selectedModel = $state(MODEL_PRESETS[0].model)
+	let selectedModel = $state('')
+	const chatConfigs = $derived(globalConfigs.filter((c) => c.purpose === 'CHAT'))
 	let switchKey = $state('')
 	let switching = $state(false)
 	let switchMsg = $state<string | null>(null)
@@ -104,32 +51,32 @@
 		try {
 			globalConfigs = await api<Config[]>('/api/admin/llm-configs')
 			isAdmin = true
-			if (activeChat) selectedModel = activeChat.model
+			selectedModel = activeChat?.model ?? chatConfigs[0]?.model ?? ''
 		} catch {
-			isAdmin = false // kein Admin -> Schnell-Umschalter ausblenden
+			isAdmin = false // no admin -> hide the quick switcher
 		}
 	}
 
 	async function switchModel() {
-		const p = MODEL_PRESETS.find((m) => m.model === selectedModel)
-		if (!p) return
+		const cfg = chatConfigs.find((c) => c.model === selectedModel)
+		if (!cfg) return
 		switching = true
 		switchMsg = null
 		try {
 			await api('/api/admin/llm-configs', {
 				method: 'POST',
 				body: JSON.stringify({
-					provider: p.provider,
-					model: p.model,
+					provider: cfg.provider,
+					model: cfg.model,
 					purpose: 'CHAT',
-					baseUrl: p.baseUrl,
-					apiKey: switchKey || null, // leer -> serverseitig vorhandenen Key wiederverwenden
+					baseUrl: cfg.baseUrl ?? null,
+					apiKey: switchKey || null, // empty -> reuse the existing key server-side
 					isDefault: true
 				})
 			})
 			switchKey = ''
 			await loadGlobal()
-			switchMsg = `✓ Generation model active: ${p.model}`
+			switchMsg = `✓ Generation model active: ${cfg.model}`
 		} catch (e) {
 			switchMsg = '✗ ' + (e instanceof Error ? e.message : 'Error')
 		} finally {
@@ -157,7 +104,7 @@
 			await api('/api/llm/configs', { method: 'POST', body: JSON.stringify(form) })
 			form.apiKey = ''
 			await load()
-			message = 'Provider gespeichert.'
+			message = 'Provider saved.'
 		} catch (e) {
 			message = e instanceof Error ? e.message : 'Error'
 		}
@@ -171,8 +118,13 @@
 	}
 
 	async function remove(id: string) {
-		await api(`/api/llm/configs/${id}`, { method: 'DELETE' })
-		await load()
+		try {
+			await api(`/api/llm/configs/${id}`, { method: 'DELETE' })
+			await load()
+			message = 'Provider removed.'
+		} catch (e) {
+			message = e instanceof Error ? e.message : 'Failed to remove provider'
+		}
 	}
 
 	// ── License ──
@@ -236,35 +188,33 @@
 		<p class="cur">
 			Active:
 			<strong>{activeChat ? activeChat.model : '— none set'}</strong>
-			{#if activeChat}<span class="tag"
-					>{activeChat.baseUrl && activeChat.baseUrl.includes('openrouter')
-						? 'Cloud'
-						: 'local'}</span
-				>{/if}
+			{#if activeChat}<span class="tag">{activeChat.provider}</span>{/if}
 		</p>
-		<div class="switchrow">
-			<select bind:value={selectedModel} aria-label="Select model">
-				{#each GROUPS as g}
-					<optgroup label={g}>
-						{#each MODEL_PRESETS.filter((m) => m.group === g) as m}
-							<option value={m.model}>{m.label}</option>
-						{/each}
-					</optgroup>
-				{/each}
-			</select>
-			<input
-				placeholder="API key (once per cloud provider)"
-				type="password"
-				bind:value={switchKey}
-			/>
-			<button onclick={switchModel} disabled={switching}>
-				{switching ? 'Switching…' : 'Activate'}
-			</button>
-		</div>
+		{#if chatConfigs.length > 0}
+			<div class="switchrow">
+				<select bind:value={selectedModel} aria-label="Select generation model">
+					{#each chatConfigs as c (c.id)}
+						<option value={c.model}>{c.model} ({c.provider})</option>
+					{/each}
+				</select>
+				<input
+					placeholder="API key (only when adding a new provider)"
+					type="password"
+					bind:value={switchKey}
+				/>
+				<button onclick={switchModel} disabled={switching} aria-label="Activate AI model">
+					{switching ? 'Switching…' : 'Activate'}
+				</button>
+			</div>
+		{:else}
+			<p class="hint">
+				No generation model configured yet. Add a CHAT provider below to enable it.
+			</p>
+		{/if}
 		{#if switchMsg}<p class="msg">{switchMsg}</p>{/if}
 		<p class="hint">
-			Local models run free &amp; private on your own machine (Ollama). Cloud models (OpenRouter)
-			need an API key once — afterwards the dropdown is enough.
+			The dropdown lists your configured CHAT providers. Add new ones in the provider table below;
+			switching here promotes the selected model to the default for generation.
 		</p>
 	</section>
 {/if}
@@ -298,7 +248,7 @@
 				bind:value={licenseKey}
 				style="flex:1 1 20rem; font-family: monospace; font-size: 0.8rem;"
 			/>
-			<button onclick={uploadLicense} disabled={licenseLoading}>
+			<button onclick={uploadLicense} disabled={licenseLoading} aria-label="Activate license">
 				{licenseLoading ? 'Activating…' : 'Activate'}
 			</button>
 		</div>
@@ -311,7 +261,7 @@
 {/if}
 
 <section>
-	<h1>LLM-Provider</h1>
+	<h1>LLM provider</h1>
 	<form onsubmit={create}>
 		<select bind:value={form.provider}>
 			{#each PROVIDERS as p}<option value={p}>{p}</option>{/each}

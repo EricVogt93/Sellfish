@@ -44,14 +44,14 @@ public class DocumentController {
     @ResponseStatus(HttpStatus.CREATED)
     public DocumentResponse upload(@RequestParam("type") DocumentType type, @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
-            throw ApiException.badRequest("Datei fehlt");
+            throw ApiException.badRequest("File missing");
         }
         try {
             Document doc = service.upload(
                     CurrentUser.id(), type, file.getOriginalFilename(), file.getContentType(), file.getBytes());
             return DocumentResponse.from(doc);
         } catch (IOException e) {
-            throw ApiException.badRequest("Datei nicht lesbar");
+            throw ApiException.badRequest("File not readable");
         }
     }
 
@@ -61,7 +61,7 @@ public class DocumentController {
         return DocumentResponse.from(service.list(CurrentUser.id()).stream()
                 .filter(d -> d.getId().equals(id))
                 .findFirst()
-                .orElseThrow(() -> ApiException.notFound("Dokument nicht gefunden")));
+                .orElseThrow(() -> ApiException.notFound("Document not found")));
     }
 
     @PostMapping("/{id}/primary")

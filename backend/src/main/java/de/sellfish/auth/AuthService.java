@@ -48,7 +48,7 @@ public class AuthService {
     @Transactional
     public TokenResponse register(RegisterRequest req) {
         if (userRepository.existsByEmailIgnoreCase(req.email())) {
-            throw ApiException.conflict("E-Mail ist bereits registriert");
+            throw ApiException.conflict("Email is already registered");
         }
         User user = new User(req.email().toLowerCase(), passwordEncoder.encode(req.password()));
         userRepository.save(user);
@@ -60,7 +60,7 @@ public class AuthService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.email(), req.password()));
         User user = userRepository
                 .findByEmailIgnoreCase(req.email())
-                .orElseThrow(() -> new BadCredentialsException("Ungültige Anmeldedaten"));
+                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
         auditService.record(user.getId(), AuditAction.LOGIN);
         return issueTokens(user);
     }
@@ -78,8 +78,8 @@ public class AuthService {
         UUID userId = UUID.fromString(claims.getSubject());
         User user = userRepository
                 .findById(userId)
-                .orElseThrow(() ->
-                        new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Nutzer nicht gefunden"));
+                .orElseThrow(
+                        () -> new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "User not found"));
         return issueTokens(user);
     }
 

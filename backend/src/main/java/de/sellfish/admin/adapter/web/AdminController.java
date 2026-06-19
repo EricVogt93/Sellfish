@@ -62,7 +62,7 @@ public class AdminController {
         return UserView.from(service.setStatus(id, req.status()));
     }
 
-    // --- Job-Quellen ---
+    // --- Job sourcen ---
 
     public record JobSourceView(String code, String name, boolean enabled, String config) {
         static JobSourceView from(JobSourceConfig s) {
@@ -133,7 +133,7 @@ public class AdminController {
         service.deleteGlobalLlmConfig(id);
     }
 
-    // --- Länder-Info für Job-Quellen ---
+    // --- Länder-Info für Job sourcen ---
 
     @GetMapping("/source-countries")
     public List<SourceCountries.CountryGroup> sourceCountries() {
