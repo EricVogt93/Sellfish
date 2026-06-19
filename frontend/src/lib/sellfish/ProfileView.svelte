@@ -18,10 +18,29 @@
 	let documents = $state<DocumentResponse[]>([])
 	let providers = $state<ProviderConfig[]>([])
 
-	// Komma-Listen-Felder
-	let titlesText = $state('')
-	let keywordsText = $state('')
-	let excludedText = $state('')
+	// Chip-based arrays (no more CSV)
+	let titles = $state<string[]>([])
+	let keywords = $state<string[]>([])
+	let excluded = $state<string[]>([])
+	let newTitle = $state('')
+	let newKeyword = $state('')
+	let newExcluded = $state('')
+
+	function addChip(arr: string[], v: string): string[] {
+		const t = v.trim()
+		return t && !arr.includes(t) ? [...arr, t] : arr
+	}
+	function rmChip(arr: string[], i: number): string[] {
+		return arr.filter((_, idx) => idx !== i)
+	}
+	function chipKeydown(arr: string[], v: string, setter: (a: string[]) => void, e: KeyboardEvent) {
+		if (e.key === 'Enter' || e.key === ',') {
+			e.preventDefault()
+			setter(addChip(arr, v))
+			const input = e.currentTarget as HTMLInputElement
+			if (input) input.value = ''
+		}
+	}
 
 	// Country filter
 	let countryGroups = $state<CountryGroup[]>([])
@@ -59,9 +78,9 @@
 	async function loadAll() {
 		profile = await backend.getProfile()
 		prefs = await backend.getPreferences()
-		titlesText = (prefs.desiredTitles ?? []).join(', ')
-		keywordsText = (prefs.keywords ?? []).join(', ')
-		excludedText = (prefs.excludedCompanies ?? []).join(', ')
+		titles = prefs.desiredTitles ?? []
+		keywords = prefs.keywords ?? []
+		excluded = prefs.excludedCompanies ?? []
 		selectedCountries = new Set(prefs.preferredCountries ?? [])
 		remoteOnly = selectedCountries.has('REMOTE')
 		loadPersonal()
@@ -113,9 +132,9 @@
 	async function savePrefs() {
 		try {
 			prefs = await backend.updatePreferences({
-				desiredTitles: toList(titlesText),
-				keywords: toList(keywordsText),
-				excludedCompanies: toList(excludedText),
+				desiredTitles: titles,
+				keywords: keywords,
+				excludedCompanies: excluded,
 				preferredCountries: [...selectedCountries]
 			})
 			toast('Preferences saved — affects the next rescan', 'check')
@@ -436,25 +455,67 @@
 					<span class="aa-card-headnote">scored on every job</span>
 				</div>
 				<div class="aa-field">
-					<label for="aa-titles">Desired job titles (comma-separated)</label><input
-						id="aa-titles"
-						class="aa-input"
-						bind:value={titlesText}
-					/>
+					<label for="aa-titles">Desired job titles</label>
+					<div class="aa-chips">
+						{#each titles as t, i (t)}
+							<span class="aa-chip"
+								>{t}<button
+									class="aa-chip-x"
+									onclick={() => (titles = rmChip(titles, i))}
+									aria-label="Remove">×</button
+								></span
+							>
+						{/each}
+						<input
+							id="aa-titles"
+							class="aa-chip-input"
+							placeholder="Add title…"
+							bind:value={newTitle}
+							onkeydown={(e) => chipKeydown(titles, newTitle, (v) => (titles = v), e)}
+						/>
+					</div>
 				</div>
 				<div class="aa-field">
-					<label for="aa-kw">Keywords (comma-separated)</label><input
-						id="aa-kw"
-						class="aa-input"
-						bind:value={keywordsText}
-					/>
+					<label for="aa-kw">Keywords</label>
+					<div class="aa-chips">
+						{#each keywords as k, i (k)}
+							<span class="aa-chip"
+								>{k}<button
+									class="aa-chip-x"
+									onclick={() => (keywords = rmChip(keywords, i))}
+									aria-label="Remove">×</button
+								></span
+							>
+						{/each}
+						<input
+							id="aa-kw"
+							class="aa-chip-input"
+							placeholder="Add keyword…"
+							bind:value={newKeyword}
+							onkeydown={(e) => chipKeydown(keywords, newKeyword, (v) => (keywords = v), e)}
+						/>
+					</div>
 				</div>
 				<div class="aa-field">
-					<label for="aa-excl">Excluded companies (comma-separated)</label><input
-						id="aa-excl"
-						class="aa-input"
-						bind:value={excludedText}
-					/>
+					<label for="aa-excl">Excluded companies</label>
+					<div class="aa-chips">
+						{#each excluded as x, i (x)}
+							<span class="aa-chip aa-chip-warn"
+								>{x}<button
+									class="aa-chip-x"
+									onclick={() => (excluded = rmChip(excluded, i))}
+									aria-label="Remove">×</button
+								></span
+							>
+						{/each}
+						<input
+							id="aa-excl"
+							class="aa-chip-input"
+							placeholder="Add company…"
+							bind:value={newExcluded}
+							onkeydown={(e) => chipKeydown(excluded, newExcluded, (v) => (excluded = v), e)}
+						/>
+					</div>
 				</div>
 				<Btn variant="primary" icon="check" onclick={savePrefs} style="margin-top:4px;"
 					>Save preferences</Btn

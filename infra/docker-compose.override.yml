@@ -1,0 +1,7 @@
+# Local E2E override: don't bind postgres/minio host ports (avoid conflicts
+# with other dev containers); backend stays on 8080 for the frontend proxy.
+services:
+  postgres:
+    ports: !reset []
+  minio:
+    ports: !reset []

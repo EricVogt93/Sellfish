@@ -1898,3 +1898,59 @@ select.aa-input {
 		display: none;
 	}
 }
+
+/* ── preference chips ── */
+.aa-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	align-items: center;
+	padding: 6px 8px;
+	border: 1px solid var(--border-default);
+	border-radius: 8px;
+	background: var(--bg-glass);
+	min-height: 38px;
+}
+.aa-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 3px 8px;
+	border-radius: 999px;
+	background: hsl(var(--accent-primary-hue, 256) 60% 50% / 0.15);
+	border: 1px solid hsl(var(--accent-primary-hue, 256) 60% 60% / 0.3);
+	color: hsl(var(--accent-primary-hue, 256) 70% 75%);
+	font-size: 0.78rem;
+	font-weight: 500;
+}
+.aa-chip-warn {
+	background: hsl(0 70% 50% / 0.12);
+	border-color: hsl(0 70% 60% / 0.3);
+	color: hsl(0 70% 72%);
+}
+.aa-chip-x {
+	background: none;
+	border: none;
+	color: inherit;
+	cursor: pointer;
+	font-size: 1rem;
+	line-height: 1;
+	padding: 0 0 0 2px;
+	opacity: 0.6;
+}
+.aa-chip-x:hover {
+	opacity: 1;
+}
+.aa-chip-input {
+	flex: 1;
+	min-width: 80px;
+	border: none;
+	background: transparent;
+	color: var(--text);
+	font-size: 0.82rem;
+	outline: none;
+	padding: 2px 0;
+}
+.aa-chip-input::placeholder {
+	color: var(--text-muted);
+}
