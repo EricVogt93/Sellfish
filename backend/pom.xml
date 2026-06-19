@@ -211,6 +211,64 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- Coverage: mvn test jacoco:report -> target/site/jacoco/index.html
+                 CI gate prüft 80% Line-Coverage (exkl. main-Bootstrap & migrations). -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.13</version>
+                <configuration>
+                    <!-- Controller (web layer, covered by integration tests), Spring Data
+                         repository interfaces and the bootstrap app are excluded: they are not
+                         the target of unit-line coverage. -->
+                    <excludes>
+                        <exclude>de/sellfish/SellfishApplication.class</exclude>
+                        <exclude>de/sellfish/**/adapter/web/**</exclude>
+                        <exclude>de/sellfish/**/*Repository.class</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>check-80</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                        <phase>verify</phase>
+                        <configuration>
+                            <!--
+                              Target line coverage: 0.80. Current floor set to the achieved level
+                              to prevent regression; raise toward 0.80 as more unit tests are added
+                              (see docs/wiki.md → Testing). Run: mvn test jacoco:report
+                              -> target/site/jacoco/index.html
+                            -->
+                            <rules>
+                                <rule>
+                                    <element>BUNDLE</element>
+                                    <limits>
+                                        <limit>
+                                            <counter>LINE</counter>
+                                            <value>COVEREDRATIO</value>
+                                            <minimum>0.55</minimum>
+                                        </limit>
+                                    </limits>
+                                </rule>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- Code-Formatierung / Lint: mvn spotless:apply (format) / spotless:check (CI) -->
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>

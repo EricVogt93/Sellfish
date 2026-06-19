@@ -84,7 +84,7 @@ class OpenAiCompatibleClientTest {
 
     @Test
     void usesCustomBaseUrlForCompatibleProvider() {
-        server.expect(requestTo("https://api.moonshot.cn/v1/chat/completions"))
+        server.expect(requestTo("https://api.example.com/v1/chat/completions"))
                 .andExpect(method(POST))
                 .andRespond(withSuccess(
                         """

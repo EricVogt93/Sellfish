@@ -22,7 +22,7 @@ public final class SkillExtractor {
                     + "Prometheus|Grafana|Datadog|Sentry|ELK|Nginx|Apache|"
                     + "Android|iOS|Flutter|React Native|Electron|Tailwind|SASS|CSS|HTML|"
                     + "Spark|Hadoop|Airflow|Snowflake|Databricks|dbt|Looker|Tableau|Power BI|"
-                    + "Selenium|Cypress|JUnit|PyTest|Jest|Mocha|Playwright|Testcontainers)\\\\b",
+                    + "Selenium|Cypress|JUnit|PyTest|Jest|Mocha|Playwright|Testcontainers)\\b",
             Pattern.CASE_INSENSITIVE);
 
     private SkillExtractor() {}
