@@ -2,7 +2,7 @@
 	let el: HTMLDivElement | undefined = $state()
 
 	function move(e: MouseEvent) {
-		if (el) el.style.transform = `translate(${e.clientX - 100}px, ${e.clientY - 100}px)`
+		if (el) el.style.transform = `translate(${e.clientX - 40}px, ${e.clientY - 40}px)`
 	}
 </script>
 

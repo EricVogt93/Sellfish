@@ -280,17 +280,17 @@ html[data-density='comfy'] {
 	position: fixed;
 	top: 0;
 	left: 0;
-	width: 200px;
-	height: 200px;
+	width: 80px;
+	height: 80px;
 	pointer-events: none;
 	z-index: 0;
 	background: radial-gradient(
 		circle,
-		rgba(124, 58, 237, 0.1) 0%,
-		rgba(6, 182, 212, 0.04) 45%,
+		rgba(124, 58, 237, 0.08) 0%,
+		rgba(6, 182, 212, 0.03) 45%,
 		transparent 70%
 	);
-	filter: blur(20px);
+	filter: blur(12px);
 }
 @media (hover: none) {
 	.aa-cursorglow {
@@ -621,7 +621,7 @@ html[data-density='comfy'] {
 }
 .aa-table {
 	width: 100%;
-	min-width: 1080px;
+	min-width: 880px;
 	border-collapse: collapse;
 	font-size: var(--cell-font);
 }
@@ -724,10 +724,66 @@ html[data-density='compact'] .aa-jobmeta {
 .aa-location {
 	color: var(--text-secondary);
 	white-space: nowrap;
+	max-width: 120px;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 .aa-location svg {
 	vertical-align: -1.5px;
 	margin-right: 2px;
+}
+.aa-jobdesc {
+	font-size: 0.85rem;
+	line-height: 1.55;
+	color: var(--text-secondary);
+	max-height: 400px;
+	overflow-y: auto;
+	padding-right: 8px;
+}
+.aa-jobdesc p {
+	margin: 0 0 0.7em 0;
+}
+.aa-jobdesc ul,
+.aa-jobdesc ol {
+	margin: 0 0 0.7em 0;
+	padding-left: 1.2em;
+}
+.aa-jobdesc-list li {
+	margin-bottom: 0.3em;
+}
+.aa-jobdesc strong,
+.aa-jobdesc b {
+	color: var(--text);
+}
+.aa-jobdesc-empty {
+	color: var(--text-muted);
+	font-style: italic;
+}
+.aa-note-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 16px;
+	height: 16px;
+	border-radius: 4px;
+	background: var(--accent-warning);
+	color: #1a1a2e;
+	font-size: 9px;
+	font-weight: 700;
+	margin-left: 4px;
+	flex-shrink: 0;
+}
+.aa-note-section textarea {
+	width: 100%;
+	min-height: 80px;
+	background: var(--bg-glass);
+	border: 1px solid var(--border-default);
+	border-radius: 8px;
+	padding: 0.6rem;
+	color: var(--text);
+	font-size: 0.85rem;
+	font-family: inherit;
+	resize: vertical;
 }
 .aa-salary {
 	font-family: var(--font-mono);

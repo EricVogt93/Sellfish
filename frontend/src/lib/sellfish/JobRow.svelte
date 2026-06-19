@@ -7,6 +7,17 @@
 	import FilterSummary from './FilterSummary.svelte'
 	import FilterChips from './FilterChips.svelte'
 	import type { Job } from './data'
+	import { browser } from '$app/environment'
+
+	function hasNote(matchId: string | undefined): boolean {
+		if (!browser || !matchId) return false
+		try {
+			const notes = JSON.parse(localStorage.getItem('sellfish-notes') ?? '{}')
+			return !!notes[matchId]?.trim()
+		} catch {
+			return false
+		}
+	}
 
 	let {
 		job,
@@ -63,6 +74,11 @@
 					>{job.seniority} · {job.type} · via {job.source} · {job.posted} ago</span
 				>
 			</div>
+			{#if hasNote(job.matchId)}
+				<span class="aa-note-badge" title="Has note"
+					><Icon name="check" size={9} strokeWidth={3} /></span
+				>
+			{/if}
 			{#if applied}
 				<span class="aa-appliedtag"><Icon name="check" size={11} strokeWidth={2.5} /> Applied</span>
 			{/if}

@@ -9,6 +9,53 @@
 	import { FILTERS, type Job } from './data'
 	import { api } from '$lib/api'
 	import { toast } from './toasts.svelte'
+	import { browser } from '$app/environment'
+
+	function cleanHtml(html: string): string {
+		if (!html) return '<p class="aa-jobdesc-empty">No description available.</p>'
+		return html
+			.replace(/<script[^>]*>.*?<\/script>/gis, '')
+			.replace(/<style[^>]*>.*?<\/style>/gis, '')
+			.replace(/<a\s[^>]*href="(https?:[^"]*)"[^>]*>(.*?)<\/a>/gis, '$2')
+			.replace(/<(?!\/?(p|br|strong|b|em|i|ul|ol|li|h[1-6]|hr)\b)[^>]*>/gi, '')
+			.replace(/<p[^>]*>/gi, '<p>')
+			.replace(/<ul[^>]*>/gi, '<ul class="aa-jobdesc-list">')
+			.replace(/<li[^>]*>/gi, '<li>')
+			.trim()
+	}
+
+	// Notes stored per match in localStorage
+	const NOTE_KEY = 'sellfish-notes'
+	function loadNotes(): Record<string, string> {
+		if (!browser) return {}
+		try {
+			return JSON.parse(localStorage.getItem(NOTE_KEY) ?? '{}')
+		} catch {
+			return {}
+		}
+	}
+	function saveNotes(notes: Record<string, string>) {
+		if (!browser) return
+		localStorage.setItem(NOTE_KEY, JSON.stringify(notes))
+	}
+	export function getNoteForMatch(matchId: string | undefined): string {
+		if (!matchId) return ''
+		return loadNotes()[matchId] ?? ''
+	}
+
+	let noteText = $state('')
+	let allNotes = $state<Record<string, string>>(loadNotes())
+
+	$effect(() => {
+		if (job.matchId) noteText = allNotes[job.matchId] ?? ''
+	})
+
+	function saveNote() {
+		if (!job.matchId) return
+		allNotes = { ...allNotes, [job.matchId]: noteText }
+		saveNotes(allNotes)
+		toast('Note saved', 'check', 'var(--accent-success)')
+	}
 
 	let {
 		job,
@@ -112,7 +159,7 @@
 
 		<section class="aa-drawer-sec">
 			<div class="eyebrow">summary</div>
-			<p class="aa-blurb">{job.blurb}</p>
+			<div class="aa-jobdesc">{@html cleanHtml(job.blurb)}</div>
 			<div class="aa-facts">
 				{#each job.facts as f (f)}
 					<div class="aa-fact"><span class="aa-fact-arrow">→</span>{f}</div>
@@ -175,6 +222,12 @@
 		{/if}
 		<span class="aa-hint" style="margin-left:auto;"><Kbd>Esc</Kbd> close</span>
 	</footer>
+
+	<section class="aa-drawer-sec aa-note-section">
+		<div class="eyebrow">notes</div>
+		<textarea placeholder="Add a note about this job…" bind:value={noteText} onblur={saveNote}
+		></textarea>
+	</section>
 </aside>
 
 <style>
