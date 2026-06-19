@@ -1997,3 +1997,103 @@ select.aa-input {
 	margin: 4px 0;
 	color: var(--text-secondary);
 }
+
+/* ── salary estimate ── */
+.aa-salary-band {
+	display: flex;
+	gap: 12px;
+	align-items: stretch;
+	margin: 12px 0;
+}
+.aa-salary-low,
+.aa-salary-high {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	padding: 10px;
+	border-radius: 8px;
+	background: var(--bg-glass);
+	border: 1px solid var(--border-subtle);
+}
+.aa-salary-median {
+	flex: 1.4;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	padding: 14px 10px;
+	border-radius: 10px;
+	background: hsl(140 60% 50% / 0.08);
+	border: 1px solid hsl(140 60% 50% / 0.25);
+}
+.aa-salary-label {
+	font-size: 0.68rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--text-muted);
+}
+.aa-salary-val {
+	font-family: var(--font-mono);
+	font-size: 0.95rem;
+	color: var(--text);
+}
+.aa-salary-big {
+	font-size: 1.5rem;
+	font-weight: 700;
+	color: hsl(140 60% 65%);
+}
+.aa-salary-conf {
+	font-size: 0.68rem;
+	color: var(--text-muted);
+	text-transform: capitalize;
+}
+.aa-salary-factors {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin: 8px 0;
+}
+.aa-salary-factor {
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: hsl(140 60% 50% / 0.1);
+	border: 1px solid hsl(140 60% 50% / 0.2);
+	font-size: 0.75rem;
+	color: hsl(140 50% 70%);
+}
+.aa-salary-note {
+	font-size: 0.8rem;
+	color: var(--text-secondary);
+	line-height: 1.4;
+	margin-top: 6px;
+}
+.aa-salary-empty {
+	color: var(--text-muted);
+	font-size: 0.85rem;
+	font-style: italic;
+}
+.aa-salary-loading {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	color: var(--accent-primary-light);
+	font-size: 0.85rem;
+}
+.aa-salary-btn {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	border-radius: 8px;
+	border: 1px solid var(--accent-primary);
+	background: hsl(256 60% 50% / 0.08);
+	color: var(--accent-primary-light);
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+}
+.aa-salary-btn:hover {
+	background: hsl(256 60% 50% / 0.15);
+}
