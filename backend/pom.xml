@@ -252,6 +252,8 @@
                               to prevent regression; raise toward 0.80 as more unit tests are added
                               (see docs/wiki.md → Testing). Run: mvn test jacoco:report
                               -> target/site/jacoco/index.html
+                              Remaining gap (OidcService token flow, ReportService/VectorStore SQL,
+                              MinioStorage, SecurityConfig) is covered by Testcontainers ITs.
                             -->
                             <rules>
                                 <rule>
@@ -260,7 +262,7 @@
                                         <limit>
                                             <counter>LINE</counter>
                                             <value>COVEREDRATIO</value>
-                                            <minimum>0.55</minimum>
+                                            <minimum>0.73</minimum>
                                         </limit>
                                     </limits>
                                 </rule>
