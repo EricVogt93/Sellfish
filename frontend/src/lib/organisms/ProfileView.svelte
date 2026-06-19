@@ -4,6 +4,10 @@
 	import Btn from '$lib/atoms/Btn.svelte'
 	import { toast } from '$lib/utils/toasts.svelte'
 	import { api, apiDownload } from '$lib/api'
+	import PreferencesCard from './PreferencesCard.svelte'
+	import DocumentManager from './DocumentManager.svelte'
+	import ProviderConfigCard from './ProviderConfigCard.svelte'
+	import SalaryEstimateCard from './SalaryEstimateCard.svelte'
 	import {
 		backend,
 		type ProfileResponse,
