@@ -6,10 +6,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "job_matches")
@@ -37,8 +36,7 @@ public class JobMatch extends BaseEntity {
     @Column(nullable = false)
     private MatchStatus status = MatchStatus.NEW;
 
-    protected JobMatch() {
-    }
+    protected JobMatch() {}
 
     public JobMatch(UUID userId, UUID jobId) {
         this.userId = userId;

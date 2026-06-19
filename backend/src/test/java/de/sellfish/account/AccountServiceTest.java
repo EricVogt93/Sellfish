@@ -1,5 +1,12 @@
 package de.sellfish.account;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import de.sellfish.ai.LlmProviderConfig;
 import de.sellfish.ai.LlmProviderConfigRepository;
 import de.sellfish.ai.Provider;
@@ -18,19 +25,11 @@ import de.sellfish.profile.ProfileRepository;
 import de.sellfish.storage.port.StorageService;
 import de.sellfish.users.User;
 import de.sellfish.users.UserRepository;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.Test;
 
 class AccountServiceTest {
 
@@ -47,9 +46,17 @@ class AccountServiceTest {
     private final StorageService storage = mock(StorageService.class);
 
     private final AccountService service = new AccountService(
-            userRepository, profileRepository, preferencesRepository, cvRepository, projectRepository,
-            documentRepository, matchRepository, generatedRepository, feedbackRepository,
-            llmConfigRepository, storage);
+            userRepository,
+            profileRepository,
+            preferencesRepository,
+            cvRepository,
+            projectRepository,
+            documentRepository,
+            matchRepository,
+            generatedRepository,
+            feedbackRepository,
+            llmConfigRepository,
+            storage);
 
     private void emptyCollections(UUID userId) {
         when(profileRepository.findByUserId(userId)).thenReturn(Optional.empty());
@@ -76,8 +83,18 @@ class AccountServiceTest {
 
         Map<String, Object> data = service.export(userId);
 
-        assertThat(data).containsKeys("account", "profile", "preferences", "cv", "projects",
-                "documents", "matches", "generatedDocuments", "feedback", "llmProviders");
+        assertThat(data)
+                .containsKeys(
+                        "account",
+                        "profile",
+                        "preferences",
+                        "cv",
+                        "projects",
+                        "documents",
+                        "matches",
+                        "generatedDocuments",
+                        "feedback",
+                        "llmProviders");
         Map<String, Object> account = (Map<String, Object>) data.get("account");
         assertThat(account.get("email")).isEqualTo("eric@example.com");
 

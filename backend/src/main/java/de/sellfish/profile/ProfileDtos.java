@@ -5,8 +5,7 @@ package de.sellfish.profile;
  */
 public final class ProfileDtos {
 
-    private ProfileDtos() {
-    }
+    private ProfileDtos() {}
 
     public record ProfileRequest(
             String headline,
@@ -16,8 +15,7 @@ public final class ProfileDtos {
             Integer salaryMin,
             String remotePref,
             String availability,
-            String meta) {
-    }
+            String meta) {}
 
     public record ProfileResponse(
             String headline,
@@ -30,9 +28,15 @@ public final class ProfileDtos {
             String meta) {
 
         public static ProfileResponse from(UserProfile p) {
-            return new ProfileResponse(p.getHeadline(), p.getSummary(), p.getLocation(),
-                    p.isWillingnessToRelocate(), p.getSalaryMin(), p.getRemotePref(),
-                    p.getAvailability(), p.getMeta());
+            return new ProfileResponse(
+                    p.getHeadline(),
+                    p.getSummary(),
+                    p.getLocation(),
+                    p.isWillingnessToRelocate(),
+                    p.getSalaryMin(),
+                    p.getRemotePref(),
+                    p.getAvailability(),
+                    p.getMeta());
         }
     }
 
@@ -45,8 +49,7 @@ public final class ProfileDtos {
             String[] keywords,
             String hardFilters,
             String softWeights,
-            String[] preferredCountries) {
-    }
+            String[] preferredCountries) {}
 
     public record PreferencesResponse(
             String[] desiredTitles,
@@ -60,9 +63,16 @@ public final class ProfileDtos {
             String[] preferredCountries) {
 
         public static PreferencesResponse from(UserPreferences p) {
-            return new PreferencesResponse(p.getDesiredTitles(), p.getIndustries(), p.getCompanySize(),
-                    p.getContractTypes(), p.getExcludedCompanies(), p.getKeywords(),
-                    p.getHardFilters(), p.getSoftWeights(), p.getPreferredCountries());
+            return new PreferencesResponse(
+                    p.getDesiredTitles(),
+                    p.getIndustries(),
+                    p.getCompanySize(),
+                    p.getContractTypes(),
+                    p.getExcludedCompanies(),
+                    p.getKeywords(),
+                    p.getHardFilters(),
+                    p.getSoftWeights(),
+                    p.getPreferredCountries());
         }
     }
 }

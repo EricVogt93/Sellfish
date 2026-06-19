@@ -23,7 +23,11 @@ public final class SourceCountries {
             Map.entry("HIMALAYAS", REMOTE),
             Map.entry("JOBICY", REMOTE),
             Map.entry("WORKINGNOMADS", REMOTE),
-            Map.entry("EURREMOTE", Set.of("DE", "GB", "FR", "NL", "IT", "ES", "PT", "AT", "CH", "SE", "DK", "NO", "FI", "PL", "CZ", "IE", "BE", "LU")),
+            Map.entry(
+                    "EURREMOTE",
+                    Set.of(
+                            "DE", "GB", "FR", "NL", "IT", "ES", "PT", "AT", "CH", "SE", "DK", "NO", "FI", "PL", "CZ",
+                            "IE", "BE", "LU")),
             Map.entry("REMOTECO", REMOTE),
             Map.entry("JUSTRMOTE", REMOTE),
             Map.entry("JOBSPRESSO", REMOTE),
@@ -43,8 +47,7 @@ public final class SourceCountries {
             Map.entry("SMARTRECRUITERS", Set.of("DE", "US", "GB", "NL", "FR", "ES", "IT", "AT", "CH")),
             Map.entry("WORKABLE", Set.of("US", "DE", "GB", "NL", "FR", "CA", "AU", "NZ")),
             Map.entry("SCRAPER", Set.of("DE", "GB", "US", "FR", "NL", "IT", "ES", "AT", "CH")),
-            Map.entry("LLM_WEB", Set.of("DE", "GB", "US", "FR", "NL", "IT", "ES", "AT", "CH"))
-    );
+            Map.entry("LLM_WEB", Set.of("DE", "GB", "US", "FR", "NL", "IT", "ES", "AT", "CH")));
 
     private SourceCountries() {}
 
@@ -77,8 +80,7 @@ public final class SourceCountries {
                 new CountryGroup("FI", "Finland", "FI", false),
                 new CountryGroup("IE", "Ireland", "IE", false),
                 new CountryGroup("AU", "Australia", "AU", false),
-                new CountryGroup("REMOTE", "Worldwide Remote", "REMOTE", true)
-        );
+                new CountryGroup("REMOTE", "Worldwide Remote", "REMOTE", true));
     }
 
     public record CountryGroup(String code, String label, String flag, boolean remote) {}

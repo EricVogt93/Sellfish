@@ -1,33 +1,33 @@
 <script lang="ts">
-	import Icon from './Icon.svelte';
-	import CompanyMark from './CompanyMark.svelte';
-	import StageBadge from './StageBadge.svelte';
-	import { STAGES, type Stage } from './data';
-	import type { Job } from './data';
+	import Icon from './Icon.svelte'
+	import CompanyMark from './CompanyMark.svelte'
+	import StageBadge from './StageBadge.svelte'
+	import { STAGES, type Stage } from './data'
+	import type { Job } from './data'
 
 	// UI-Jobs mit beworbenem Status (vom Page-Container vorgefiltert)
-	let { applications }: { applications: Job[] } = $props();
+	let { applications }: { applications: Job[] } = $props()
 
 	const STATUS_TO_STAGE: Record<string, Stage> = {
 		APPLIED: 'sent',
 		INTERVIEW: 'interview',
 		OFFER: 'offer',
 		REJECTED: 'rejected'
-	};
+	}
 
 	function stageOf(status: string | undefined): Stage {
-		return STATUS_TO_STAGE[status ?? 'APPLIED'] ?? 'sent';
+		return STATUS_TO_STAGE[status ?? 'APPLIED'] ?? 'sent'
 	}
 
 	const counts = $derived(
 		applications.reduce<Record<string, number>>((m, a) => {
-			const s = stageOf(a.status);
-			m[s] = (m[s] || 0) + 1;
-			return m;
+			const s = stageOf(a.status)
+			m[s] = (m[s] || 0) + 1
+			return m
 		}, {})
-	);
+	)
 
-	const stageKeys = Object.keys(STAGES) as Stage[];
+	const stageKeys = Object.keys(STAGES) as Stage[]
 </script>
 
 <div class="aa-view">
@@ -41,7 +41,8 @@
 				{#if counts[s]}
 					<span class="aa-stagecount">
 						<span class="aa-stage-dot" style={`background:${STAGES[s].color};`}></span>
-						{counts[s]} {STAGES[s].label.toLowerCase()}
+						{counts[s]}
+						{STAGES[s].label.toLowerCase()}
 					</span>
 				{/if}
 			{/each}
@@ -59,7 +60,11 @@
 		<div class="aa-tablecard">
 			<table class="aa-table">
 				<thead>
-					<tr><th>Job</th><th>Company</th><th>Stage</th><th>Source</th><th>Match</th><th class="aa-col-actions"></th></tr>
+					<tr
+						><th>Job</th><th>Company</th><th>Stage</th><th>Source</th><th>Match</th><th
+							class="aa-col-actions"
+						></th></tr
+					>
 				</thead>
 				<tbody>
 					{#each applications as job (job.id)}
@@ -73,9 +78,19 @@
 							<td class="aa-company">{job.company}</td>
 							<td><StageBadge stage={stageOf(job.status)} /></td>
 							<td class="aa-jobmeta">{job.source}</td>
-							<td><span class="aa-fsum-counter" style="color:var(--accent-secondary);">{job.score}</span></td>
+							<td
+								><span class="aa-fsum-counter" style="color:var(--accent-secondary);"
+									>{job.score}</span
+								></td
+							>
 							<td class="aa-col-actions">
-								<button class="aa-iconbtn" title="Open posting" disabled={!job.url} onclick={() => job.url && window.open(job.url, '_blank', 'noopener')}><Icon name="external" size={14} /></button>
+								<button
+									class="aa-iconbtn"
+									title="Open posting"
+									disabled={!job.url}
+									onclick={() => job.url && window.open(job.url, '_blank', 'noopener')}
+									><Icon name="external" size={14} /></button
+								>
 							</td>
 						</tr>
 					{/each}

@@ -2,7 +2,6 @@ package de.sellfish.matching;
 
 import de.sellfish.profile.UserPreferences;
 import de.sellfish.profile.UserProfile;
-
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -24,11 +23,12 @@ public record MatchContext(
     public static MatchContext from(UserProfile profile, UserPreferences prefs, String cvSkills) {
         List<String> titles = prefs == null ? List.of() : asList(prefs.getDesiredTitles());
         List<String> keywords = prefs == null ? List.of() : asList(prefs.getKeywords());
-        Set<String> excluded = prefs == null ? Set.of()
+        Set<String> excluded = prefs == null
+                ? Set.of()
                 : Stream.of(nullSafe(prefs.getExcludedCompanies()))
-                .map(s -> s.toLowerCase(Locale.ROOT).trim())
-                .filter(s -> !s.isBlank())
-                .collect(Collectors.toSet());
+                        .map(s -> s.toLowerCase(Locale.ROOT).trim())
+                        .filter(s -> !s.isBlank())
+                        .collect(Collectors.toSet());
         String location = profile == null ? null : profile.getLocation();
         String remotePref = profile == null ? "ANY" : profile.getRemotePref();
         StringBuilder pt = new StringBuilder();
@@ -41,7 +41,9 @@ public record MatchContext(
     }
 
     private static List<String> asList(String[] arr) {
-        return arr == null ? List.of() : Stream.of(arr).filter(s -> s != null && !s.isBlank()).toList();
+        return arr == null
+                ? List.of()
+                : Stream.of(arr).filter(s -> s != null && !s.isBlank()).toList();
     }
 
     private static String[] nullSafe(String[] arr) {

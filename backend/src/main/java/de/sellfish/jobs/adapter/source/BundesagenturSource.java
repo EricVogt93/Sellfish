@@ -1,15 +1,9 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -18,6 +12,11 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 /**
  * Stellen aus der (kostenlosen) Jobsuche-API der Bundesagentur für Arbeit.
@@ -35,10 +34,8 @@ public class BundesagenturSource implements JobSource {
     private final RestClient client;
 
     public BundesagenturSource(RestClient.Builder builder) {
-        this.client = builder
-                .baseUrl(BASE_URL)
-                .defaultHeader("X-API-Key", API_KEY)
-                .build();
+        this.client =
+                builder.baseUrl(BASE_URL).defaultHeader("X-API-Key", API_KEY).build();
     }
 
     @Override
@@ -87,7 +84,9 @@ public class BundesagenturSource implements JobSource {
         String refnr = item.path("refnr").asText(null);
         JsonNode ort = item.path("arbeitsort");
         String location = joinLocation(
-                ort.path("plz").asText(""), ort.path("ort").asText(""), ort.path("region").asText(""));
+                ort.path("plz").asText(""),
+                ort.path("ort").asText(""),
+                ort.path("region").asText(""));
 
         String description = fetchDescription(refnr);
 
@@ -122,8 +121,7 @@ public class BundesagenturSource implements JobSource {
     }
 
     private String buildUrl(String refnr) {
-        return refnr == null ? null
-                : "https://www.arbeitsagentur.de/jobsuche/jobdetail/" + refnr;
+        return refnr == null ? null : "https://www.arbeitsagentur.de/jobsuche/jobdetail/" + refnr;
     }
 
     private String joinLocation(String plz, String ort, String region) {

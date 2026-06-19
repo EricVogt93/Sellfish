@@ -5,6 +5,8 @@ import de.sellfish.auth.dto.AuthDtos.TokenResponse;
 import de.sellfish.common.security.SecurityUtil;
 import de.sellfish.users.User;
 import de.sellfish.users.UserRepository;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,9 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/orgs")
@@ -44,6 +43,7 @@ public class OrgController {
         static MemberView from(OrganizationMember m) {
             return new MemberView(m.getUserId(), null, m.getRole(), m.getJoinedAt());
         }
+
         static MemberView fromUser(de.sellfish.users.User user, OrganizationMember member) {
             return new MemberView(user.getId(), user.getEmail(), member.getRole(), member.getJoinedAt());
         }
@@ -70,11 +70,14 @@ public class OrgController {
         UUID userId = SecurityUtil.currentUserId();
         List<OrganizationMember> members = service.members(orgId, userId);
         List<de.sellfish.users.User> users = service.listOrgUsers(orgId, userId);
-        return members.stream().map(m -> {
-            var user = users.stream().filter(u -> u.getId().equals(m.getUserId())).findFirst();
-            return user.map(u -> MemberView.fromUser(u, m))
-                    .orElseGet(() -> MemberView.from(m));
-        }).toList();
+        return members.stream()
+                .map(m -> {
+                    var user = users.stream()
+                            .filter(u -> u.getId().equals(m.getUserId()))
+                            .findFirst();
+                    return user.map(u -> MemberView.fromUser(u, m)).orElseGet(() -> MemberView.from(m));
+                })
+                .toList();
     }
 
     @PostMapping("/switch")

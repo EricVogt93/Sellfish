@@ -1,10 +1,6 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -15,8 +11,7 @@ import java.time.ZoneOffset;
  */
 public final class JobSourceSupport {
 
-    private JobSourceSupport() {
-    }
+    private JobSourceSupport() {}
 
     public static String text(JsonNode node, String field) {
         JsonNode v = node.path(field);

@@ -1,7 +1,7 @@
 package de.sellfish.ai.secret;
-import de.sellfish.ai.adapter.out.InfisicalClient;
 
 import de.sellfish.ai.LlmProviderConfig;
+import de.sellfish.ai.adapter.out.InfisicalClient;
 import de.sellfish.common.crypto.CryptoService;
 import org.springframework.stereotype.Component;
 

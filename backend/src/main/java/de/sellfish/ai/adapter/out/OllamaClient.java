@@ -1,6 +1,4 @@
 package de.sellfish.ai.adapter.out;
-import de.sellfish.ai.port.ChatProvider;
-import de.sellfish.ai.port.EmbeddingProvider;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sellfish.ai.LlmException;
@@ -9,15 +7,16 @@ import de.sellfish.ai.model.ChatMessage;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
 import de.sellfish.ai.model.ResolvedModel;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-
+import de.sellfish.ai.port.ChatProvider;
+import de.sellfish.ai.port.EmbeddingProvider;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 /**
  * Client für self-hosted Ollama-Instanzen.
@@ -37,8 +36,8 @@ public class OllamaClient implements ChatProvider, EmbeddingProvider {
     }
 
     private String baseUrl(ResolvedModel model) {
-        String base = (model.baseUrl() == null || model.baseUrl().isBlank())
-                ? "http://localhost:11434" : model.baseUrl();
+        String base =
+                (model.baseUrl() == null || model.baseUrl().isBlank()) ? "http://localhost:11434" : model.baseUrl();
         return base.replaceAll("/+$", "");
     }
 
@@ -64,8 +63,12 @@ public class OllamaClient implements ChatProvider, EmbeddingProvider {
         return new ChatResult(
                 content.asText(),
                 response.path("model").asText(model.model()),
-                response.path("prompt_eval_count").isNumber() ? response.get("prompt_eval_count").asInt() : null,
-                response.path("eval_count").isNumber() ? response.get("eval_count").asInt() : null);
+                response.path("prompt_eval_count").isNumber()
+                        ? response.get("prompt_eval_count").asInt()
+                        : null,
+                response.path("eval_count").isNumber()
+                        ? response.get("eval_count").asInt()
+                        : null);
     }
 
     @Override

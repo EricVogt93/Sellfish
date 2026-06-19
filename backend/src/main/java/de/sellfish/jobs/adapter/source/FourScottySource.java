@@ -1,19 +1,17 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * 4Scotty — deutsches IT-Job-Board mit öffentlicher API (keyless).
@@ -33,16 +31,18 @@ public class FourScottySource implements JobSource {
     }
 
     @Override
-    public String code() { return CODE; }
+    public String code() {
+        return CODE;
+    }
 
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         try {
             String q = query.keywordString().isBlank() ? "entwickler" : query.keywordString();
             JsonNode response = client.get()
-                    .uri("/v2/jobs?limit=" + Math.min(100, query.size())
-                            + "&q=" + urlEncode(q))
-                    .retrieve().body(JsonNode.class);
+                    .uri("/v2/jobs?limit=" + Math.min(100, query.size()) + "&q=" + urlEncode(q))
+                    .retrieve()
+                    .body(JsonNode.class);
             if (response == null || !response.has("data")) return List.of();
             List<RawJob> jobs = new ArrayList<>();
             for (JsonNode item : response.path("data")) {
@@ -58,7 +58,8 @@ public class FourScottySource implements JobSource {
 
     private RawJob toRawJob(JsonNode item) {
         JsonNode company = item.path("company");
-        return new RawJob(CODE,
+        return new RawJob(
+                CODE,
                 JobSourceSupport.text(item, "id"),
                 JobSourceSupport.text(item, "title"),
                 company.path("name").asText(null),
@@ -90,7 +91,10 @@ public class FourScottySource implements JobSource {
     }
 
     private String urlEncode(String s) {
-        try { return java.net.URLEncoder.encode(s, java.nio.charset.StandardCharsets.UTF_8); }
-        catch (Exception e) { return s; }
+        try {
+            return java.net.URLEncoder.encode(s, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return s;
+        }
     }
 }

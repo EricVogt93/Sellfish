@@ -5,13 +5,12 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.UUID;
+import javax.crypto.SecretKey;
+import org.springframework.stereotype.Service;
 
 /**
  * Erzeugt und validiert JWT Access-/Refresh-Tokens (HMAC-SHA256).
@@ -59,11 +58,7 @@ public class JwtService {
     }
 
     public Claims parse(String token) {
-        return Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
+        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload();
     }
 
     public boolean isAccessToken(Claims claims) {

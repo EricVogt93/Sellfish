@@ -1,21 +1,20 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
 import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 /**
  * Stellen aus der Adzuna-API. Benötigt {@code app_id} und {@code app_key} in der Quellen-Config.
@@ -84,7 +83,8 @@ public class AdzunaSource implements JobSource {
     private RawJob toRawJob(JsonNode item) {
         String salary = null;
         if (item.path("salary_min").isNumber()) {
-            salary = item.path("salary_min").asText() + "–" + item.path("salary_max").asText("");
+            salary = item.path("salary_min").asText() + "–"
+                    + item.path("salary_max").asText("");
         }
         return new RawJob(
                 CODE,

@@ -7,14 +7,13 @@ import de.sellfish.jobs.adapter.source.SourceCountries;
 import de.sellfish.jobs.port.JobQuery;
 import de.sellfish.jobs.port.JobSource;
 import de.sellfish.jobs.port.RawJob;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Holt Stellen aus allen aktiven Quellen, dedupliziert sie und persistiert neue Jobs inkl. Embeddings.
@@ -30,11 +29,12 @@ public class JobIngestionService {
     private final JobEmbeddingService embeddingService;
     private final ObjectMapper objectMapper;
 
-    public JobIngestionService(List<JobSource> sources,
-                               JobSourceConfigRepository sourceConfigRepository,
-                               JobRepository jobRepository,
-                               JobEmbeddingService embeddingService,
-                               ObjectMapper objectMapper) {
+    public JobIngestionService(
+            List<JobSource> sources,
+            JobSourceConfigRepository sourceConfigRepository,
+            JobRepository jobRepository,
+            JobEmbeddingService embeddingService,
+            ObjectMapper objectMapper) {
         this.sources = sources;
         this.sourceConfigRepository = sourceConfigRepository;
         this.jobRepository = jobRepository;
@@ -116,13 +116,11 @@ public class JobIngestionService {
             return Map.of();
         }
         try {
-            return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {
-            });
+            return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
         } catch (Exception e) {
             return Map.of();
         }
     }
 
-    public record IngestStats(int fetched, int created, List<String> sources) {
-    }
+    public record IngestStats(int fetched, int created, List<String> sources) {}
 }

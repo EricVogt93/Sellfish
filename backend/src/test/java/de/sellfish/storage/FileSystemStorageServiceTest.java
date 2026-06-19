@@ -1,23 +1,21 @@
 package de.sellfish.storage;
-import de.sellfish.storage.port.StorageService;
-import de.sellfish.storage.adapter.FileSystemStorageService;
-
-import de.sellfish.common.config.StorageProperties;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import de.sellfish.common.config.StorageProperties;
+import de.sellfish.storage.adapter.FileSystemStorageService;
+import de.sellfish.storage.port.StorageService;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+
 class FileSystemStorageServiceTest {
 
     private StorageService newService(Path root) {
-        return new FileSystemStorageService(
-                new StorageProperties("fs", root.toString(), null));
+        return new FileSystemStorageService(new StorageProperties("fs", root.toString(), null));
     }
 
     @Test
@@ -44,7 +42,6 @@ class FileSystemStorageServiceTest {
     @Test
     void rejectsPathTraversal(@TempDir Path tmp) {
         StorageService storage = newService(tmp);
-        assertThatThrownBy(() -> storage.load("../../etc/passwd"))
-                .isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> storage.load("../../etc/passwd")).isInstanceOf(IllegalArgumentException.class);
     }
 }

@@ -1,12 +1,11 @@
 package de.sellfish.learning;
 
-import de.sellfish.matching.Features;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import de.sellfish.matching.Features;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 class WeightLearnerTest {
 
@@ -35,9 +34,8 @@ class WeightLearnerTest {
 
     @Test
     void mismatchedSizesRejected() {
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
-                () -> WeightLearner.learn(
-                        List.of(new Features(0, 0, 0, 0, 0, 0, 0.0, 0.5)),
-                        new double[]{1, 0}));
+        org.junit.jupiter.api.Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> WeightLearner.learn(List.of(new Features(0, 0, 0, 0, 0, 0, 0.0, 0.5)), new double[] {1, 0}));
     }
 }

@@ -21,10 +21,12 @@ public class OpenApiConfig {
                         .version("0.1.0")
                         .description("AI-gestützte Job-Such- und Bewerbungs-Plattform"))
                 .addSecurityItem(new SecurityRequirement().addList(SCHEME))
-                .components(new Components().addSecuritySchemes(SCHEME,
-                        new SecurityScheme()
-                                .type(SecurityScheme.Type.HTTP)
-                                .scheme("bearer")
-                                .bearerFormat("JWT")));
+                .components(new Components()
+                        .addSecuritySchemes(
+                                SCHEME,
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")));
     }
 }

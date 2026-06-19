@@ -1,9 +1,12 @@
 package de.sellfish.docs.adapter.web;
-import de.sellfish.docs.*;
 
 import de.sellfish.common.error.ApiException;
 import de.sellfish.common.security.CurrentUser;
+import de.sellfish.docs.*;
 import de.sellfish.docs.DocumentDtos.DocumentResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -20,10 +23,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/documents")
 public class DocumentController {
@@ -36,19 +35,20 @@ public class DocumentController {
 
     @GetMapping
     public List<DocumentResponse> list() {
-        return service.list(CurrentUser.id()).stream().map(DocumentResponse::from).toList();
+        return service.list(CurrentUser.id()).stream()
+                .map(DocumentResponse::from)
+                .toList();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DocumentResponse upload(@RequestParam("type") DocumentType type,
-                                   @RequestParam("file") MultipartFile file) {
+    public DocumentResponse upload(@RequestParam("type") DocumentType type, @RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             throw ApiException.badRequest("Datei fehlt");
         }
         try {
-            Document doc = service.upload(CurrentUser.id(), type,
-                    file.getOriginalFilename(), file.getContentType(), file.getBytes());
+            Document doc = service.upload(
+                    CurrentUser.id(), type, file.getOriginalFilename(), file.getContentType(), file.getBytes());
             return DocumentResponse.from(doc);
         } catch (IOException e) {
             throw ApiException.badRequest("Datei nicht lesbar");
@@ -58,10 +58,10 @@ public class DocumentController {
     @PostMapping("/{id}/parse")
     public DocumentResponse reparse(@PathVariable UUID id) {
         service.reparse(CurrentUser.id(), id);
-        return DocumentResponse.from(
-                service.list(CurrentUser.id()).stream()
-                        .filter(d -> d.getId().equals(id)).findFirst()
-                        .orElseThrow(() -> ApiException.notFound("Dokument nicht gefunden")));
+        return DocumentResponse.from(service.list(CurrentUser.id()).stream()
+                .filter(d -> d.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> ApiException.notFound("Dokument nicht gefunden")));
     }
 
     @PostMapping("/{id}/primary")
@@ -72,12 +72,11 @@ public class DocumentController {
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> download(@PathVariable UUID id) {
         DocumentService.DownloadedFile file = service.download(CurrentUser.id(), id);
-        MediaType mediaType = file.mime() != null
-                ? MediaType.parseMediaType(file.mime()) : MediaType.APPLICATION_OCTET_STREAM;
+        MediaType mediaType =
+                file.mime() != null ? MediaType.parseMediaType(file.mime()) : MediaType.APPLICATION_OCTET_STREAM;
         return ResponseEntity.ok()
                 .contentType(mediaType)
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + file.filename() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.filename() + "\"")
                 .body(new ByteArrayResource(file.content()));
     }
 

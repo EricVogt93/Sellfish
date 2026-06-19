@@ -1,19 +1,18 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Lever-Job-Postings (ATS). Config {@code companies}: kommagetrennte Lever-Handles.
@@ -57,7 +56,8 @@ public class LeverSource implements JobSource {
     private List<RawJob> fetchCompany(String company, JobQuery query) {
         try {
             JsonNode response = client.get()
-                    .uri(uri -> uri.path("/{company}").queryParam("mode", "json").build(company))
+                    .uri(uri ->
+                            uri.path("/{company}").queryParam("mode", "json").build(company))
                     .retrieve()
                     .body(JsonNode.class);
             if (response == null || !response.isArray()) {
@@ -80,7 +80,8 @@ public class LeverSource implements JobSource {
     private RawJob toRawJob(JsonNode item, String company) {
         JsonNode categories = item.path("categories");
         Instant created = item.path("createdAt").isNumber()
-                ? Instant.ofEpochMilli(item.path("createdAt").asLong()) : null;
+                ? Instant.ofEpochMilli(item.path("createdAt").asLong())
+                : null;
         return new RawJob(
                 CODE,
                 company + ":" + item.path("id").asText(""),

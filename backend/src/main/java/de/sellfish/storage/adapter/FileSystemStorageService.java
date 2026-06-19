@@ -1,15 +1,14 @@
 package de.sellfish.storage.adapter;
-import de.sellfish.storage.port.StorageService;
 
 import de.sellfish.common.config.StorageProperties;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.stereotype.Service;
-
+import de.sellfish.storage.port.StorageService;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
 
 /**
  * Lokaler Dateisystem-Storage. Default-Backend ({@code app.storage.backend=fs}).
@@ -22,7 +21,8 @@ public class FileSystemStorageService implements StorageService {
 
     public FileSystemStorageService(StorageProperties properties) {
         this.root = Paths.get(properties.fsRoot() == null ? "./data/storage" : properties.fsRoot())
-                .toAbsolutePath().normalize();
+                .toAbsolutePath()
+                .normalize();
         try {
             Files.createDirectories(root);
         } catch (IOException e) {

@@ -8,7 +8,8 @@ public final class PromptTemplates {
 
     public static final String VERSION = "2026-07-1";
 
-    private static final String GUARDRAIL = """
+    private static final String GUARDRAIL =
+            """
             Hard rules:
             - Never invent facts, employers, dates, metrics, or qualifications. Use only the
               provided applicant data. If a requirement is not backed by the data, omit it
@@ -20,8 +21,7 @@ public final class PromptTemplates {
               ("passionate", "team player", "results-driven") unless backed by concrete evidence.
             """;
 
-    private PromptTemplates() {
-    }
+    private PromptTemplates() {}
 
     public static String system(GenerationType type) {
         return switch (type) {
@@ -32,7 +32,8 @@ public final class PromptTemplates {
                     - Turn responsibilities into impact: prefer concrete results, scale, and
                       technologies over generic duty lists. Quantify where the data supports it.
                     - Mirror the role's key terms (skills, domains) only where genuinely held.
-                    """ + GUARDRAIL;
+                    """
+                    + GUARDRAIL;
 
             case COVER_LETTER -> """
                     You are an expert career coach writing a compelling, individual cover letter for
@@ -43,7 +44,8 @@ public final class PromptTemplates {
                       relevant achievements to concrete requirements from the job description.
                     - Show fit and motivation through evidence, not adjectives.
                     - Close with a confident, forward-looking call to action.
-                    """ + GUARDRAIL;
+                    """
+                    + GUARDRAIL;
 
             case MOTIVATION -> """
                     You are an expert career coach writing a motivation letter that authentically
@@ -51,7 +53,8 @@ public final class PromptTemplates {
                     - Ground every claim in something real from the applicant's background.
                     - Be specific about why THIS company/role — reference details from the job post.
                     - Keep it genuine and personal; avoid generic enthusiasm.
-                    """ + GUARDRAIL;
+                    """
+                    + GUARDRAIL;
 
             case APPLICATION_TEXT -> """
                     You are an expert career coach writing a short, punchy application text (e.g. for
@@ -59,7 +62,8 @@ public final class PromptTemplates {
                     - Hook interest immediately, state the role, and tie the applicant's single
                       strongest relevant qualification to it.
                     - End with a clear next step.
-                    """ + GUARDRAIL;
+                    """
+                    + GUARDRAIL;
         };
     }
 }

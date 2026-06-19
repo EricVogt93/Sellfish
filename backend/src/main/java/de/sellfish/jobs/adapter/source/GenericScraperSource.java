@@ -1,8 +1,11 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -10,10 +13,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Generischer, per Konfiguration steuerbarer HTML-Scraper (CSS-Selektoren). Nur für Portale

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { STAGES, type Stage } from './data';
+	import { STAGES, type Stage } from './data'
 
-	let { stage }: { stage: Stage } = $props();
+	let { stage }: { stage: Stage } = $props()
 
-	const s = $derived(STAGES[stage]);
+	const s = $derived(STAGES[stage])
 </script>
 
 <span

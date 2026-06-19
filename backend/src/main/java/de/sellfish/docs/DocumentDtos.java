@@ -5,8 +5,7 @@ import java.util.UUID;
 
 public final class DocumentDtos {
 
-    private DocumentDtos() {
-    }
+    private DocumentDtos() {}
 
     public record DocumentResponse(
             UUID id,
@@ -21,7 +20,11 @@ public final class DocumentDtos {
 
         public static DocumentResponse from(Document d) {
             return new DocumentResponse(
-                    d.getId(), d.getType(), d.getFilename(), d.getMime(), d.getSizeBytes(),
+                    d.getId(),
+                    d.getType(),
+                    d.getFilename(),
+                    d.getMime(),
+                    d.getSizeBytes(),
                     d.isPrimary(),
                     d.getParsedText() != null && !d.getParsedText().isBlank(),
                     d.getParsedStruct() != null && !d.getParsedStruct().isBlank(),

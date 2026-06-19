@@ -1,18 +1,17 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * NoDesk (remote jobs, keyless, curated).
@@ -33,13 +32,14 @@ public class NoDeskSource implements JobSource {
     }
 
     @Override
-    public String code() { return CODE; }
+    public String code() {
+        return CODE;
+    }
 
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         try {
-            JsonNode response = client.get()
-                    .uri("/remote-jobs.json").retrieve().body(JsonNode.class);
+            JsonNode response = client.get().uri("/remote-jobs.json").retrieve().body(JsonNode.class);
             if (response == null || !response.isArray()) return List.of();
             List<RawJob> jobs = new ArrayList<>();
             for (JsonNode item : response) {
@@ -62,7 +62,8 @@ public class NoDeskSource implements JobSource {
     }
 
     private RawJob toRawJob(JsonNode item) {
-        return new RawJob(CODE,
+        return new RawJob(
+                CODE,
                 JobSourceSupport.text(item, "id"),
                 JobSourceSupport.text(item, "title"),
                 JobSourceSupport.text(item, "company"),
@@ -75,5 +76,7 @@ public class NoDeskSource implements JobSource {
                 item.toString());
     }
 
-    private String nz(String s) { return s == null ? "" : s; }
+    private String nz(String s) {
+        return s == null ? "" : s;
+    }
 }

@@ -4,16 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.sellfish.tenant.OrgFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.Map;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class AuditService {
@@ -28,7 +26,13 @@ public class AuditService {
     }
 
     @Async
-    public void record(UUID userId, UUID orgId, AuditAction action, String targetType, String targetId, Map<String, Object> details) {
+    public void record(
+            UUID userId,
+            UUID orgId,
+            AuditAction action,
+            String targetType,
+            String targetId,
+            Map<String, Object> details) {
         try {
             String json = mapper.writeValueAsString(details != null ? details : Map.of());
             AuditEvent event = new AuditEvent(orgId, userId, action, targetType, targetId, json);
@@ -68,7 +72,8 @@ public class AuditService {
                 }
                 return req.getRemoteAddr();
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         return null;
     }
 }

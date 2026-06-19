@@ -1,35 +1,35 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
-	import { api, setTokens } from '$lib/api';
-	import { initSession } from '$lib/api/session.svelte';
-	import type { TokenResponse } from '$lib/api';
+	import { onMount } from 'svelte'
+	import { page } from '$app/stores'
+	import { goto } from '$app/navigation'
+	import { api, setTokens } from '$lib/api'
+	import { initSession } from '$lib/api/session.svelte'
+	import type { TokenResponse } from '$lib/api'
 
-	let error = $state<string | null>(null);
+	let error = $state<string | null>(null)
 
 	onMount(async () => {
-		const params = new URLSearchParams($page.url.search);
-		const code = params.get('code');
-		const provider = params.get('provider');
+		const params = new URLSearchParams($page.url.search)
+		const code = params.get('code')
+		const provider = params.get('provider')
 
 		if (!code || !provider) {
-			error = 'Missing code or provider parameter';
-			return;
+			error = 'Missing code or provider parameter'
+			return
 		}
 
 		try {
 			const tokens = await api<TokenResponse>('/api/auth/sso/callback', {
 				method: 'POST',
 				body: JSON.stringify({ code, provider })
-			});
-			setTokens(tokens);
-			await initSession();
-			await goto('/');
+			})
+			setTokens(tokens)
+			await initSession()
+			await goto('/')
 		} catch (e) {
-			error = e instanceof Error ? e.message : 'SSO authentication failed';
+			error = e instanceof Error ? e.message : 'SSO authentication failed'
 		}
-	});
+	})
 </script>
 
 <svelte:head>

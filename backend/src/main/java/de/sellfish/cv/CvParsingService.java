@@ -5,12 +5,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.sellfish.ai.LlmService;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.common.json.JsonExtractor;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Wandelt extrahierten CV-/Project listn-Text via LLM in strukturierte Daten um.
@@ -18,7 +17,8 @@ import java.util.UUID;
 @Service
 public class CvParsingService {
 
-    private static final String CV_SYSTEM = """
+    private static final String CV_SYSTEM =
+            """
             Du bist ein Parser für Lebensläufe. Extrahiere die Angaben aus dem Text und
             antworte ausschließlich mit gültigem JSON in exakt dieser Struktur:
             {
@@ -31,7 +31,8 @@ public class CvParsingService {
             Erfinde nichts. Lass unbekannte Felder leer. Keine Erklärungen, nur JSON.
             """;
 
-    private static final String PROJECTS_SYSTEM = """
+    private static final String PROJECTS_SYSTEM =
+            """
             Du extrahierst eine Project list. Antworte ausschließlich mit gültigem JSON-Array:
             [{"title":"","role":"","period":"","tech":["..."],"description":""}]
             Erfinde nichts. Keine Erklärungen, nur JSON.
@@ -42,10 +43,11 @@ public class CvParsingService {
     private final CvStructuredRepository cvRepository;
     private final ProjectRepository projectRepository;
 
-    public CvParsingService(LlmService llmService,
-                            ObjectMapper objectMapper,
-                            CvStructuredRepository cvRepository,
-                            ProjectRepository projectRepository) {
+    public CvParsingService(
+            LlmService llmService,
+            ObjectMapper objectMapper,
+            CvStructuredRepository cvRepository,
+            ProjectRepository projectRepository) {
         this.llmService = llmService;
         this.objectMapper = objectMapper;
         this.cvRepository = cvRepository;
@@ -57,8 +59,7 @@ public class CvParsingService {
         String json = callJson(userId, CV_SYSTEM, text);
         JsonNode node = readTree(json);
 
-        CvStructured cv = cvRepository.findByUserId(userId)
-                .orElseGet(() -> new CvStructured(userId, documentId));
+        CvStructured cv = cvRepository.findByUserId(userId).orElseGet(() -> new CvStructured(userId, documentId));
         cv.setDocumentId(documentId);
         cv.setExperience(arrayOrEmpty(node, "experience"));
         cv.setEducation(arrayOrEmpty(node, "education"));
@@ -93,10 +94,14 @@ public class CvParsingService {
     }
 
     private String callJson(UUID userId, String system, String text) {
-        var result = llmService.chat(userId, new ChatRequest(
-                List.of(de.sellfish.ai.model.ChatMessage.system(system),
-                        de.sellfish.ai.model.ChatMessage.user(text)),
-                0.0, 4096));
+        var result = llmService.chat(
+                userId,
+                new ChatRequest(
+                        List.of(
+                                de.sellfish.ai.model.ChatMessage.system(system),
+                                de.sellfish.ai.model.ChatMessage.user(text)),
+                        0.0,
+                        4096));
         return JsonExtractor.extract(result.content());
     }
 

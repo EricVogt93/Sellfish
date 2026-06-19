@@ -3,9 +3,9 @@
 		value = 0,
 		size = 15,
 		onchange
-	}: { value?: number; size?: number; onchange?: (v: number) => void } = $props();
+	}: { value?: number; size?: number; onchange?: (v: number) => void } = $props()
 
-	let hover = $state(0);
+	let hover = $state(0)
 </script>
 
 <span class="aa-stars" role="group" onmouseleave={() => (hover = 0)}>
@@ -16,8 +16,8 @@
 			aria-label={`${n} stars`}
 			onmouseenter={() => (hover = n)}
 			onclick={(e) => {
-				e.stopPropagation();
-				onchange?.(n === value ? 0 : n);
+				e.stopPropagation()
+				onchange?.(n === value ? 0 : n)
 			}}
 		>
 			<svg
@@ -29,7 +29,9 @@
 				stroke-width="1.6"
 				stroke-linejoin="round"
 			>
-				<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+				<polygon
+					points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"
+				></polygon>
 			</svg>
 		</button>
 	{/each}

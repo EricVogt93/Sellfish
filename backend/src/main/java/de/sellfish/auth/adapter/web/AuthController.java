@@ -1,6 +1,6 @@
 package de.sellfish.auth.adapter.web;
-import de.sellfish.auth.*;
 
+import de.sellfish.auth.*;
 import de.sellfish.auth.dto.AuthDtos.LoginRequest;
 import de.sellfish.auth.dto.AuthDtos.RefreshRequest;
 import de.sellfish.auth.dto.AuthDtos.RegisterRequest;

@@ -8,19 +8,16 @@ import de.sellfish.profile.PreferencesRepository;
 import de.sellfish.profile.ProfileRepository;
 import de.sellfish.profile.UserPreferences;
 import de.sellfish.profile.UserProfile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * Orchestriert einen Search run für einen Nutzer: Query bauen, Profil-Embedding aktualisieren,
@@ -40,14 +37,15 @@ public class JobSearchService {
     private final ObjectMapper objectMapper;
     private final MatchRecomputer matchRecomputer;
 
-    public JobSearchService(ProfileRepository profileRepository,
-                            PreferencesRepository preferencesRepository,
-                            CvStructuredRepository cvRepository,
-                            JobIngestionService ingestionService,
-                            JobEmbeddingService embeddingService,
-                            SearchRunRepository searchRunRepository,
-                            ObjectMapper objectMapper,
-                            MatchRecomputer matchRecomputer) {
+    public JobSearchService(
+            ProfileRepository profileRepository,
+            PreferencesRepository preferencesRepository,
+            CvStructuredRepository cvRepository,
+            JobIngestionService ingestionService,
+            JobEmbeddingService embeddingService,
+            SearchRunRepository searchRunRepository,
+            ObjectMapper objectMapper,
+            MatchRecomputer matchRecomputer) {
         this.profileRepository = profileRepository;
         this.preferencesRepository = preferencesRepository;
         this.cvRepository = cvRepository;
@@ -69,11 +67,15 @@ public class JobSearchService {
 
         try {
             // Profil-Embedding aktuell halten (für die semantische Suche).
-            embeddingService.embedProfile(userId, profileText(profile.orElse(null),
-                    prefs.orElse(null), cvRepository.findByUserId(userId).orElse(null)));
+            embeddingService.embedProfile(
+                    userId,
+                    profileText(
+                            profile.orElse(null),
+                            prefs.orElse(null),
+                            cvRepository.findByUserId(userId).orElse(null)));
 
-            JobIngestionService.IngestStats stats = ingestionService.ingest(query,
-                    preferredCountries(prefs.orElse(null)));
+            JobIngestionService.IngestStats stats =
+                    ingestionService.ingest(query, preferredCountries(prefs.orElse(null)));
             int matches = matchRecomputer.recompute(userId);
 
             run.setSources(stats.sources().toArray(new String[0]));

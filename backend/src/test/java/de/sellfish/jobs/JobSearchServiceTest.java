@@ -1,14 +1,13 @@
 package de.sellfish.jobs;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+
 import de.sellfish.jobs.port.JobQuery;
 import de.sellfish.profile.UserPreferences;
 import de.sellfish.profile.UserProfile;
-import org.junit.jupiter.api.Test;
-
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import org.junit.jupiter.api.Test;
 
 class JobSearchServiceTest {
 
@@ -29,8 +28,8 @@ class JobSearchServiceTest {
         profile.setLocation("Berlin");
         profile.setRemotePref("REMOTE");
         UserPreferences prefs = new UserPreferences(userId);
-        prefs.setDesiredTitles(new String[]{"Java Entwickler"});
-        prefs.setKeywords(new String[]{"spring", "Java Entwickler"}); // Duplikat wird zusammengeführt
+        prefs.setDesiredTitles(new String[] {"Java Entwickler"});
+        prefs.setKeywords(new String[] {"spring", "Java Entwickler"}); // Duplikat wird zusammengeführt
 
         JobQuery query = service.buildQuery(profile, prefs);
 
@@ -54,7 +53,7 @@ class JobSearchServiceTest {
         UserProfile profile = new UserProfile(userId);
         profile.setHeadline("Senior Java Dev");
         UserPreferences prefs = new UserPreferences(userId);
-        prefs.setKeywords(new String[]{"spring"});
+        prefs.setKeywords(new String[] {"spring"});
 
         String text = service.profileText(profile, prefs, null);
         assertThat(text).contains("Senior Java Dev").contains("spring");

@@ -1,54 +1,58 @@
 <script lang="ts">
-	import Icon from './Icon.svelte';
-	import { getSession, switchOrg, refreshOrgs } from '$lib/api/session.svelte';
-	import { backend, type OrgView } from '$lib/api/backend';
-	import { toast } from './toasts.svelte';
+	import Icon from './Icon.svelte'
+	import { getSession, switchOrg, refreshOrgs } from '$lib/api/session.svelte'
+	import { backend } from '$lib/api/backend'
+	import { toast } from './toasts.svelte'
 
-	const session = getSession();
-	let open = $state(false);
-	let creating = $state(false);
-	let createName = $state('');
-	let createSlug = $state('');
+	const session = getSession()
+	let open = $state(false)
+	let creating = $state(false)
+	let createName = $state('')
+	let createSlug = $state('')
 
-	const activeOrg = $derived(session.orgs.find((o) => o.id === session.activeOrgId) ?? null);
-	const label = $derived(activeOrg ? activeOrg.name : 'Personal');
+	const activeOrg = $derived(session.orgs.find((o) => o.id === session.activeOrgId) ?? null)
+	const label = $derived(activeOrg ? activeOrg.name : 'Personal')
 
 	function toggle() {
-		open = !open;
+		open = !open
 		if (open) {
-			creating = false;
-			createName = '';
-			createSlug = '';
+			creating = false
+			createName = ''
+			createSlug = ''
 		}
 	}
 
 	async function doSwitch(id: string | null) {
-		open = false;
+		open = false
 		try {
-			await switchOrg(id);
-			toast(id ? `Switched to ${session.orgs.find((o) => o.id === id)?.name ?? 'org'}` : 'Personal workspace');
+			await switchOrg(id)
+			toast(
+				id
+					? `Switched to ${session.orgs.find((o) => o.id === id)?.name ?? 'org'}`
+					: 'Personal workspace'
+			)
 		} catch (e) {
-			toast(e instanceof Error ? e.message : 'Failed to switch', 'x', 'var(--accent-error)');
+			toast(e instanceof Error ? e.message : 'Failed to switch', 'x', 'var(--accent-error)')
 		}
 	}
 
 	async function doCreate() {
-		if (!createName.trim() || !createSlug.trim()) return;
+		if (!createName.trim() || !createSlug.trim()) return
 		try {
-			await backend.createOrg(createName.trim(), createSlug.trim().toLowerCase());
-			await refreshOrgs();
-			creating = false;
-			createName = '';
-			createSlug = '';
-			toast('Organization created');
+			await backend.createOrg(createName.trim(), createSlug.trim().toLowerCase())
+			await refreshOrgs()
+			creating = false
+			createName = ''
+			createSlug = ''
+			toast('Organization created')
 		} catch (e) {
-			toast(e instanceof Error ? e.message : 'Failed to create', 'x', 'var(--accent-error)');
+			toast(e instanceof Error ? e.message : 'Failed to create', 'x', 'var(--accent-error)')
 		}
 	}
 
 	function closeOnClickOutside(e: MouseEvent) {
-		const el = e.target as HTMLElement;
-		if (!el.closest('.org-switcher')) open = false;
+		const el = e.target as HTMLElement
+		if (!el.closest('.org-switcher')) open = false
 	}
 </script>
 
@@ -64,12 +68,18 @@
 	{#if open}
 		<div class="org-drop">
 			<div class="org-drop-header">Workspaces</div>
-			<button class="org-item {!session.activeOrgId ? 'active' : ''}" onclick={() => doSwitch(null)}>
+			<button
+				class="org-item {!session.activeOrgId ? 'active' : ''}"
+				onclick={() => doSwitch(null)}
+			>
 				<Icon name="user" size={13} />
 				<span>Personal</span>
 			</button>
 			{#each session.orgs as org (org.id)}
-				<button class="org-item {session.activeOrgId === org.id ? 'active' : ''}" onclick={() => doSwitch(org.id)}>
+				<button
+					class="org-item {session.activeOrgId === org.id ? 'active' : ''}"
+					onclick={() => doSwitch(org.id)}
+				>
 					<Icon name="users" size={13} />
 					<span>{org.name}</span>
 					<span class="org-plan">{org.plan}</span>
@@ -82,7 +92,11 @@
 				<div class="org-create-form">
 					<input placeholder="Name" bind:value={createName} />
 					<input placeholder="Slug" bind:value={createSlug} />
-					<button class="org-create-btn" onclick={doCreate} disabled={!createName.trim() || !createSlug.trim()}>Create</button>
+					<button
+						class="org-create-btn"
+						onclick={doCreate}
+						disabled={!createName.trim() || !createSlug.trim()}>Create</button
+					>
 					<button class="org-create-cancel" onclick={() => (creating = false)}>Cancel</button>
 				</div>
 			{:else}

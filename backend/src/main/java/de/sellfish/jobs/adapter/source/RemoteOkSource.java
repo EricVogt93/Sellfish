@@ -1,19 +1,18 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * RemoteOK-API (kostenlos, without Key, international/remote). Erstes Array-Element ist ein
@@ -29,8 +28,7 @@ public class RemoteOkSource implements JobSource {
     private final RestClient client;
 
     public RemoteOkSource(RestClient.Builder builder) {
-        this.client = builder
-                .baseUrl(BASE_URL)
+        this.client = builder.baseUrl(BASE_URL)
                 .defaultHeader("User-Agent", "Mozilla/5.0 (compatible; SellfishBot/1.0)")
                 .build();
     }
@@ -73,7 +71,8 @@ public class RemoteOkSource implements JobSource {
             return true;
         }
         String haystack = (job.title() + " " + (job.company() == null ? "" : job.company()) + " "
-                + (job.description() == null ? "" : job.description())).toLowerCase(Locale.ROOT);
+                        + (job.description() == null ? "" : job.description()))
+                .toLowerCase(Locale.ROOT);
         return query.keywords().stream().anyMatch(k -> haystack.contains(k.toLowerCase(Locale.ROOT)));
     }
 

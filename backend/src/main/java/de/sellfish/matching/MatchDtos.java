@@ -1,14 +1,12 @@
 package de.sellfish.matching;
 
 import de.sellfish.jobs.Job;
-
 import java.time.Instant;
 import java.util.UUID;
 
 public final class MatchDtos {
 
-    private MatchDtos() {
-    }
+    private MatchDtos() {}
 
     public record MatchResponse(
             UUID matchId,
@@ -29,13 +27,23 @@ public final class MatchDtos {
 
         public static MatchResponse of(JobMatch match, Job job) {
             return new MatchResponse(
-                    match.getId(), job.getId(), job.getTitle(), job.getCompany(), job.getLocation(),
-                    job.getUrl(), job.getSalaryRaw(), job.getPostedAt(), match.getScore(),
-                    match.getRank(), match.getStatus(), match.getScoreBreakdown(),
-                    job.getDescription(), job.getSourceCode(), job.getRemote());
+                    match.getId(),
+                    job.getId(),
+                    job.getTitle(),
+                    job.getCompany(),
+                    job.getLocation(),
+                    job.getUrl(),
+                    job.getSalaryRaw(),
+                    job.getPostedAt(),
+                    match.getScore(),
+                    match.getRank(),
+                    match.getStatus(),
+                    match.getScoreBreakdown(),
+                    job.getDescription(),
+                    job.getSourceCode(),
+                    job.getRemote());
         }
     }
 
-    public record StatusRequest(MatchStatus status) {
-    }
+    public record StatusRequest(MatchStatus status) {}
 }

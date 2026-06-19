@@ -1,15 +1,14 @@
 package de.sellfish.matching;
 
-import de.sellfish.jobs.Job;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
+import de.sellfish.jobs.Job;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
+import org.junit.jupiter.api.Test;
 
 class FeatureScorerTest {
 
@@ -24,8 +23,8 @@ class FeatureScorerTest {
         return j;
     }
 
-    private MatchContext ctx(List<String> titles, List<String> keywords, String location,
-                             String remotePref, Set<String> excluded) {
+    private MatchContext ctx(
+            List<String> titles, List<String> keywords, String location, String remotePref, Set<String> excluded) {
         return new MatchContext(titles, keywords, location, remotePref, excluded, "");
     }
 
@@ -33,7 +32,8 @@ class FeatureScorerTest {
     void titleMatchesDesiredTitle() {
         Features f = scorer.score(
                 job("Senior Java Entwickler", "Acme", "Berlin", ""),
-                ctx(List.of("Java Entwickler"), List.of(), null, "ANY", Set.of()), 0.0);
+                ctx(List.of("Java Entwickler"), List.of(), null, "ANY", Set.of()),
+                0.0);
         assertThat(f.title()).isEqualTo(1.0);
     }
 
@@ -41,15 +41,15 @@ class FeatureScorerTest {
     void keywordScoreCountsMatches() {
         Features f = scorer.score(
                 job("Backend Engineer", "Acme", "Berlin", "Wir nutzen Spring und Kafka"),
-                ctx(List.of(), List.of("spring", "kafka", "rust"), null, "ANY", Set.of()), 0.0);
+                ctx(List.of(), List.of("spring", "kafka", "rust"), null, "ANY", Set.of()),
+                0.0);
         assertThat(f.keyword()).isCloseTo(2.0 / 3.0, within(1e-9));
     }
 
     @Test
     void locationMatchesToken() {
         Features f = scorer.score(
-                job("Dev", "Acme", "10115 Berlin", ""),
-                ctx(List.of(), List.of(), "Berlin", "ONSITE", Set.of()), 0.0);
+                job("Dev", "Acme", "10115 Berlin", ""), ctx(List.of(), List.of(), "Berlin", "ONSITE", Set.of()), 0.0);
         assertThat(f.location()).isEqualTo(1.0);
     }
 
@@ -57,10 +57,12 @@ class FeatureScorerTest {
     void remotePreferenceRewardsRemoteJobs() {
         Features remote = scorer.score(
                 job("Dev", "Acme", "Berlin", "100% Remote / Homeoffice"),
-                ctx(List.of(), List.of(), null, "REMOTE", Set.of()), 0.0);
+                ctx(List.of(), List.of(), null, "REMOTE", Set.of()),
+                0.0);
         Features onsite = scorer.score(
                 job("Dev", "Acme", "Berlin", "Vor Ort im Büro"),
-                ctx(List.of(), List.of(), null, "REMOTE", Set.of()), 0.0);
+                ctx(List.of(), List.of(), null, "REMOTE", Set.of()),
+                0.0);
         assertThat(remote.remote()).isGreaterThan(onsite.remote());
     }
 
@@ -75,14 +77,16 @@ class FeatureScorerTest {
     @Test
     void excludedCompanyDetected() {
         MatchContext ctx = ctx(List.of(), List.of(), null, "ANY", Set.of("evilcorp"));
-        assertThat(scorer.isExcluded(job("Dev", "EvilCorp GmbH", "Berlin", ""), ctx)).isTrue();
-        assertThat(scorer.isExcluded(job("Dev", "Nice GmbH", "Berlin", ""), ctx)).isFalse();
+        assertThat(scorer.isExcluded(job("Dev", "EvilCorp GmbH", "Berlin", ""), ctx))
+                .isTrue();
+        assertThat(scorer.isExcluded(job("Dev", "Nice GmbH", "Berlin", ""), ctx))
+                .isFalse();
     }
 
     @Test
     void semanticIsClampedAndPassedThrough() {
-        Features f = scorer.score(job("Dev", "Acme", "Berlin", ""),
-                ctx(List.of(), List.of(), null, "ANY", Set.of()), 1.5);
+        Features f =
+                scorer.score(job("Dev", "Acme", "Berlin", ""), ctx(List.of(), List.of(), null, "ANY", Set.of()), 1.5);
         assertThat(f.semantic()).isEqualTo(1.0);
     }
 }

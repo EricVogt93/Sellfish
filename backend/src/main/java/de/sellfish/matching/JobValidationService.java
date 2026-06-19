@@ -4,13 +4,12 @@ import de.sellfish.ai.LlmService;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
 import de.sellfish.jobs.Job;
-import de.sellfish.profile.UserProfile;
 import de.sellfish.profile.UserPreferences;
+import de.sellfish.profile.UserProfile;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.UUID;
 
 /**
  * LLM-basierte Job-Validierung: Relevanz-Score (0–1), Qualitäts-Flag,
@@ -35,9 +34,8 @@ public class JobValidationService {
     public double relevanceScore(UUID userId, Job job, UserProfile profile, UserPreferences prefs) {
         String prompt = buildRelevancePrompt(job, profile, prefs);
         try {
-            ChatResult result = llmService.chat(userId, ChatRequest.of(
-                    "You score job relevance 0..100. Answer with only a number.",
-                    prompt));
+            ChatResult result = llmService.chat(
+                    userId, ChatRequest.of("You score job relevance 0..100. Answer with only a number.", prompt));
             String text = result.content() != null ? result.content().strip() : "";
             return parseScore(text);
         } catch (Exception e) {
@@ -53,11 +51,12 @@ public class JobValidationService {
     public boolean isLegitimate(UUID userId, Job job) {
         String prompt = buildQualityPrompt(job);
         try {
-            ChatResult result = llmService.chat(userId, ChatRequest.of(
-                    "You classify job postings. Answer only 'yes' or 'no'.",
-                    prompt));
+            ChatResult result = llmService.chat(
+                    userId, ChatRequest.of("You classify job postings. Answer only 'yes' or 'no'.", prompt));
             String text = result.content() != null ? result.content().strip().toLowerCase() : "";
-            return text.contains("yes") || text.contains("legit") || text.contains("real")
+            return text.contains("yes")
+                    || text.contains("legit")
+                    || text.contains("real")
                     || text.contains("legitimate");
         } catch (Exception e) {
             return true;
@@ -73,12 +72,16 @@ public class JobValidationService {
         sb.append("Title: ").append(nz(job.getTitle())).append('\n');
         sb.append("Company: ").append(nz(job.getCompany())).append('\n');
         sb.append("Location: ").append(nz(job.getLocation())).append('\n');
-        sb.append("Description: ").append(truncate(nz(job.getDescription()), 1500)).append('\n');
+        sb.append("Description: ")
+                .append(truncate(nz(job.getDescription()), 1500))
+                .append('\n');
 
         sb.append("\n--- USER PROFILE ---\n");
         if (profile != null) {
             sb.append("Headline: ").append(nz(profile.getHeadline())).append('\n');
-            sb.append("Summary: ").append(truncate(nz(profile.getSummary()), 500)).append('\n');
+            sb.append("Summary: ")
+                    .append(truncate(nz(profile.getSummary()), 500))
+                    .append('\n');
             sb.append("Location: ").append(nz(profile.getLocation())).append('\n');
         }
         if (prefs != null) {
@@ -103,12 +106,21 @@ public class JobValidationService {
             try {
                 double v = Double.parseDouble(part);
                 if (v >= 0 && v <= 100) return Math.min(1.0, Math.max(0.0, v / 100.0));
-            } catch (NumberFormatException ignored) {}
+            } catch (NumberFormatException ignored) {
+            }
         }
         return 0.5;
     }
 
-    private String nz(String s) { return s == null ? "" : s; }
-    private String arr(String[] a) { return a == null ? "" : String.join(", ", a); }
-    private String truncate(String s, int max) { return s.length() > max ? s.substring(0, max) + "..." : s; }
+    private String nz(String s) {
+        return s == null ? "" : s;
+    }
+
+    private String arr(String[] a) {
+        return a == null ? "" : String.join(", ", a);
+    }
+
+    private String truncate(String s, int max) {
+        return s.length() > max ? s.substring(0, max) + "..." : s;
+    }
 }

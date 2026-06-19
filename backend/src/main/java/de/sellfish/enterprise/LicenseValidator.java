@@ -1,14 +1,13 @@
 package de.sellfish.enterprise;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.security.KeyFactory;
 import java.security.Signature;
 import java.security.spec.X509EncodedKeySpec;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Validiert einen RSA-signierten License key offline.
@@ -77,11 +76,25 @@ public class LicenseValidator {
             this.features = features;
         }
 
-        public boolean valid() { return valid && (expires == null || expires.isAfter(Instant.now())); }
-        public String subject() { return subject; }
-        public Instant expires() { return expires; }
-        public Set<String> features() { return features; }
-        public boolean hasFeature(String feature) { return valid() && features.contains(feature); }
+        public boolean valid() {
+            return valid && (expires == null || expires.isAfter(Instant.now()));
+        }
+
+        public String subject() {
+            return subject;
+        }
+
+        public Instant expires() {
+            return expires;
+        }
+
+        public Set<String> features() {
+            return features;
+        }
+
+        public boolean hasFeature(String feature) {
+            return valid() && features.contains(feature);
+        }
 
         static LicensePayload parse(String json) {
             try {

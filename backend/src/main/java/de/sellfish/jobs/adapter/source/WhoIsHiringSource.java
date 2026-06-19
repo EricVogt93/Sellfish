@@ -1,15 +1,9 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -17,6 +11,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 /**
  * Who Is Hiring — Hacker News Monthly Thread (der aktuelle, gepinnte Who-Is-Hiring-Post).
@@ -29,9 +28,8 @@ public class WhoIsHiringSource implements JobSource {
     private static final String HN_API = "https://hacker-news.firebaseio.com/v0";
     private static final Logger log = LoggerFactory.getLogger(WhoIsHiringSource.class);
 
-    private static final Pattern JOB_PATTERN = Pattern.compile(
-            "<p>(.*?)</p>",
-            Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+    private static final Pattern JOB_PATTERN =
+            Pattern.compile("<p>(.*?)</p>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
     private final RestClient client;
 
@@ -41,7 +39,9 @@ public class WhoIsHiringSource implements JobSource {
     }
 
     @Override
-    public String code() { return CODE; }
+    public String code() {
+        return CODE;
+    }
 
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
@@ -51,7 +51,8 @@ public class WhoIsHiringSource implements JobSource {
 
             JsonNode item = client.get()
                     .uri(HN_API + "/item/{id}.json", itemId)
-                    .retrieve().body(JsonNode.class);
+                    .retrieve()
+                    .body(JsonNode.class);
             if (item == null) return List.of();
 
             String text = item.path("text").asText("");
@@ -77,10 +78,14 @@ public class WhoIsHiringSource implements JobSource {
 
     private Long findWhoIsHiringId() {
         try {
-            JsonNode maxItem = client.get().uri(HN_API + "/maxitem.json").retrieve().body(JsonNode.class);
+            JsonNode maxItem =
+                    client.get().uri(HN_API + "/maxitem.json").retrieve().body(JsonNode.class);
             long maxId = maxItem.asLong();
             for (int i = 0; i < 50; i++) {
-                JsonNode item = client.get().uri(HN_API + "/item/{id}.json", maxId - i).retrieve().body(JsonNode.class);
+                JsonNode item = client.get()
+                        .uri(HN_API + "/item/{id}.json", maxId - i)
+                        .retrieve()
+                        .body(JsonNode.class);
                 if (item == null) continue;
                 String title = item.path("title").asText("").toLowerCase(Locale.ROOT);
                 if (title.contains("who is hiring") && item.path("dead").asBoolean(false) == false) {
@@ -97,7 +102,8 @@ public class WhoIsHiringSource implements JobSource {
         String location = extractLocation(text);
         boolean remote = text.toLowerCase(Locale.ROOT).contains("remote");
         String url = extractUrl(text);
-        return new RawJob(CODE,
+        return new RawJob(
+                CODE,
                 Integer.toHexString(text.hashCode()),
                 extractTitle(text),
                 extractCompany(text),
@@ -123,14 +129,15 @@ public class WhoIsHiringSource implements JobSource {
     }
 
     private String extractCompany(String text) {
-        java.util.regex.Matcher m = Pattern.compile("\\b(?:at|@)\\s+([A-Z][A-Za-z0-9&.\\- ]{2,40})\\b").matcher(text);
+        java.util.regex.Matcher m = Pattern.compile("\\b(?:at|@)\\s+([A-Z][A-Za-z0-9&.\\- ]{2,40})\\b")
+                .matcher(text);
         return m.find() ? m.group(1).trim() : null;
     }
 
     private String extractLocation(String text) {
-        java.util.regex.Matcher m = Pattern.compile(
-                "\\b([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?(?:,\\s*[A-Z]{2})?)\\b"
-                        + "(?!\\s+(?:at|is|with|for|and|or|the|a|in))").matcher(text);
+        java.util.regex.Matcher m = Pattern.compile("\\b([A-Z][a-z]+(?:\\s+[A-Z][a-z]+)?(?:,\\s*[A-Z]{2})?)\\b"
+                        + "(?!\\s+(?:at|is|with|for|and|or|the|a|in))")
+                .matcher(text);
         List<String> locs = new ArrayList<>();
         while (m.find()) {
             String loc = m.group(1);
@@ -145,9 +152,10 @@ public class WhoIsHiringSource implements JobSource {
     }
 
     private boolean isStopword(String s) {
-        return Set.of("This", "That", "These", "There", "They", "With", "From",
-                "About", "After", "While", "Would", "Could", "Should", "Please",
-                "Apply", "Seeking").contains(s);
+        return Set.of(
+                        "This", "That", "These", "There", "They", "With", "From", "About", "After", "While", "Would",
+                        "Could", "Should", "Please", "Apply", "Seeking")
+                .contains(s);
     }
 
     private boolean matches(RawJob job, JobQuery query) {
@@ -159,8 +167,11 @@ public class WhoIsHiringSource implements JobSource {
     static String htmlToText(String html) {
         return html.replaceAll("<[^>]+>", " ")
                 .replaceAll("&[a-z]+;", " ")
-                .replaceAll("\\s+", " ").trim();
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 
-    private String nz(String s) { return s == null ? "" : s; }
+    private String nz(String s) {
+        return s == null ? "" : s;
+    }
 }

@@ -1,14 +1,17 @@
 package de.sellfish.admin.adapter.web;
-import de.sellfish.admin.*;
 
-import de.sellfish.jobs.adapter.source.SourceCountries;
+import de.sellfish.admin.*;
 import de.sellfish.ai.LlmProviderConfig;
 import de.sellfish.ai.Provider;
 import de.sellfish.ai.Purpose;
 import de.sellfish.jobs.JobSourceConfig;
+import de.sellfish.jobs.adapter.source.SourceCountries;
 import de.sellfish.users.Role;
 import de.sellfish.users.User;
 import de.sellfish.users.UserStatus;
+import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,10 +23,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -44,11 +43,9 @@ public class AdminController {
         }
     }
 
-    public record RoleRequest(Role role) {
-    }
+    public record RoleRequest(Role role) {}
 
-    public record StatusRequest(UserStatus status) {
-    }
+    public record StatusRequest(UserStatus status) {}
 
     @GetMapping("/users")
     public List<UserView> users() {
@@ -73,8 +70,7 @@ public class AdminController {
         }
     }
 
-    public record JobSourceRequest(Boolean enabled, String config) {
-    }
+    public record JobSourceRequest(Boolean enabled, String config) {}
 
     @GetMapping("/job-sources")
     public List<JobSourceView> jobSources() {
@@ -88,19 +84,30 @@ public class AdminController {
 
     // --- Globale LLM-Konfiguration ---
 
-    public record GlobalLlmView(UUID id, Provider provider, String model, Purpose purpose,
-                                String baseUrl, boolean isDefault, boolean hasKey) {
+    public record GlobalLlmView(
+            UUID id,
+            Provider provider,
+            String model,
+            Purpose purpose,
+            String baseUrl,
+            boolean isDefault,
+            boolean hasKey) {
         static GlobalLlmView from(LlmProviderConfig c) {
             boolean hasKey = (c.getKeyEnc() != null && !c.getKeyEnc().isBlank())
                     || (c.getKeyRef() != null && !c.getKeyRef().isBlank());
-            return new GlobalLlmView(c.getId(), c.getProvider(), c.getModel(), c.getPurpose(),
-                    c.getBaseUrl(), c.isDefault(), hasKey);
+            return new GlobalLlmView(
+                    c.getId(), c.getProvider(), c.getModel(), c.getPurpose(), c.getBaseUrl(), c.isDefault(), hasKey);
         }
     }
 
-    public record GlobalLlmRequest(Provider provider, String model, Purpose purpose,
-                                   String baseUrl, String keyRef, String apiKey, Boolean isDefault) {
-    }
+    public record GlobalLlmRequest(
+            Provider provider,
+            String model,
+            Purpose purpose,
+            String baseUrl,
+            String keyRef,
+            String apiKey,
+            Boolean isDefault) {}
 
     @GetMapping("/llm-configs")
     public List<GlobalLlmView> globalLlmConfigs() {
@@ -111,8 +118,13 @@ public class AdminController {
     @ResponseStatus(HttpStatus.CREATED)
     public GlobalLlmView createGlobalLlmConfig(@RequestBody GlobalLlmRequest req) {
         return GlobalLlmView.from(service.createGlobalLlmConfig(
-                req.provider(), req.model(), req.purpose(), req.baseUrl(), req.keyRef(),
-                req.apiKey(), Boolean.TRUE.equals(req.isDefault())));
+                req.provider(),
+                req.model(),
+                req.purpose(),
+                req.baseUrl(),
+                req.keyRef(),
+                req.apiKey(),
+                Boolean.TRUE.equals(req.isDefault())));
     }
 
     @DeleteMapping("/llm-configs/{id}")

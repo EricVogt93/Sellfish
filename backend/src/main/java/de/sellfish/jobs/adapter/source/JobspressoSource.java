@@ -1,18 +1,17 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Jobspresso (remote jobs, keyless, curated).
@@ -33,7 +32,9 @@ public class JobspressoSource implements JobSource {
     }
 
     @Override
-    public String code() { return CODE; }
+    public String code() {
+        return CODE;
+    }
 
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
@@ -65,7 +66,8 @@ public class JobspressoSource implements JobSource {
     private RawJob toRawJob(JsonNode item) {
         String desc = JobSourceSupport.text(item.path("content"), "rendered");
         String title = JobSourceSupport.text(item.path("title"), "rendered");
-        return new RawJob(CODE,
+        return new RawJob(
+                CODE,
                 JobSourceSupport.text(item, "slug"),
                 title != null ? title : JobSourceSupport.text(item, "title"),
                 JobSourceSupport.text(item.path("meta"), "company"),
@@ -78,10 +80,14 @@ public class JobspressoSource implements JobSource {
                 item.toString());
     }
 
-    private String nz(String s) { return s == null ? "" : s; }
+    private String nz(String s) {
+        return s == null ? "" : s;
+    }
 
     static String htmlToText(String html) {
-        return html.replaceAll("<[^>]+>", " ").replaceAll("&[a-z]+;", " ")
-                .replaceAll("\\s+", " ").trim();
+        return html.replaceAll("<[^>]+>", " ")
+                .replaceAll("&[a-z]+;", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
     }
 }

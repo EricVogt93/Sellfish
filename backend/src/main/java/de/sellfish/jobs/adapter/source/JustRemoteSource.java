@@ -1,19 +1,18 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * JustRemote — Remote-Jobs (keyless, API).
@@ -34,14 +33,17 @@ public class JustRemoteSource implements JobSource {
     }
 
     @Override
-    public String code() { return CODE; }
+    public String code() {
+        return CODE;
+    }
 
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         try {
             JsonNode response = client.get()
                     .uri("/jobs?limit=" + Math.min(100, query.size()))
-                    .retrieve().body(JsonNode.class);
+                    .retrieve()
+                    .body(JsonNode.class);
             if (response == null || !response.has("jobs")) return List.of();
             List<RawJob> jobs = new ArrayList<>();
             for (JsonNode item : response.path("jobs")) {
@@ -58,13 +60,14 @@ public class JustRemoteSource implements JobSource {
 
     private boolean matches(RawJob job, JobQuery query) {
         if (query.keywords() == null || query.keywords().isEmpty()) return true;
-        String haystack = (job.title() + " " + nz(job.company()) + " " + nz(job.description()))
-                .toLowerCase(Locale.ROOT);
+        String haystack =
+                (job.title() + " " + nz(job.company()) + " " + nz(job.description())).toLowerCase(Locale.ROOT);
         return query.keywords().stream().anyMatch(k -> haystack.contains(k.toLowerCase(Locale.ROOT)));
     }
 
     private RawJob toRawJob(JsonNode item) {
-        return new RawJob(CODE,
+        return new RawJob(
+                CODE,
                 JobSourceSupport.text(item, "id"),
                 JobSourceSupport.text(item, "title"),
                 JobSourceSupport.text(item, "company"),
@@ -77,5 +80,7 @@ public class JustRemoteSource implements JobSource {
                 item.toString());
     }
 
-    private String nz(String s) { return s == null ? "" : s; }
+    private String nz(String s) {
+        return s == null ? "" : s;
+    }
 }

@@ -4,10 +4,9 @@ import de.sellfish.common.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 /**
  * Normalisierter Lebenslauf (aus dem CV-Dokument extrahiert). Listen werden als JSON gehalten.
@@ -45,8 +44,7 @@ public class CvStructured extends BaseEntity {
     @Column(columnDefinition = "jsonb", nullable = false)
     private String certifications = "[]";
 
-    protected CvStructured() {
-    }
+    protected CvStructured() {}
 
     public CvStructured(UUID userId, UUID documentId) {
         this.userId = userId;

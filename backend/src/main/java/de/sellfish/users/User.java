@@ -6,7 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-
 import java.util.UUID;
 
 @Entity
@@ -39,8 +38,7 @@ public class User extends BaseEntity {
     @Column(name = "oidc_provider")
     private String oidcProvider;
 
-    protected User() {
-    }
+    protected User() {}
 
     public User(String email, String passwordHash) {
         this.email = email;

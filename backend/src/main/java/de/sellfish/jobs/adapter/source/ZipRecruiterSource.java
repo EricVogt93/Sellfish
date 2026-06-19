@@ -1,21 +1,19 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * ZipRecruiter Job-Search-API (benötigt api_key, disabled by default).
@@ -35,7 +33,9 @@ public class ZipRecruiterSource implements JobSource {
     }
 
     @Override
-    public String code() { return CODE; }
+    public String code() {
+        return CODE;
+    }
 
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
@@ -54,8 +54,7 @@ public class ZipRecruiterSource implements JobSource {
                             .queryParam("jobs_per_page", Math.min(100, query.size()))
                             .queryParam("days_ago", 30)
                             .build())
-                    .header("Authorization", "Basic " + Base64.getEncoder()
-                            .encodeToString((apiKey + ":").getBytes()))
+                    .header("Authorization", "Basic " + Base64.getEncoder().encodeToString((apiKey + ":").getBytes()))
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
                     .body(JsonNode.class);
@@ -73,7 +72,8 @@ public class ZipRecruiterSource implements JobSource {
     }
 
     private RawJob toRawJob(JsonNode item) {
-        return new RawJob(CODE,
+        return new RawJob(
+                CODE,
                 JobSourceSupport.text(item, "id"),
                 JobSourceSupport.text(item, "name"),
                 JobSourceSupport.text(item.path("hiring_company"), "name"),

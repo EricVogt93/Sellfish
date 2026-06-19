@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Icon from './Icon.svelte';
-	import type { Snippet } from 'svelte';
+	import Icon from './Icon.svelte'
+	import type { Snippet } from 'svelte'
 
 	let {
 		variant = 'secondary',
@@ -12,15 +12,15 @@
 		onclick,
 		children
 	}: {
-		variant?: 'primary' | 'secondary' | 'ghost';
-		icon?: string;
-		size?: 'md' | 'sm';
-		disabled?: boolean;
-		title?: string;
-		style?: string;
-		onclick?: (e: MouseEvent) => void;
-		children?: Snippet;
-	} = $props();
+		variant?: 'primary' | 'secondary' | 'ghost'
+		icon?: string
+		size?: 'md' | 'sm'
+		disabled?: boolean
+		title?: string
+		style?: string
+		onclick?: (e: MouseEvent) => void
+		children?: Snippet
+	} = $props()
 </script>
 
 <button {title} {disabled} {onclick} {style} class={`aa-btn aa-btn-${variant} aa-btn-${size}`}>

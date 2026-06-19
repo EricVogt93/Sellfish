@@ -1,7 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import Icon from './Icon.svelte';
-	import { backend, type ProfileResponse, type PreferencesResponse, type ProviderConfig } from '$lib/api/backend';
+	import { onMount } from 'svelte'
+	import Icon from './Icon.svelte'
+	import {
+		backend,
+		type ProfileResponse,
+		type PreferencesResponse,
+		type ProviderConfig
+	} from '$lib/api/backend'
 
 	let {
 		hasMatches,
@@ -10,17 +15,17 @@
 		onRescan,
 		searching = false
 	}: {
-		hasMatches: boolean;
-		hasDocuments: boolean;
-		onNavigate: (view: string) => void;
-		onRescan: () => void;
-		searching?: boolean;
-	} = $props();
+		hasMatches: boolean
+		hasDocuments: boolean
+		onNavigate: (view: string) => void
+		onRescan: () => void
+		searching?: boolean
+	} = $props()
 
-	let profile = $state<ProfileResponse | null>(null);
-	let prefs = $state<PreferencesResponse | null>(null);
-	let providers = $state<ProviderConfig[]>([]);
-	let loaded = $state(false);
+	let profile = $state<ProfileResponse | null>(null)
+	let prefs = $state<PreferencesResponse | null>(null)
+	let providers = $state<ProviderConfig[]>([])
+	let loaded = $state(false)
 
 	onMount(async () => {
 		try {
@@ -28,35 +33,59 @@
 				backend.getProfile(),
 				backend.getPreferences(),
 				backend.listProviders()
-			]);
-			profile = p;
-			prefs = pr;
-			providers = pv;
+			])
+			profile = p
+			prefs = pr
+			providers = pv
 		} catch {
 			/* ignore — steps stay incomplete */
 		} finally {
-			loaded = true;
+			loaded = true
 		}
-	});
+	})
 
-	const hasProfile = $derived(!!profile && !!(profile.headline || profile.summary));
-	const hasPrefs = $derived(!!prefs && prefs.desiredTitles.length > 0);
-	const hasCV = $derived(hasDocuments);
-	const hasProvider = $derived(providers.some((p) => p.purpose === 'CHAT' && p.hasKey));
+	const hasProfile = $derived(!!profile && !!(profile.headline || profile.summary))
+	const hasPrefs = $derived(!!prefs && prefs.desiredTitles.length > 0)
+	const hasCV = $derived(hasDocuments)
+	const hasProvider = $derived(providers.some((p) => p.purpose === 'CHAT' && p.hasKey))
 
 	const steps = $derived([
-		{ id: 'profile', done: hasProfile, label: 'Complete your profile', cta: 'profile', icon: 'user' },
-		{ id: 'prefs', done: hasPrefs, label: 'Set job preferences & filters', cta: 'profile', icon: 'filter' },
+		{
+			id: 'profile',
+			done: hasProfile,
+			label: 'Complete your profile',
+			cta: 'profile',
+			icon: 'user'
+		},
+		{
+			id: 'prefs',
+			done: hasPrefs,
+			label: 'Set job preferences & filters',
+			cta: 'profile',
+			icon: 'filter'
+		},
 		{ id: 'cv', done: hasCV, label: 'Upload your CV (parsed by AI)', cta: 'profile', icon: 'file' },
-		{ id: 'provider', done: hasProvider, label: 'Connect an AI provider', cta: 'profile', icon: 'cpu' },
-		{ id: 'search', done: hasMatches, label: 'Run your first job search', cta: 'search', icon: 'search' }
-	]);
+		{
+			id: 'provider',
+			done: hasProvider,
+			label: 'Connect an AI provider',
+			cta: 'profile',
+			icon: 'cpu'
+		},
+		{
+			id: 'search',
+			done: hasMatches,
+			label: 'Run your first job search',
+			cta: 'search',
+			icon: 'search'
+		}
+	])
 
-	const doneCount = $derived(steps.filter((s) => s.done).length);
-	const allDone = $derived(doneCount === steps.length);
-	let dismissed = $state(false);
+	const doneCount = $derived(steps.filter((s) => s.done).length)
+	const allDone = $derived(doneCount === steps.length)
+	let dismissed = $state(false)
 
-	const show = $derived(loaded && !allDone && !dismissed);
+	const show = $derived(loaded && !allDone && !dismissed)
 </script>
 
 {#if show}
@@ -64,7 +93,11 @@
 		<div class="aa-onboard-head">
 			<div>
 				<div class="eyebrow">getting started · {doneCount}/{steps.length}</div>
-				<h2>Set up Sellfish in {steps.length - doneCount} quick step{steps.length - doneCount === 1 ? '' : 's'}</h2>
+				<h2>
+					Set up Sellfish in {steps.length - doneCount} quick step{steps.length - doneCount === 1
+						? ''
+						: 's'}
+				</h2>
 			</div>
 			<button class="aa-onboard-x" onclick={() => (dismissed = true)} aria-label="Dismiss">
 				<Icon name="x" size={14} />
@@ -79,7 +112,8 @@
 			{#each steps as s (s.id)}
 				<li class:done={s.done}>
 					<span class="aa-onboard-check">
-						{#if s.done}<Icon name="check" size={13} />{:else}<span class="aa-onboard-dot"></span>{/if}
+						{#if s.done}<Icon name="check" size={13} />{:else}<span class="aa-onboard-dot"
+							></span>{/if}
 					</span>
 					<span class="aa-onboard-label">{s.label}</span>
 					{#if !s.done}
@@ -137,7 +171,11 @@
 	.aa-onboard-fill {
 		height: 100%;
 		border-radius: 999px;
-		background: linear-gradient(90deg, var(--accent-primary, #6366f1), var(--accent-secondary, #06b6d4));
+		background: linear-gradient(
+			90deg,
+			var(--accent-primary, #6366f1),
+			var(--accent-secondary, #06b6d4)
+		);
 		transition: width 0.4s ease;
 	}
 	.aa-onboard-list {

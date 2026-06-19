@@ -2,13 +2,12 @@ package de.sellfish.auth;
 
 import de.sellfish.users.User;
 import de.sellfish.users.UserStatus;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 /**
  * Spring-Security-Adapter um unsere {@link User}-Entität.
@@ -26,7 +25,8 @@ public class AppUserDetails implements UserDetails {
         this.email = user.getEmail();
         this.passwordHash = user.getPasswordHash();
         this.status = user.getStatus();
-        this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
+        this.authorities =
+                List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
     }
 
     public UUID getId() {

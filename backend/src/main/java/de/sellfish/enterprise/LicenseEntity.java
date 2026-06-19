@@ -4,11 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "license")
@@ -42,10 +41,27 @@ public class LicenseEntity {
         this.features = features;
     }
 
-    public UUID getId() { return id; }
-    public String getLicenseKey() { return licenseKey; }
-    public String getIssuedTo() { return issuedTo; }
-    public Instant getValidUntil() { return validUntil; }
-    public String getFeatures() { return features; }
-    public Instant getCreatedAt() { return createdAt; }
+    public UUID getId() {
+        return id;
+    }
+
+    public String getLicenseKey() {
+        return licenseKey;
+    }
+
+    public String getIssuedTo() {
+        return issuedTo;
+    }
+
+    public Instant getValidUntil() {
+        return validUntil;
+    }
+
+    public String getFeatures() {
+        return features;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 }

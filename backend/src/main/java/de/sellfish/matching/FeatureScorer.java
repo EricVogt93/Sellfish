@@ -2,13 +2,12 @@ package de.sellfish.matching;
 
 import de.sellfish.common.text.TextTokens;
 import de.sellfish.jobs.Job;
-import org.springframework.stereotype.Component;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import org.springframework.stereotype.Component;
 
 @Component
 public class FeatureScorer {
@@ -60,7 +59,10 @@ public class FeatureScorer {
     private double keywordScore(Job job, MatchContext ctx) {
         if (ctx.keywords().isEmpty()) return 0.0;
         String haystack = (job.getTitle() + " " + nz(job.getDescription())).toLowerCase(Locale.ROOT);
-        long matched = ctx.keywords().stream().map(k -> k.toLowerCase(Locale.ROOT)).filter(haystack::contains).count();
+        long matched = ctx.keywords().stream()
+                .map(k -> k.toLowerCase(Locale.ROOT))
+                .filter(haystack::contains)
+                .count();
         return (double) matched / ctx.keywords().size();
     }
 
@@ -72,7 +74,8 @@ public class FeatureScorer {
 
     private double recencyScore(Job job) {
         if (job.getPostedAt() == null) return 0.5;
-        double days = Math.max(0, Duration.between(job.getPostedAt(), Instant.now()).toHours() / 24.0);
+        double days =
+                Math.max(0, Duration.between(job.getPostedAt(), Instant.now()).toHours() / 24.0);
         return Math.pow(0.5, days / RECENCY_HALF_LIFE_DAYS);
     }
 
@@ -80,9 +83,20 @@ public class FeatureScorer {
         String pref = ctx.remotePref() == null ? "ANY" : ctx.remotePref().toUpperCase(Locale.ROOT);
         boolean jobRemote = TextTokens.containsAny(
                 nz(job.getRemote()) + " " + nz(job.getDescription()),
-                Set.of("remote", "work from home", "wfh", "fully remote", "distributed team",
-                        "anywhere", "home-based", "homeoffice", "home office", "telearbeit",
-                        "fernarbeit", "remote-first", "100% remote"));
+                Set.of(
+                        "remote",
+                        "work from home",
+                        "wfh",
+                        "fully remote",
+                        "distributed team",
+                        "anywhere",
+                        "home-based",
+                        "homeoffice",
+                        "home office",
+                        "telearbeit",
+                        "fernarbeit",
+                        "remote-first",
+                        "100% remote"));
         return switch (pref) {
             case "REMOTE" -> jobRemote ? 1.0 : 0.2;
             case "HYBRID" -> jobRemote ? 0.8 : 0.5;
@@ -101,6 +115,11 @@ public class FeatureScorer {
         return !copy.isEmpty();
     }
 
-    private String nz(String s) { return s == null ? "" : s; }
-    private double clamp(double v) { return Math.max(0.0, Math.min(1.0, v)); }
+    private String nz(String s) {
+        return s == null ? "" : s;
+    }
+
+    private double clamp(double v) {
+        return Math.max(0.0, Math.min(1.0, v));
+    }
 }

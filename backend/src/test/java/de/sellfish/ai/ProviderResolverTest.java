@@ -1,17 +1,16 @@
 package de.sellfish.ai;
 
-import de.sellfish.ai.model.ResolvedModel;
-import de.sellfish.ai.secret.SecretResolver;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import de.sellfish.ai.model.ResolvedModel;
+import de.sellfish.ai.secret.SecretResolver;
+import java.util.List;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
 
 class ProviderResolverTest {
 
@@ -41,9 +40,7 @@ class ProviderResolverTest {
     void prefersDefaultAmongUserConfigs() {
         UUID userId = UUID.randomUUID();
         when(repository.findByUserIdAndPurposeAndEnabledTrue(userId, Purpose.CHAT))
-                .thenReturn(List.of(
-                        config(userId, Provider.OLLAMA, false),
-                        config(userId, Provider.OPENAI, true)));
+                .thenReturn(List.of(config(userId, Provider.OLLAMA, false), config(userId, Provider.OPENAI, true)));
         when(secretResolver.resolveApiKey(any())).thenReturn("k");
 
         assertThat(resolver.resolve(userId, Purpose.CHAT).provider()).isEqualTo(Provider.OPENAI);
@@ -52,9 +49,9 @@ class ProviderResolverTest {
     @Test
     void fallsBackToGlobalWhenNoUserConfig() {
         UUID userId = UUID.randomUUID();
-        when(repository.findByUserIdAndPurposeAndEnabledTrue(userId, Purpose.CHAT)).thenReturn(List.of());
-        when(repository.findGlobalByPurpose(Purpose.CHAT))
-                .thenReturn(List.of(config(null, Provider.ANTHROPIC, true)));
+        when(repository.findByUserIdAndPurposeAndEnabledTrue(userId, Purpose.CHAT))
+                .thenReturn(List.of());
+        when(repository.findGlobalByPurpose(Purpose.CHAT)).thenReturn(List.of(config(null, Provider.ANTHROPIC, true)));
         when(secretResolver.resolveApiKey(any())).thenReturn("k");
 
         assertThat(resolver.resolve(userId, Purpose.CHAT).provider()).isEqualTo(Provider.ANTHROPIC);
@@ -63,11 +60,11 @@ class ProviderResolverTest {
     @Test
     void throwsWhenNothingConfigured() {
         UUID userId = UUID.randomUUID();
-        when(repository.findByUserIdAndPurposeAndEnabledTrue(userId, Purpose.CHAT)).thenReturn(List.of());
+        when(repository.findByUserIdAndPurposeAndEnabledTrue(userId, Purpose.CHAT))
+                .thenReturn(List.of());
         when(repository.findGlobalByPurpose(Purpose.CHAT)).thenReturn(List.of());
 
-        assertThatThrownBy(() -> resolver.resolve(userId, Purpose.CHAT))
-                .isInstanceOf(LlmException.class);
+        assertThatThrownBy(() -> resolver.resolve(userId, Purpose.CHAT)).isInstanceOf(LlmException.class);
     }
 
     @Test

@@ -1,17 +1,17 @@
 <script lang="ts">
-	import { FILTERS, type Job } from './data';
+	import { FILTERS, type Job } from './data'
 
-	let { job }: { job: Job } = $props();
+	let { job }: { job: Job } = $props()
 
-	const met = $derived(job.met.length);
-	const total = FILTERS.length;
+	const met = $derived(job.met.length)
+	const total = FILTERS.length
 	const color = $derived(
 		met >= total - 1
 			? 'var(--accent-success)'
 			: met >= total / 2
 				? 'var(--accent-warning)'
 				: 'var(--accent-error)'
-	);
+	)
 </script>
 
 <!-- Inline filter summary: counter + segments (selected design variant) -->

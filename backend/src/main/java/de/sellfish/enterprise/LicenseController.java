@@ -28,8 +28,8 @@ public class LicenseController {
     // ... rest same
     public record LicenseRequest(String licenseKey) {}
 
-    public record LicenseResponse(boolean valid, String subject, java.time.Instant expires,
-                                  java.util.Set<String> features) {
+    public record LicenseResponse(
+            boolean valid, String subject, java.time.Instant expires, java.util.Set<String> features) {
         static LicenseResponse from(LicenseStatus s) {
             if (!s.valid()) {
                 return new LicenseResponse(false, null, null, s.licenseFeatures());

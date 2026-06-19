@@ -2,7 +2,6 @@ package de.sellfish.common.config;
 
 import de.sellfish.enterprise.EnterpriseProperties;
 import de.sellfish.sso.OidcProperties;
-
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,11 +12,11 @@ import org.springframework.web.client.RestClient;
  */
 @Configuration
 @EnableConfigurationProperties({
-        CryptoProperties.class,
-        StorageProperties.class,
-        InfisicalProperties.class,
-        EnterpriseProperties.class,
-        OidcProperties.class
+    CryptoProperties.class,
+    StorageProperties.class,
+    InfisicalProperties.class,
+    EnterpriseProperties.class,
+    OidcProperties.class
 })
 public class AppConfig {
 

@@ -1,7 +1,7 @@
 package de.sellfish.profile.adapter.web;
-import de.sellfish.profile.*;
 
 import de.sellfish.common.security.CurrentUser;
+import de.sellfish.profile.*;
 import de.sellfish.profile.ProfileDtos.PreferencesRequest;
 import de.sellfish.profile.ProfileDtos.PreferencesResponse;
 import de.sellfish.profile.ProfileDtos.ProfileRequest;

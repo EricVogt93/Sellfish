@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.sellfish.jobs.Job;
 import de.sellfish.jobs.JobRepository;
 import de.sellfish.jobs.adapter.persistence.VectorStore;
-import de.sellfish.matching.Features;
 import de.sellfish.matching.FeatureScorer;
+import de.sellfish.matching.Features;
 import de.sellfish.matching.JobMatch;
 import de.sellfish.matching.JobMatchRepository;
 import de.sellfish.matching.MatchContext;
@@ -15,15 +15,14 @@ import de.sellfish.matching.UserRankingModelRepository;
 import de.sellfish.matching.Weights;
 import de.sellfish.profile.PreferencesRepository;
 import de.sellfish.profile.ProfileRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Self-Learning: trainiert pro Nutzer Score-Gewichte aus Feedback (positiv/negativ) neu
@@ -38,8 +37,7 @@ public class SelfLearningService {
 
     private static final List<MatchStatus> POSITIVE =
             List.of(MatchStatus.SAVED, MatchStatus.APPLIED, MatchStatus.INTERVIEW, MatchStatus.OFFER);
-    private static final List<MatchStatus> NEGATIVE =
-            List.of(MatchStatus.DISMISSED, MatchStatus.REJECTED);
+    private static final List<MatchStatus> NEGATIVE = List.of(MatchStatus.DISMISSED, MatchStatus.REJECTED);
 
     private final JobMatchRepository matchRepository;
     private final JobRepository jobRepository;
@@ -50,14 +48,15 @@ public class SelfLearningService {
     private final FeatureScorer featureScorer;
     private final ObjectMapper objectMapper;
 
-    public SelfLearningService(JobMatchRepository matchRepository,
-                               JobRepository jobRepository,
-                               ProfileRepository profileRepository,
-                               PreferencesRepository preferencesRepository,
-                               UserRankingModelRepository rankingRepository,
-                               VectorStore vectorStore,
-                               FeatureScorer featureScorer,
-                               ObjectMapper objectMapper) {
+    public SelfLearningService(
+            JobMatchRepository matchRepository,
+            JobRepository jobRepository,
+            ProfileRepository profileRepository,
+            PreferencesRepository preferencesRepository,
+            UserRankingModelRepository rankingRepository,
+            VectorStore vectorStore,
+            FeatureScorer featureScorer,
+            ObjectMapper objectMapper) {
         this.matchRepository = matchRepository;
         this.jobRepository = jobRepository;
         this.profileRepository = profileRepository;
@@ -86,7 +85,8 @@ public class SelfLearningService {
             collect(userId, ctx, negatives, 0.0, samples, labels);
 
             if (samples.size() >= 2 * MIN_PER_CLASS) {
-                double[] labelArray = labels.stream().mapToDouble(Double::doubleValue).toArray();
+                double[] labelArray =
+                        labels.stream().mapToDouble(Double::doubleValue).toArray();
                 WeightLearner.LearnResult result = WeightLearner.learn(samples, labelArray);
                 saveModel(userId, result);
                 weightsTrained = true;
@@ -97,12 +97,17 @@ public class SelfLearningService {
         boolean driftApplied = applyProfileDrift(userId, positives);
         boolean negDriftApplied = applyNegativeDrift(userId, negatives);
 
-        return new RetrainResult(weightsTrained, positives.size(), negatives.size(),
-                accuracy, driftApplied || negDriftApplied);
+        return new RetrainResult(
+                weightsTrained, positives.size(), negatives.size(), accuracy, driftApplied || negDriftApplied);
     }
 
-    private void collect(UUID userId, MatchContext ctx, List<JobMatch> matches, double label,
-                         List<Features> samples, List<Double> labels) {
+    private void collect(
+            UUID userId,
+            MatchContext ctx,
+            List<JobMatch> matches,
+            double label,
+            List<Features> samples,
+            List<Double> labels) {
         for (JobMatch match : matches) {
             Job job = jobRepository.findById(match.getJobId()).orElse(null);
             if (job == null) {
@@ -155,7 +160,8 @@ public class SelfLearningService {
     }
 
     private void saveModel(UUID userId, WeightLearner.LearnResult result) {
-        int nextVersion = rankingRepository.findFirstByUserIdOrderByVersionDesc(userId)
+        int nextVersion = rankingRepository
+                .findFirstByUserIdOrderByVersionDesc(userId)
                 .map(m -> m.getVersion() + 1)
                 .orElse(1);
         UserRankingModel model = new UserRankingModel(userId, nextVersion);
@@ -171,7 +177,8 @@ public class SelfLearningService {
     }
 
     public Weights currentWeights(UUID userId) {
-        return rankingRepository.findFirstByUserIdOrderByVersionDesc(userId)
+        return rankingRepository
+                .findFirstByUserIdOrderByVersionDesc(userId)
                 .map(m -> {
                     try {
                         return Weights.fromMap(objectMapper.readValue(m.getWeights(), Map.class));
@@ -183,10 +190,5 @@ public class SelfLearningService {
     }
 
     public record RetrainResult(
-            boolean weightsTrained,
-            int positives,
-            int negatives,
-            double accuracy,
-            boolean driftApplied) {
-    }
+            boolean weightsTrained, int positives, int negatives, double accuracy, boolean driftApplied) {}
 }

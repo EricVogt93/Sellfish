@@ -2,14 +2,13 @@ package de.sellfish.ai.adapter.out;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sellfish.common.config.InfisicalProperties;
+import java.time.Instant;
+import java.util.Map;
+import java.util.Optional;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.time.Instant;
-import java.util.Map;
-import java.util.Optional;
 
 /**
  * Lädt zentrale Secrets aus Infisical via Universal-Auth (Machine Identity).

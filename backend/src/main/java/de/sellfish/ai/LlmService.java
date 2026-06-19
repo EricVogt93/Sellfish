@@ -1,14 +1,13 @@
 package de.sellfish.ai;
 
-import de.sellfish.ai.port.ChatProvider;
-import de.sellfish.ai.port.EmbeddingProvider;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
 import de.sellfish.ai.model.ResolvedModel;
-import org.springframework.stereotype.Service;
-
+import de.sellfish.ai.port.ChatProvider;
+import de.sellfish.ai.port.EmbeddingProvider;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
 
 /**
  * Zentrale, provider-agnostische Fassade für Chat- und Embedding-Aufrufe.
@@ -20,9 +19,10 @@ public class LlmService {
     private final List<ChatProvider> chatProviders;
     private final List<EmbeddingProvider> embeddingProviders;
 
-    public LlmService(ProviderResolver providerResolver,
-                      List<ChatProvider> chatProviders,
-                      List<EmbeddingProvider> embeddingProviders) {
+    public LlmService(
+            ProviderResolver providerResolver,
+            List<ChatProvider> chatProviders,
+            List<EmbeddingProvider> embeddingProviders) {
         this.providerResolver = providerResolver;
         this.chatProviders = chatProviders;
         this.embeddingProviders = embeddingProviders;
@@ -57,7 +57,6 @@ public class LlmService {
         return embeddingProviders.stream()
                 .filter(p -> p.supports(provider))
                 .findFirst()
-                .orElseThrow(() -> new LlmException(
-                        "Provider " + provider + " unterstützt keine Embeddings"));
+                .orElseThrow(() -> new LlmException("Provider " + provider + " unterstützt keine Embeddings"));
     }
 }

@@ -9,14 +9,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
-import java.io.IOException;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Liest den {@code X-Org-Id}-Header und setzt den aktiven Org-Kontext
@@ -47,7 +45,9 @@ public class OrgFilter implements Filter {
             if (header != null && !header.isBlank()) {
                 try {
                     UUID requestedOrg = UUID.fromString(header);
-                    if (memberRepository.findByOrgIdAndUserId(requestedOrg, userId).isPresent()) {
+                    if (memberRepository
+                            .findByOrgIdAndUserId(requestedOrg, userId)
+                            .isPresent()) {
                         orgId = requestedOrg;
                     }
                 } catch (IllegalArgumentException ignored) {

@@ -1,9 +1,10 @@
 package de.sellfish.matching.adapter.web;
-import de.sellfish.matching.*;
 
 import de.sellfish.common.security.CurrentUser;
+import de.sellfish.matching.*;
 import de.sellfish.matching.MatchDtos.MatchResponse;
 import de.sellfish.matching.MatchDtos.StatusRequest;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/matches")
@@ -27,9 +26,10 @@ public class MatchController {
     }
 
     @GetMapping
-    public Page<MatchResponse> list(@RequestParam(required = false) MatchStatus status,
-                                    @RequestParam(defaultValue = "0") int page,
-                                    @RequestParam(defaultValue = "20") int size) {
+    public Page<MatchResponse> list(
+            @RequestParam(required = false) MatchStatus status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
         return matchService.list(CurrentUser.id(), status, PageRequest.of(page, Math.min(size, 100)));
     }
 

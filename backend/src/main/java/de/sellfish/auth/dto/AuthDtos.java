@@ -9,26 +9,13 @@ import jakarta.validation.constraints.Size;
  */
 public final class AuthDtos {
 
-    private AuthDtos() {
-    }
+    private AuthDtos() {}
 
-    public record RegisterRequest(
-            @Email @NotBlank String email,
-            @NotBlank @Size(min = 8, max = 100) String password) {
-    }
+    public record RegisterRequest(@Email @NotBlank String email, @NotBlank @Size(min = 8, max = 100) String password) {}
 
-    public record LoginRequest(
-            @Email @NotBlank String email,
-            @NotBlank String password) {
-    }
+    public record LoginRequest(@Email @NotBlank String email, @NotBlank String password) {}
 
-    public record RefreshRequest(@NotBlank String refreshToken) {
-    }
+    public record RefreshRequest(@NotBlank String refreshToken) {}
 
-    public record TokenResponse(
-            String accessToken,
-            String refreshToken,
-            String tokenType,
-            long expiresInSeconds) {
-    }
+    public record TokenResponse(String accessToken, String refreshToken, String tokenType, long expiresInSeconds) {}
 }

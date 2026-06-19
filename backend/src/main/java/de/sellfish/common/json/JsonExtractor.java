@@ -6,8 +6,7 @@ package de.sellfish.common.json;
  */
 public final class JsonExtractor {
 
-    private JsonExtractor() {
-    }
+    private JsonExtractor() {}
 
     public static String extract(String raw) {
         if (raw == null) {

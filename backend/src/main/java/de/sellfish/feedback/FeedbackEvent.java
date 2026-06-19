@@ -6,11 +6,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "feedback_events")
@@ -39,8 +38,7 @@ public class FeedbackEvent {
     @Column(nullable = false)
     private Instant ts = Instant.now();
 
-    protected FeedbackEvent() {
-    }
+    protected FeedbackEvent() {}
 
     public FeedbackEvent(UUID userId, UUID jobId, FeedbackType type) {
         this.userId = userId;

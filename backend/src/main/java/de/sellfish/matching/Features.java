@@ -27,7 +27,7 @@ public record Features(
     }
 
     public double[] toArray() {
-        return new double[] { semantic, title, keyword, location, recency, remote, skillOverlap, aiRelevance };
+        return new double[] {semantic, title, keyword, location, recency, remote, skillOverlap, aiRelevance};
     }
 
     private static double round(double v) {

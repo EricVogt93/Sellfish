@@ -1,7 +1,4 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,13 +6,15 @@ import de.sellfish.ai.LlmService;
 import de.sellfish.ai.model.ChatMessage;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.common.json.JsonExtractor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Quelle, die den configureden LLM-Agenten nach passenden Stellen fragt (für Nischen/Fälle
@@ -27,7 +26,8 @@ public class LlmWebSearchSource implements JobSource {
     public static final String CODE = "LLM_WEB";
     private static final Logger log = LoggerFactory.getLogger(LlmWebSearchSource.class);
 
-    private static final String SYSTEM = """
+    private static final String SYSTEM =
+            """
             Du bist ein Job-Rechercheassistent. Liefere zu den Suchkriterien passende, realistische
             Stellenangebote als JSON-Array (keine erfundenen Arbeitgeber, wenn unbekannt 'company' leer
             lassen). Struktur:
@@ -54,8 +54,9 @@ public class LlmWebSearchSource implements JobSource {
                 + (query.location() != null ? "\nRegion: " + query.location() : "")
                 + "\nAnzahl: " + Math.min(query.size(), 15);
         try {
-            var result = llmService.chat((java.util.UUID) null, new ChatRequest(
-                    List.of(ChatMessage.system(SYSTEM), ChatMessage.user(user)), 0.3, 2000));
+            var result = llmService.chat(
+                    (java.util.UUID) null,
+                    new ChatRequest(List.of(ChatMessage.system(SYSTEM), ChatMessage.user(user)), 0.3, 2000));
             JsonNode array = objectMapper.readTree(JsonExtractor.extract(result.content()));
             if (!array.isArray()) {
                 return List.of();

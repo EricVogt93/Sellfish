@@ -1,18 +1,17 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Workable ATS Board-API (keyless, pro Company ein Board).
@@ -32,7 +31,9 @@ public class WorkableSource implements JobSource {
     }
 
     @Override
-    public String code() { return CODE; }
+    public String code() {
+        return CODE;
+    }
 
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
@@ -73,7 +74,8 @@ public class WorkableSource implements JobSource {
         String location = JobSourceSupport.text(item, "city");
         String country = JobSourceSupport.text(item, "country");
         String loc = (location != null ? location : "") + (country != null ? ", " + country : "");
-        return new RawJob(CODE,
+        return new RawJob(
+                CODE,
                 JobSourceSupport.text(item, "shortcode"),
                 JobSourceSupport.text(item, "title"),
                 JobSourceSupport.text(item, "company"),

@@ -4,10 +4,9 @@ import de.sellfish.common.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "user_profile")
@@ -42,8 +41,7 @@ public class UserProfile extends BaseEntity {
     @Column(columnDefinition = "jsonb", nullable = false)
     private String meta = "{}";
 
-    protected UserProfile() {
-    }
+    protected UserProfile() {}
 
     public UserProfile(UUID userId) {
         this.userId = userId;

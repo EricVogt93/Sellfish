@@ -1,18 +1,17 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * USAJOBS-API (US-Behörden). Benötigt {@code api_key} und {@code email} (User-Agent) in der Config.
@@ -44,8 +43,7 @@ public class UsaJobsSource implements JobSource {
             return List.of();
         }
         try {
-            RestClient client = builder
-                    .baseUrl(BASE_URL)
+            RestClient client = builder.baseUrl(BASE_URL)
                     .defaultHeader("Host", "data.usajobs.gov")
                     .defaultHeader("User-Agent", email.toString())
                     .defaultHeader("Authorization-Key", apiKey.toString())
@@ -81,7 +79,8 @@ public class UsaJobsSource implements JobSource {
     private RawJob toRawJob(JsonNode d) {
         JsonNode remuneration = d.path("PositionRemuneration");
         String salary = remuneration.isArray() && !remuneration.isEmpty()
-                ? remuneration.get(0).path("MinimumRange").asText(null) : null;
+                ? remuneration.get(0).path("MinimumRange").asText(null)
+                : null;
         return new RawJob(
                 CODE,
                 JobSourceSupport.firstText(d, "PositionID"),

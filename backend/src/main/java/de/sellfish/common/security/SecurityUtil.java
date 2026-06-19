@@ -2,10 +2,9 @@ package de.sellfish.common.security;
 
 import de.sellfish.auth.AppUserDetails;
 import de.sellfish.common.error.ApiException;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
-
-import java.util.UUID;
 
 public final class SecurityUtil {
 
@@ -22,8 +21,7 @@ public final class SecurityUtil {
     public static boolean hasRole(String role) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null) return false;
-        return auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
+        return auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_" + role));
     }
 
     public static boolean isCurrentUser(UUID userId) {

@@ -6,10 +6,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "documents")
@@ -46,8 +45,7 @@ public class Document extends BaseEntity {
     @Column(name = "is_primary", nullable = false)
     private boolean primary = false;
 
-    protected Document() {
-    }
+    protected Document() {}
 
     public Document(UUID userId, DocumentType type, String storageKey, String filename) {
         this.userId = userId;

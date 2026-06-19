@@ -3,13 +3,10 @@ package de.sellfish.generate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 @Service
 public class SalaryInsightsService {
@@ -25,11 +22,11 @@ public class SalaryInsightsService {
     public SalaryStats salaryStats(String title, String location) {
         StringBuilder sql = new StringBuilder(
                 "SELECT count(*), percentile_disc(0.25) WITHIN GROUP (ORDER BY s.num) FILTER (WHERE s.num > 0),"
-                + " percentile_disc(0.50) WITHIN GROUP (ORDER BY s.num) FILTER (WHERE s.num > 0),"
-                + " percentile_disc(0.75) WITHIN GROUP (ORDER BY s.num) FILTER (WHERE s.num > 0),"
-                + " avg(s.num) FILTER (WHERE s.num > 0)"
-                + " FROM jobs j, LATERAL (SELECT (regexp_matches(COALESCE(j.salary_raw,''), '(\\d[\\d.,]*)', 'g'))[1]::numeric AS num) s"
-                + " WHERE j.salary_raw IS NOT NULL AND j.salary_raw != ''");
+                        + " percentile_disc(0.50) WITHIN GROUP (ORDER BY s.num) FILTER (WHERE s.num > 0),"
+                        + " percentile_disc(0.75) WITHIN GROUP (ORDER BY s.num) FILTER (WHERE s.num > 0),"
+                        + " avg(s.num) FILTER (WHERE s.num > 0)"
+                        + " FROM jobs j, LATERAL (SELECT (regexp_matches(COALESCE(j.salary_raw,''), '(\\d[\\d.,]*)', 'g'))[1]::numeric AS num) s"
+                        + " WHERE j.salary_raw IS NOT NULL AND j.salary_raw != ''");
 
         if (title != null && !title.isBlank()) {
             sql.append(" AND j.title ILIKE :title");
@@ -54,7 +51,8 @@ public class SalaryInsightsService {
 
     @Transactional(readOnly = true)
     public List<SalaryByTitle> topTitles(int limit) {
-        String sql = """
+        String sql =
+                """
                 SELECT j.title, count(*) AS cnt, avg(s.num) FILTER (WHERE s.num > 0) AS avg_sal
                 FROM jobs j, LATERAL (SELECT (regexp_matches(COALESCE(j.salary_raw,''), '(\\\\d[\\\\d.,]*)', 'g'))[1]::numeric AS num) s
                 WHERE j.salary_raw IS NOT NULL AND j.salary_raw != ''
@@ -64,7 +62,8 @@ public class SalaryInsightsService {
         Query q = em.createNativeQuery(sql).setParameter("limit", Math.min(50, limit));
         List<SalaryByTitle> list = new ArrayList<>();
         for (Object[] row : (List<Object[]>) q.getResultList()) {
-            list.add(new SalaryByTitle((String) row[0], ((Number) row[1]).longValue(), round(((Number) row[2]).doubleValue())));
+            list.add(new SalaryByTitle(
+                    (String) row[0], ((Number) row[1]).longValue(), round(((Number) row[2]).doubleValue())));
         }
         return list;
     }
@@ -74,5 +73,6 @@ public class SalaryInsightsService {
     }
 
     public record SalaryStats(long count, Double p25, Double p50, Double p75, Double avg) {}
+
     public record SalaryByTitle(String title, long count, Double avgSalary) {}
 }

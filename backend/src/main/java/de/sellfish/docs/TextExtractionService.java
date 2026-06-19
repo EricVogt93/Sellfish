@@ -1,11 +1,10 @@
 package de.sellfish.docs;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import org.apache.tika.Tika;
 import org.apache.tika.exception.TikaException;
 import org.springframework.stereotype.Service;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 /**
  * Extrahiert reinen Text aus hochgeladenen Dokumenten (PDF, DOCX, TXT, …) via Apache Tika.

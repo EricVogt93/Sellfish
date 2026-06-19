@@ -1,16 +1,14 @@
 package de.sellfish.reports;
 
-import de.sellfish.common.security.SecurityUtil;
 import de.sellfish.generate.SalaryInsightsService;
 import de.sellfish.tenant.OrgFilter;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -55,8 +53,7 @@ public class ReportController {
 
     @GetMapping("/salary-stats")
     public SalaryInsightsService.SalaryStats salaryStats(
-            @RequestParam(required = false) String title,
-            @RequestParam(required = false) String location) {
+            @RequestParam(required = false) String title, @RequestParam(required = false) String location) {
         return salaryService.salaryStats(title, location);
     }
 

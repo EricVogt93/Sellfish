@@ -1,19 +1,18 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * Arbeitnow Job-Board-API (kostenlos, without Key, Europa/Remote). Keine serverseitige Suche,
@@ -40,10 +39,7 @@ public class ArbeitnowSource implements JobSource {
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         try {
-            JsonNode response = client.get()
-                    .uri("/job-board-api")
-                    .retrieve()
-                    .body(JsonNode.class);
+            JsonNode response = client.get().uri("/job-board-api").retrieve().body(JsonNode.class);
             if (response == null) {
                 return List.of();
             }
@@ -68,8 +64,8 @@ public class ArbeitnowSource implements JobSource {
         if (query.keywords() == null || query.keywords().isEmpty()) {
             return true;
         }
-        String haystack = (job.title() + " " + (job.description() == null ? "" : job.description()))
-                .toLowerCase(Locale.ROOT);
+        String haystack =
+                (job.title() + " " + (job.description() == null ? "" : job.description())).toLowerCase(Locale.ROOT);
         return query.keywords().stream().anyMatch(k -> haystack.contains(k.toLowerCase(Locale.ROOT)));
     }
 

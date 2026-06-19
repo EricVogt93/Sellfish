@@ -1,11 +1,9 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
-
-import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import de.sellfish.jobs.port.RawJob;
+import org.junit.jupiter.api.Test;
 
 class FingerprintsTest {
 

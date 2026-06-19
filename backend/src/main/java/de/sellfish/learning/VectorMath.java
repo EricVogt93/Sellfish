@@ -7,8 +7,7 @@ import java.util.List;
  */
 public final class VectorMath {
 
-    private VectorMath() {
-    }
+    private VectorMath() {}
 
     public static float[] centroid(List<float[]> vectors) {
         if (vectors.isEmpty()) {

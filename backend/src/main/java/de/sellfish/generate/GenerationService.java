@@ -9,11 +9,10 @@ import de.sellfish.jobs.Job;
 import de.sellfish.jobs.JobRepository;
 import de.sellfish.matching.JobMatch;
 import de.sellfish.matching.JobMatchRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class GenerationService {
@@ -24,11 +23,12 @@ public class GenerationService {
     private final LlmService llmService;
     private final GeneratedDocumentRepository repository;
 
-    public GenerationService(JobMatchRepository matchRepository,
-                             JobRepository jobRepository,
-                             GenerationContextBuilder contextBuilder,
-                             LlmService llmService,
-                             GeneratedDocumentRepository repository) {
+    public GenerationService(
+            JobMatchRepository matchRepository,
+            JobRepository jobRepository,
+            GenerationContextBuilder contextBuilder,
+            LlmService llmService,
+            GeneratedDocumentRepository repository) {
         this.matchRepository = matchRepository;
         this.jobRepository = jobRepository;
         this.contextBuilder = contextBuilder;
@@ -38,10 +38,12 @@ public class GenerationService {
 
     @Transactional
     public GeneratedDocument generate(UUID userId, UUID jobMatchId, GenerationType type) {
-        JobMatch match = matchRepository.findById(jobMatchId)
+        JobMatch match = matchRepository
+                .findById(jobMatchId)
                 .filter(m -> m.getUserId().equals(userId))
                 .orElseThrow(() -> ApiException.notFound("Match nicht gefunden"));
-        Job job = jobRepository.findById(match.getJobId())
+        Job job = jobRepository
+                .findById(match.getJobId())
                 .orElseThrow(() -> ApiException.notFound("Stelle nicht gefunden"));
 
         String context = contextBuilder.build(userId, job);
@@ -49,9 +51,12 @@ public class GenerationService {
         // und verbrauchen einen Grossteil des Budgets im reasoning_content. Bei nur 3000 frass
         // das Reasoning mit grossem RAG-Kontext (Job-Beschreibung + CV) das ganze Budget auf
         // -> leerer content. 8000 laesst genug Platz fuer Reasoning + eigentliches Anschreiben.
-        ChatResult result = llmService.chat(userId, new ChatRequest(
-                List.of(ChatMessage.system(PromptTemplates.system(type)), ChatMessage.user(context)),
-                0.5, 8000));
+        ChatResult result = llmService.chat(
+                userId,
+                new ChatRequest(
+                        List.of(ChatMessage.system(PromptTemplates.system(type)), ChatMessage.user(context)),
+                        0.5,
+                        8000));
 
         int nextVersion = repository
                 .findFirstByUserIdAndJobMatchIdAndTypeOrderByVersionDesc(userId, jobMatchId, type)
@@ -94,8 +99,8 @@ public class GenerationService {
     }
 
     private GeneratedDocument owned(UUID userId, UUID id) {
-        GeneratedDocument doc = repository.findById(id)
-                .orElseThrow(() -> ApiException.notFound("Dokument nicht gefunden"));
+        GeneratedDocument doc =
+                repository.findById(id).orElseThrow(() -> ApiException.notFound("Dokument nicht gefunden"));
         if (!doc.getUserId().equals(userId)) {
             throw ApiException.notFound("Dokument nicht gefunden");
         }

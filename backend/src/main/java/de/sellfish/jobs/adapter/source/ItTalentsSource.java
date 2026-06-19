@@ -1,19 +1,18 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * IT-Talents — deutsches IT-Job-Board (keyless, JSON-API).
@@ -34,7 +33,9 @@ public class ItTalentsSource implements JobSource {
     }
 
     @Override
-    public String code() { return CODE; }
+    public String code() {
+        return CODE;
+    }
 
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
@@ -42,7 +43,8 @@ public class ItTalentsSource implements JobSource {
             String q = query.keywordString().isBlank() ? "entwickler" : query.keywordString();
             JsonNode response = client.get()
                     .uri("/jobs?size=" + Math.min(100, query.size()) + "&q=" + urlEncode(q))
-                    .retrieve().body(JsonNode.class);
+                    .retrieve()
+                    .body(JsonNode.class);
             if (response == null) return List.of();
             List<RawJob> jobs = new ArrayList<>();
             JsonNode content = response.path("content");
@@ -59,7 +61,8 @@ public class ItTalentsSource implements JobSource {
     }
 
     private RawJob toRawJob(JsonNode item) {
-        return new RawJob(CODE,
+        return new RawJob(
+                CODE,
                 JobSourceSupport.text(item, "id"),
                 JobSourceSupport.text(item, "title"),
                 JobSourceSupport.text(item.path("company"), "name"),
@@ -90,7 +93,10 @@ public class ItTalentsSource implements JobSource {
     }
 
     private String urlEncode(String s) {
-        try { return java.net.URLEncoder.encode(s, java.nio.charset.StandardCharsets.UTF_8); }
-        catch (Exception e) { return s; }
+        try {
+            return java.net.URLEncoder.encode(s, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return s;
+        }
     }
 }

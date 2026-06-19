@@ -1,5 +1,14 @@
 package de.sellfish.learning;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.sellfish.jobs.Job;
 import de.sellfish.jobs.JobRepository;
@@ -12,21 +21,11 @@ import de.sellfish.matching.UserRankingModel;
 import de.sellfish.matching.UserRankingModelRepository;
 import de.sellfish.profile.PreferencesRepository;
 import de.sellfish.profile.ProfileRepository;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.Test;
 
 class SelfLearningServiceTest {
 
@@ -38,15 +37,20 @@ class SelfLearningServiceTest {
     private final VectorStore vectorStore = mock(VectorStore.class);
 
     private final SelfLearningService service = new SelfLearningService(
-            matchRepository, jobRepository, profileRepository, preferencesRepository,
-            rankingRepository, vectorStore, new FeatureScorer(null), new ObjectMapper());
+            matchRepository,
+            jobRepository,
+            profileRepository,
+            preferencesRepository,
+            rankingRepository,
+            vectorStore,
+            new FeatureScorer(null),
+            new ObjectMapper());
 
     private final UUID userId = UUID.randomUUID();
 
     private static final List<MatchStatus> POSITIVE =
             List.of(MatchStatus.SAVED, MatchStatus.APPLIED, MatchStatus.INTERVIEW, MatchStatus.OFFER);
-    private static final List<MatchStatus> NEGATIVE =
-            List.of(MatchStatus.DISMISSED, MatchStatus.REJECTED);
+    private static final List<MatchStatus> NEGATIVE = List.of(MatchStatus.DISMISSED, MatchStatus.REJECTED);
 
     private JobMatch buildMatch(double semantic, float[] jobEmbedding) {
         Job job = new Job("BA", "fp-" + UUID.randomUUID(), "Dev");
@@ -62,7 +66,7 @@ class SelfLearningServiceTest {
     private List<JobMatch> matches(int count, double semantic) {
         List<JobMatch> list = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            list.add(buildMatch(semantic, new float[]{1f, 0f}));
+            list.add(buildMatch(semantic, new float[] {1f, 0f}));
         }
         return list;
     }
@@ -76,7 +80,7 @@ class SelfLearningServiceTest {
         when(matchRepository.findByUserIdAndStatusIn(userId, POSITIVE)).thenReturn(positives);
         when(matchRepository.findByUserIdAndStatusIn(userId, NEGATIVE)).thenReturn(negatives);
         when(rankingRepository.findFirstByUserIdOrderByVersionDesc(userId)).thenReturn(Optional.empty());
-        when(vectorStore.getProfileEmbedding(userId)).thenReturn(new float[]{0f, 1f});
+        when(vectorStore.getProfileEmbedding(userId)).thenReturn(new float[] {0f, 1f});
 
         SelfLearningService.RetrainResult result = service.retrain(userId);
 
@@ -95,7 +99,7 @@ class SelfLearningServiceTest {
         when(preferencesRepository.findByUserId(userId)).thenReturn(Optional.empty());
         when(matchRepository.findByUserIdAndStatusIn(userId, POSITIVE)).thenReturn(positives);
         when(matchRepository.findByUserIdAndStatusIn(userId, NEGATIVE)).thenReturn(negatives);
-        when(vectorStore.getProfileEmbedding(userId)).thenReturn(new float[]{0f, 1f});
+        when(vectorStore.getProfileEmbedding(userId)).thenReturn(new float[] {0f, 1f});
 
         SelfLearningService.RetrainResult result = service.retrain(userId);
 

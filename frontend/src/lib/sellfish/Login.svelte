@@ -1,48 +1,48 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import Icon from './Icon.svelte';
-	import Btn from './Btn.svelte';
-	import { login, register } from '$lib/api/session.svelte';
-	import { api } from '$lib/api';
+	import { onMount } from 'svelte'
+	import Icon from './Icon.svelte'
+	import Btn from './Btn.svelte'
+	import { login, register } from '$lib/api/session.svelte'
+	import { api } from '$lib/api'
 
-	let mode = $state<'login' | 'register'>('login');
-	let email = $state('');
-	let password = $state('');
-	let error = $state<string | null>(null);
-	let busy = $state(false);
-	let ssoProviders = $state<{ id: string; name: string }[]>([]);
+	let mode = $state<'login' | 'register'>('login')
+	let email = $state('')
+	let password = $state('')
+	let error = $state<string | null>(null)
+	let busy = $state(false)
+	let ssoProviders = $state<{ id: string; name: string }[]>([])
 
 	onMount(async () => {
 		try {
-			ssoProviders = await api<{ id: string; name: string }[]>('/api/auth/sso/providers');
+			ssoProviders = await api<{ id: string; name: string }[]>('/api/auth/sso/providers')
 		} catch {
-			ssoProviders = [];
+			ssoProviders = []
 		}
-	});
+	})
 
 	async function submit(e: SubmitEvent) {
-		e.preventDefault();
-		error = null;
-		busy = true;
+		e.preventDefault()
+		error = null
+		busy = true
 		try {
-			if (mode === 'login') await login(email, password);
-			else await register(email, password);
+			if (mode === 'login') await login(email, password)
+			else await register(email, password)
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Unknown error';
+			error = err instanceof Error ? err.message : 'Unknown error'
 		} finally {
-			busy = false;
+			busy = false
 		}
 	}
 
 	async function ssoLogin(provider: string) {
-		busy = true;
-		error = null;
+		busy = true
+		error = null
 		try {
-			const { authUrl } = await api<{ authUrl: string }>(`/api/auth/sso/${provider}/login`);
-			window.location.href = authUrl;
+			const { authUrl } = await api<{ authUrl: string }>(`/api/auth/sso/${provider}/login`)
+			window.location.href = authUrl
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'SSO unavailable';
-			busy = false;
+			error = err instanceof Error ? err.message : 'SSO unavailable'
+			busy = false
 		}
 	}
 </script>
@@ -51,7 +51,9 @@
 	<div class="aa-login-card">
 		<div class="aa-brand" style="justify-content:center;margin-bottom:6px;">
 			<span class="aa-brandmark"><Icon name="zap" size={14} strokeWidth={2.2} /></span>
-			<span class="aa-brandname" style="font-size:1.1rem;">auto<span class="gradient-text">apply</span></span>
+			<span class="aa-brandname" style="font-size:1.1rem;"
+				>auto<span class="gradient-text">apply</span></span
+			>
 		</div>
 		<div class="eyebrow" style="text-align:center;">application autopilot</div>
 		<h1 class="aa-login-title">{mode === 'login' ? 'Sign in' : 'Create account'}</h1>
@@ -70,14 +72,33 @@
 		<form onsubmit={submit}>
 			<div class="aa-field">
 				<label for="aa-login-email">Email</label>
-				<input id="aa-login-email" class="aa-input" type="email" bind:value={email} required autocomplete="email" />
+				<input
+					id="aa-login-email"
+					class="aa-input"
+					type="email"
+					bind:value={email}
+					required
+					autocomplete="email"
+				/>
 			</div>
 			<div class="aa-field">
 				<label for="aa-login-pw">Password</label>
-				<input id="aa-login-pw" class="aa-input" type="password" bind:value={password} required minlength={8} autocomplete="current-password" />
+				<input
+					id="aa-login-pw"
+					class="aa-input"
+					type="password"
+					bind:value={password}
+					required
+					minlength={8}
+					autocomplete="current-password"
+				/>
 			</div>
 			{#if error}<p class="aa-login-error"><Icon name="x" size={13} /> {error}</p>{/if}
-			<Btn variant="primary" icon={mode === 'login' ? 'enter' : 'plus'} style="width:100%;justify-content:center;margin-top:4px;">
+			<Btn
+				variant="primary"
+				icon={mode === 'login' ? 'enter' : 'plus'}
+				style="width:100%;justify-content:center;margin-top:4px;"
+			>
 				{busy ? '…' : mode === 'login' ? 'Sign in' : 'Create account'}
 			</Btn>
 		</form>
@@ -109,7 +130,9 @@
 		border: 1px solid var(--border-subtle);
 		border-radius: var(--radius-2xl);
 		padding: var(--space-2xl) var(--space-xl);
-		box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.08), 0 30px 60px -25px rgba(0, 0, 0, 0.7);
+		box-shadow:
+			0 0 0 1px rgba(124, 58, 237, 0.08),
+			0 30px 60px -25px rgba(0, 0, 0, 0.7);
 	}
 	.aa-login-title {
 		font-size: 1.5rem;

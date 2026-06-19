@@ -4,11 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "search_runs")
@@ -40,8 +39,7 @@ public class SearchRun {
     @Column(columnDefinition = "jsonb", nullable = false)
     private String stats = "{}";
 
-    protected SearchRun() {
-    }
+    protected SearchRun() {}
 
     public SearchRun(UUID userId) {
         this.userId = userId;

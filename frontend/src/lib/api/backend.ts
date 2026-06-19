@@ -1,5 +1,5 @@
 // ── Typisierte Backend-Endpunkte (Sellfish API) ──
-import { api, apiUpload } from '$lib/api';
+import { api, apiUpload } from '$lib/api'
 
 export type MatchStatus =
 	| 'NEW'
@@ -9,164 +9,164 @@ export type MatchStatus =
 	| 'APPLIED'
 	| 'INTERVIEW'
 	| 'OFFER'
-	| 'REJECTED';
+	| 'REJECTED'
 
 export interface MatchResponse {
-	matchId: string;
-	jobId: string;
-	title: string;
-	company: string | null;
-	location: string | null;
-	url: string | null;
-	salaryRaw: string | null;
-	postedAt: string | null;
-	score: number;
-	rank: number | null;
-	status: MatchStatus;
-	scoreBreakdown: string;
-	description: string | null;
-	source: string | null;
-	remote: string | null;
+	matchId: string
+	jobId: string
+	title: string
+	company: string | null
+	location: string | null
+	url: string | null
+	salaryRaw: string | null
+	postedAt: string | null
+	score: number
+	rank: number | null
+	status: MatchStatus
+	scoreBreakdown: string
+	description: string | null
+	source: string | null
+	remote: string | null
 }
 
 export interface Page<T> {
-	content: T[];
-	totalElements: number;
-	totalPages: number;
-	number: number;
+	content: T[]
+	totalElements: number
+	totalPages: number
+	number: number
 }
 
 export interface Me {
-	id: string;
-	email: string;
-	role: string;
-	locale: string;
-	currentOrgId: string | null;
-	orgs: { id: string; name: string; slug: string; plan: string }[];
+	id: string
+	email: string
+	role: string
+	locale: string
+	currentOrgId: string | null
+	orgs: { id: string; name: string; slug: string; plan: string }[]
 }
 
 export interface ProfileResponse {
-	headline: string | null;
-	summary: string | null;
-	location: string | null;
-	willingnessToRelocate: boolean;
-	salaryMin: number | null;
-	remotePref: string;
-	availability: string | null;
-	meta: string;
+	headline: string | null
+	summary: string | null
+	location: string | null
+	willingnessToRelocate: boolean
+	salaryMin: number | null
+	remotePref: string
+	availability: string | null
+	meta: string
 }
 
 export interface PreferencesResponse {
-	desiredTitles: string[];
-	industries: string[];
-	companySize: string | null;
-	contractTypes: string[];
-	excludedCompanies: string[];
-	keywords: string[];
-	hardFilters: string;
-	softWeights: string;
-	preferredCountries: string[];
+	desiredTitles: string[]
+	industries: string[]
+	companySize: string | null
+	contractTypes: string[]
+	excludedCompanies: string[]
+	keywords: string[]
+	hardFilters: string
+	softWeights: string
+	preferredCountries: string[]
 }
 
 export interface DocumentResponse {
-	id: string;
-	type: string;
-	filename: string;
-	mime: string | null;
-	sizeBytes: number | null;
-	primary: boolean;
-	hasText: boolean;
-	hasStruct: boolean;
-	createdAt: string;
+	id: string
+	type: string
+	filename: string
+	mime: string | null
+	sizeBytes: number | null
+	primary: boolean
+	hasText: boolean
+	hasStruct: boolean
+	createdAt: string
 }
 
 export interface ProviderConfig {
-	id: string;
-	provider: string;
-	model: string;
-	baseUrl: string | null;
-	keyRef: string | null;
-	hasKey: boolean;
-	purpose: string;
-	isDefault: boolean;
-	enabled: boolean;
-	params: string;
+	id: string
+	provider: string
+	model: string
+	baseUrl: string | null
+	keyRef: string | null
+	hasKey: boolean
+	purpose: string
+	isDefault: boolean
+	enabled: boolean
+	params: string
 }
 
 export interface GeneratedResponse {
-	id: string;
-	jobMatchId: string;
-	type: string;
-	content: string;
-	model: string | null;
-	promptVersion: string | null;
-	version: number;
-	createdAt: string;
+	id: string
+	jobMatchId: string
+	type: string
+	content: string
+	model: string | null
+	promptVersion: string | null
+	version: number
+	createdAt: string
 }
 
 export interface SearchRunResponse {
-	id: string;
-	status: string;
-	startedAt: string;
-	finishedAt: string | null;
-	stats: string;
+	id: string
+	status: string
+	startedAt: string
+	finishedAt: string | null
+	stats: string
 }
 
 export interface AdminUser {
-	id: string;
-	email: string;
-	role: string;
-	status: string;
-	createdAt: string;
+	id: string
+	email: string
+	role: string
+	status: string
+	createdAt: string
 }
 
 export interface OrgView {
-	id: string;
-	name: string;
-	slug: string;
-	plan: string;
+	id: string
+	name: string
+	slug: string
+	plan: string
 }
 
 export interface MemberView {
-	userId: string;
-	role: string;
-	joinedAt: string;
+	userId: string
+	role: string
+	joinedAt: string
 }
 
 export interface LicenseStatus {
-	valid: boolean;
-	subject: string | null;
-	expires: string | null;
-	features: string[];
+	valid: boolean
+	subject: string | null
+	expires: string | null
+	features: string[]
 }
 
 export interface AuditEvent {
-	id: string;
-	userId: string;
-	orgId: string | null;
-	action: string;
-	targetType: string | null;
-	targetId: string | null;
-	details: string;
-	ip: string | null;
-	ts: string;
+	id: string
+	userId: string
+	orgId: string | null
+	action: string
+	targetType: string | null
+	targetId: string | null
+	details: string
+	ip: string | null
+	ts: string
 }
 
 export interface AuditPage {
-	content: AuditEvent[];
-	totalElements: number;
-	totalPages: number;
-	number: number;
+	content: AuditEvent[]
+	totalElements: number
+	totalPages: number
+	number: number
 }
 
 export interface CountryGroup {
-	code: string;
-	label: string;
-	flag: string;
-	remote: boolean;
+	code: string
+	label: string
+	flag: string
+	remote: boolean
 }
 
-export type GenerationType = 'TAILORED_CV' | 'COVER_LETTER' | 'MOTIVATION' | 'APPLICATION_TEXT';
+export type GenerationType = 'TAILORED_CV' | 'COVER_LETTER' | 'MOTIVATION' | 'APPLICATION_TEXT'
 
 export const backend = {
 	me: () => api<Me>('/api/me'),
@@ -195,28 +195,31 @@ export const backend = {
 		api<ProfileResponse>('/api/profile', { method: 'PUT', body: JSON.stringify(body) }),
 	getPreferences: () => api<PreferencesResponse>('/api/profile/preferences'),
 	updatePreferences: (body: Partial<PreferencesResponse>) =>
-		api<PreferencesResponse>('/api/profile/preferences', { method: 'PUT', body: JSON.stringify(body) }),
+		api<PreferencesResponse>('/api/profile/preferences', {
+			method: 'PUT',
+			body: JSON.stringify(body)
+		}),
 
 	// Dokumente
 	listDocuments: () => api<DocumentResponse[]>('/api/documents'),
 	uploadDocument: (type: string, file: File) => {
-		const form = new FormData();
-		form.append('type', type);
-		form.append('file', file);
-		return apiUpload<DocumentResponse>('/api/documents', form);
+		const form = new FormData()
+		form.append('type', type)
+		form.append('file', file)
+		return apiUpload<DocumentResponse>('/api/documents', form)
 	},
 	deleteDocument: (id: string) => api<void>(`/api/documents/${id}`, { method: 'DELETE' }),
 
 	// LLM-Provider
 	listProviders: () => api<ProviderConfig[]>('/api/llm/configs'),
 	createProvider: (body: {
-		provider: string;
-		model: string;
-		baseUrl?: string;
-		apiKey?: string;
-		keyRef?: string;
-		purpose: string;
-		isDefault?: boolean;
+		provider: string
+		model: string
+		baseUrl?: string
+		apiKey?: string
+		keyRef?: string
+		purpose: string
+		isDefault?: boolean
 	}) => api<ProviderConfig>('/api/llm/configs', { method: 'POST', body: JSON.stringify(body) }),
 	testProvider: (id: string) =>
 		api<{ ok: boolean; message: string }>(`/api/llm/configs/${id}/test`, { method: 'POST' }),
@@ -227,18 +230,25 @@ export const backend = {
 
 	// Learning
 	retrain: () =>
-		api<{ weightsTrained: boolean; positives: number; negatives: number; accuracy: number; driftApplied: boolean }>(
-			'/api/learning/retrain',
-			{ method: 'POST' }
-		),
+		api<{
+			weightsTrained: boolean
+			positives: number
+			negatives: number
+			accuracy: number
+			driftApplied: boolean
+		}>('/api/learning/retrain', { method: 'POST' }),
 
 	// Organisationen
 	listOrgs: () => api<OrgView[]>('/api/orgs'),
 	createOrg: (name: string, slug: string) =>
 		api<OrgView>('/api/orgs', { method: 'POST', body: JSON.stringify({ name, slug }) }),
 	switchOrg: (orgId: string | null) =>
-		api<{ accessToken: string; refreshToken: string | null; tokenType: string; expiresInSeconds: number }>(
-			'/api/orgs/switch', { method: 'POST', body: JSON.stringify({ orgId }) }),
+		api<{
+			accessToken: string
+			refreshToken: string | null
+			tokenType: string
+			expiresInSeconds: number
+		}>('/api/orgs/switch', { method: 'POST', body: JSON.stringify({ orgId }) }),
 	listOrgMembers: (orgId: string) => api<MemberView[]>(`/api/orgs/${orgId}/members`),
 	addOrgMember: (orgId: string, userId: string, role: string) =>
 		api<MemberView>(`/api/orgs/${orgId}/members`, {
@@ -258,11 +268,11 @@ export const backend = {
 
 	// Audit-Log (Admin)
 	getAudit: (params: { page?: number; size?: number; orgId?: string; userId?: string }) => {
-		const q = new URLSearchParams();
-		if (params.page != null) q.set('page', String(params.page));
-		if (params.size != null) q.set('size', String(params.size));
-		if (params.orgId) q.set('orgId', params.orgId);
-		if (params.userId) q.set('userId', params.userId);
-		return api<AuditPage>(`/api/admin/audit?${q.toString()}`);
+		const q = new URLSearchParams()
+		if (params.page != null) q.set('page', String(params.page))
+		if (params.size != null) q.set('size', String(params.size))
+		if (params.orgId) q.set('orgId', params.orgId)
+		if (params.userId) q.set('userId', params.userId)
+		return api<AuditPage>(`/api/admin/audit?${q.toString()}`)
 	}
-};
+}

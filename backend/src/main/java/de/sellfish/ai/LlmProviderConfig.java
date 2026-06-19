@@ -6,10 +6,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 /**
  * Provider-Konfiguration. {@code userId == null} ⇒ globale (Admin-)Konfiguration.
@@ -53,8 +52,7 @@ public class LlmProviderConfig extends BaseEntity {
     @Column(nullable = false)
     private boolean enabled = true;
 
-    protected LlmProviderConfig() {
-    }
+    protected LlmProviderConfig() {}
 
     public LlmProviderConfig(UUID userId, Provider provider, String model, Purpose purpose) {
         this.userId = userId;

@@ -6,7 +6,6 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import java.time.Instant;
 import java.util.UUID;
 
@@ -38,10 +37,27 @@ public class OrganizationMember {
         this.role = role;
     }
 
-    public UUID getId() { return id; }
-    public UUID getOrgId() { return orgId; }
-    public UUID getUserId() { return userId; }
-    public OrgMemberRole getRole() { return role; }
-    public void setRole(OrgMemberRole role) { this.role = role; }
-    public Instant getJoinedAt() { return joinedAt; }
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public OrgMemberRole getRole() {
+        return role;
+    }
+
+    public void setRole(OrgMemberRole role) {
+        this.role = role;
+    }
+
+    public Instant getJoinedAt() {
+        return joinedAt;
+    }
 }

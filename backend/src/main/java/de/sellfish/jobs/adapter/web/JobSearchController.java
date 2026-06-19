@@ -1,7 +1,9 @@
 package de.sellfish.jobs.adapter.web;
-import de.sellfish.jobs.*;
 
 import de.sellfish.common.security.CurrentUser;
+import de.sellfish.jobs.*;
+import java.time.Instant;
+import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,9 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/jobs")
 public class JobSearchController {
@@ -20,16 +19,15 @@ public class JobSearchController {
     private final JobSearchService jobSearchService;
     private final SearchRunRepository searchRunRepository;
 
-    public JobSearchController(JobSearchService jobSearchService,
-                              SearchRunRepository searchRunRepository) {
+    public JobSearchController(JobSearchService jobSearchService, SearchRunRepository searchRunRepository) {
         this.jobSearchService = jobSearchService;
         this.searchRunRepository = searchRunRepository;
     }
 
     public record RunResponse(UUID id, String status, Instant startedAt, Instant finishedAt, String stats) {
         static RunResponse from(SearchRun run) {
-            return new RunResponse(run.getId(), run.getStatus(), run.getStartedAt(),
-                    run.getFinishedAt(), run.getStats());
+            return new RunResponse(
+                    run.getId(), run.getStatus(), run.getStartedAt(), run.getFinishedAt(), run.getStats());
         }
     }
 
@@ -39,8 +37,8 @@ public class JobSearchController {
     }
 
     @GetMapping("/runs")
-    public Page<RunResponse> runs(@RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "20") int size) {
+    public Page<RunResponse> runs(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
         return searchRunRepository
                 .findByUserIdOrderByStartedAtDesc(CurrentUser.id(), PageRequest.of(page, Math.min(size, 100)))
                 .map(RunResponse::from);

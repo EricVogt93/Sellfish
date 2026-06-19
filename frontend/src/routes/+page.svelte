@@ -1,26 +1,31 @@
 <script lang="ts">
-	import { browser } from '$app/environment';
-	import Icon from '$lib/sellfish/Icon.svelte';
-	import Kbd from '$lib/sellfish/Kbd.svelte';
-	import Avatar from '$lib/sellfish/Avatar.svelte';
-	import CursorGlow from '$lib/sellfish/CursorGlow.svelte';
-	import Toasts from '$lib/sellfish/Toasts.svelte';
-	import Login from '$lib/sellfish/Login.svelte';
-	import JobsView from '$lib/sellfish/JobsView.svelte';
-	import JobDrawer from '$lib/sellfish/JobDrawer.svelte';
-	import ApplyModal from '$lib/sellfish/ApplyModal.svelte';
-	import ApplicationsView from '$lib/sellfish/ApplicationsView.svelte';
-	import ProfileView from '$lib/sellfish/ProfileView.svelte';
-	import UsersView from '$lib/sellfish/UsersView.svelte';
-	import CommandPalette from '$lib/sellfish/CommandPalette.svelte';
-	import OrgSwitcher from '$lib/sellfish/OrgSwitcher.svelte';
-	import Onboarding from '$lib/sellfish/Onboarding.svelte';
-	import { toast } from '$lib/sellfish/toasts.svelte';
-	import { mapMatch, initialsOf, hueOf } from '$lib/sellfish/map';
-	import type { Job } from '$lib/sellfish/data';
-	import { getSession, initSession, logout } from '$lib/api/session.svelte';
-	import { backend, type MatchResponse, type DocumentResponse, type MatchStatus } from '$lib/api/backend';
-	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment'
+	import Icon from '$lib/sellfish/Icon.svelte'
+	import Kbd from '$lib/sellfish/Kbd.svelte'
+	import Avatar from '$lib/sellfish/Avatar.svelte'
+	import CursorGlow from '$lib/sellfish/CursorGlow.svelte'
+	import Toasts from '$lib/sellfish/Toasts.svelte'
+	import Login from '$lib/sellfish/Login.svelte'
+	import JobsView from '$lib/sellfish/JobsView.svelte'
+	import JobDrawer from '$lib/sellfish/JobDrawer.svelte'
+	import ApplyModal from '$lib/sellfish/ApplyModal.svelte'
+	import ApplicationsView from '$lib/sellfish/ApplicationsView.svelte'
+	import ProfileView from '$lib/sellfish/ProfileView.svelte'
+	import UsersView from '$lib/sellfish/UsersView.svelte'
+	import CommandPalette from '$lib/sellfish/CommandPalette.svelte'
+	import OrgSwitcher from '$lib/sellfish/OrgSwitcher.svelte'
+	import Onboarding from '$lib/sellfish/Onboarding.svelte'
+	import { toast } from '$lib/sellfish/toasts.svelte'
+	import { mapMatch, initialsOf, hueOf } from '$lib/sellfish/map'
+	import type { Job } from '$lib/sellfish/data'
+	import { getSession, initSession, logout } from '$lib/api/session.svelte'
+	import {
+		backend,
+		type MatchResponse,
+		type DocumentResponse,
+		type MatchStatus
+	} from '$lib/api/backend'
+	import { goto } from '$app/navigation'
 
 	const NAV = [
 		{ id: 'jobs', label: 'Jobs', icon: 'inbox', key: '1' },
@@ -28,177 +33,191 @@
 		{ id: 'profile', label: 'Profile', icon: 'user', key: '3' },
 		{ id: 'users', label: 'Users', icon: 'users', key: '4' },
 		{ id: 'reports', label: 'Reports', icon: 'layout', key: '5' }
-	];
+	]
 
-	const APPLIED = new Set<MatchStatus>(['APPLIED', 'INTERVIEW', 'OFFER', 'REJECTED']);
+	const APPLIED = new Set<MatchStatus>(['APPLIED', 'INTERVIEW', 'OFFER', 'REJECTED'])
 
-	const session = getSession();
+	const session = getSession()
 
-	let view = $state('jobs');
-	let matches = $state<MatchResponse[]>([]);
-	let documents = $state<DocumentResponse[]>([]);
-	let ratings = $state<Record<string, number>>(loadLS('aa-ratings', {}));
-	let selection = $state<Set<string>>(new Set());
-	let focusIdx = $state(0);
-	let expanded = $state<string | null>(null);
-	let drawerId = $state<string | null>(null);
-	let applyModal = $state<{ jobs: Job[]; mode: 'quick' | 'review' } | null>(null);
-	let paletteOpen = $state(false);
-	let userMenu = $state(false);
-	let searching = $state(false);
+	let view = $state('jobs')
+	let matches = $state<MatchResponse[]>([])
+	let documents = $state<DocumentResponse[]>([])
+	let ratings = $state<Record<string, number>>(loadLS('aa-ratings', {}))
+	let selection = $state<Set<string>>(new Set())
+	let focusIdx = $state(0)
+	let expanded = $state<string | null>(null)
+	let drawerId = $state<string | null>(null)
+	let applyModal = $state<{ jobs: Job[]; mode: 'quick' | 'review' } | null>(null)
+	let paletteOpen = $state(false)
+	let userMenu = $state(false)
+	let searching = $state(false)
 
-	const jobs = $derived([...matches].map(mapMatch).sort((a, b) => b.score - a.score));
+	const jobs = $derived([...matches].map(mapMatch).sort((a, b) => b.score - a.score))
 	const statuses = $derived(
-		Object.fromEntries(jobs.map((j) => [j.id, j.status && APPLIED.has(j.status as MatchStatus) ? 'applied' : '']))
-	);
-	const applications = $derived(jobs.filter((j) => j.status && APPLIED.has(j.status as MatchStatus)));
-	const openCount = $derived(jobs.filter((j) => !(j.status && APPLIED.has(j.status as MatchStatus))).length);
-	const drawerJob = $derived(jobs.find((j) => j.id === drawerId) ?? null);
-	const me = $derived(session.me);
+		Object.fromEntries(
+			jobs.map((j) => [j.id, j.status && APPLIED.has(j.status as MatchStatus) ? 'applied' : ''])
+		)
+	)
+	const applications = $derived(
+		jobs.filter((j) => j.status && APPLIED.has(j.status as MatchStatus))
+	)
+	const openCount = $derived(
+		jobs.filter((j) => !(j.status && APPLIED.has(j.status as MatchStatus))).length
+	)
+	const drawerJob = $derived(jobs.find((j) => j.id === drawerId) ?? null)
+	const me = $derived(session.me)
 
 	function loadLS<T>(key: string, fallback: T): T {
-		if (!browser) return fallback;
+		if (!browser) return fallback
 		try {
-			const v = JSON.parse(localStorage.getItem(key) ?? 'null');
-			return v == null ? fallback : v;
+			const v = JSON.parse(localStorage.getItem(key) ?? 'null')
+			return v == null ? fallback : v
 		} catch {
-			return fallback;
+			return fallback
 		}
 	}
 
 	$effect(() => {
-		if (browser) localStorage.setItem('aa-ratings', JSON.stringify(ratings));
-	});
+		if (browser) localStorage.setItem('aa-ratings', JSON.stringify(ratings))
+	})
 
 	$effect(() => {
-		void initSession();
-	});
+		void initSession()
+	})
 
 	// Nach Login: Matches + Dokumente laden
 	$effect(() => {
-		if (session.authed) void reload();
-	});
+		if (session.authed) void reload()
+	})
 
 	async function reload() {
 		try {
-			const [page, docs] = await Promise.all([backend.listMatches(100), backend.listDocuments()]);
-			matches = page.content;
-			documents = docs;
+			const [page, docs] = await Promise.all([backend.listMatches(100), backend.listDocuments()])
+			matches = page.content
+			documents = docs
 		} catch (e) {
-			toast(e instanceof Error ? e.message : 'Failed to load', 'x', 'var(--accent-error)');
+			toast(e instanceof Error ? e.message : 'Failed to load', 'x', 'var(--accent-error)')
 		}
 	}
 
 	function patchMatch(matchId: string, status: MatchStatus) {
-		matches = matches.map((m) => (m.matchId === matchId ? { ...m, status } : m));
+		matches = matches.map((m) => (m.matchId === matchId ? { ...m, status } : m))
 	}
 
 	async function rescan() {
-		searching = true;
-		toast('Scanning sources…', 'refresh', 'var(--accent-secondary)');
+		searching = true
+		toast('Scanning sources…', 'refresh', 'var(--accent-secondary)')
 		try {
-			await backend.search();
-			await reload();
-			toast(`Done — ${jobs.length} matches`, 'check');
+			await backend.search()
+			await reload()
+			toast(`Done — ${jobs.length} matches`, 'check')
 		} catch (e) {
-			toast(e instanceof Error ? e.message : 'Search failed', 'x', 'var(--accent-error)');
+			toast(e instanceof Error ? e.message : 'Search failed', 'x', 'var(--accent-error)')
 		} finally {
-			searching = false;
+			searching = false
 		}
 	}
 
 	// Star rating -> real feedback for self-learning
 	async function rate(jobId: string, v: number) {
-		ratings = { ...ratings, [jobId]: v };
-		const job = jobs.find((j) => j.id === jobId);
-		if (!job?.matchId || v === 0) return;
-		const status: MatchStatus = v >= 4 ? 'SAVED' : v <= 2 ? 'DISMISSED' : 'SEEN';
+		ratings = { ...ratings, [jobId]: v }
+		const job = jobs.find((j) => j.id === jobId)
+		if (!job?.matchId || v === 0) return
+		const status: MatchStatus = v >= 4 ? 'SAVED' : v <= 2 ? 'DISMISSED' : 'SEEN'
 		try {
-			await backend.setStatus(job.matchId, status);
-			patchMatch(job.matchId, status);
-			toast('Rating saved — trains your match score', 'star', 'var(--accent-warning)');
+			await backend.setStatus(job.matchId, status)
+			patchMatch(job.matchId, status)
+			toast('Rating saved — trains your match score', 'star', 'var(--accent-warning)')
 		} catch {
 			/* still keep local rating */
 		}
 	}
 
 	function quickApply(jobId: string) {
-		const job = jobs.find((j) => j.id === jobId);
-		if (job) applyModal = { jobs: [job], mode: 'quick' };
+		const job = jobs.find((j) => j.id === jobId)
+		if (job) applyModal = { jobs: [job], mode: 'quick' }
 	}
 
 	function review(ids: string[]) {
-		const sel = ids.map((id) => jobs.find((j) => j.id === id)).filter(Boolean) as Job[];
-		if (sel.length) applyModal = { jobs: sel, mode: 'review' };
+		const sel = ids.map((id) => jobs.find((j) => j.id === id)).filter(Boolean) as Job[]
+		if (sel.length) applyModal = { jobs: sel, mode: 'review' }
 	}
 
 	function onSent(ids: string[]) {
 		ids.forEach((id) => {
-			const job = jobs.find((j) => j.id === id);
-			if (job?.matchId) patchMatch(job.matchId, 'APPLIED');
-		});
-		const sel = new Set(selection);
-		ids.forEach((id) => sel.delete(id));
-		selection = sel;
-		toast(`${ids.length > 1 ? ids.length + ' applications' : 'Application'} sent`, 'send', 'var(--accent-primary-light)');
+			const job = jobs.find((j) => j.id === id)
+			if (job?.matchId) patchMatch(job.matchId, 'APPLIED')
+		})
+		const sel = new Set(selection)
+		ids.forEach((id) => sel.delete(id))
+		selection = sel
+		toast(
+			`${ids.length > 1 ? ids.length + ' applications' : 'Application'} sent`,
+			'send',
+			'var(--accent-primary-light)'
+		)
 	}
 
 	function toggleSelect(id: string) {
-		const n = new Set(selection);
-		if (n.has(id)) n.delete(id);
-		else n.add(id);
-		selection = n;
+		const n = new Set(selection)
+		if (n.has(id)) n.delete(id)
+		else n.add(id)
+		selection = n
 	}
 
 	function onKey(e: KeyboardEvent) {
-		const target = e.target as HTMLElement;
-		const tag = (target.tagName || '').toLowerCase();
-		const typing = tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable;
+		const target = e.target as HTMLElement
+		const tag = (target.tagName || '').toLowerCase()
+		const typing =
+			tag === 'input' || tag === 'textarea' || tag === 'select' || target.isContentEditable
 		if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-			e.preventDefault();
-			paletteOpen = !paletteOpen;
-			return;
+			e.preventDefault()
+			paletteOpen = !paletteOpen
+			return
 		}
 		if (e.key === 'Escape') {
-			paletteOpen = false;
-			drawerId = null;
-			userMenu = false;
-			return;
+			paletteOpen = false
+			drawerId = null
+			userMenu = false
+			return
 		}
-		if (typing || paletteOpen || applyModal || !session.authed) return;
+		if (typing || paletteOpen || applyModal || !session.authed) return
 		if (['1', '2', '3', '4'].includes(e.key)) {
-			view = NAV[+e.key - 1].id;
-			return;
+			view = NAV[+e.key - 1].id
+			return
 		}
-		if (e.key === '5') { goto('/reports'); return; }
-		if (view !== 'jobs' || jobs.length === 0) return;
-		const max = jobs.length - 1;
+		if (e.key === '5') {
+			goto('/reports')
+			return
+		}
+		if (view !== 'jobs' || jobs.length === 0) return
+		const max = jobs.length - 1
 		if (e.key === 'j' || e.key === 'ArrowDown') {
-			e.preventDefault();
-			focusIdx = Math.min(focusIdx + 1, max);
+			e.preventDefault()
+			focusIdx = Math.min(focusIdx + 1, max)
 		} else if (e.key === 'k' || e.key === 'ArrowUp') {
-			e.preventDefault();
-			focusIdx = Math.max(focusIdx - 1, 0);
+			e.preventDefault()
+			focusIdx = Math.max(focusIdx - 1, 0)
 		} else if (e.key === 'x') {
-			toggleSelect(jobs[focusIdx].id);
+			toggleSelect(jobs[focusIdx].id)
 		} else if (e.key === 'Enter') {
-			drawerId = jobs[focusIdx].id;
+			drawerId = jobs[focusIdx].id
 		} else if (e.key === 'a') {
-			const job = jobs[focusIdx];
-			if (!(job.status && APPLIED.has(job.status as MatchStatus))) review([job.id]);
+			const job = jobs[focusIdx]
+			if (!(job.status && APPLIED.has(job.status as MatchStatus))) review([job.id])
 		} else if (e.key === 'e') {
-			expanded = expanded === jobs[focusIdx].id ? null : jobs[focusIdx].id;
+			expanded = expanded === jobs[focusIdx].id ? null : jobs[focusIdx].id
 		}
 	}
 
 	$effect(() => {
-		const el = document.getElementById(`aa-row-${focusIdx}`);
+		const el = document.getElementById(`aa-row-${focusIdx}`)
 		if (el) {
-			const r = el.getBoundingClientRect();
-			if (r.top < 70) window.scrollBy({ top: r.top - 120 });
-			else if (r.bottom > innerHeight - 80) window.scrollBy({ top: r.bottom - innerHeight + 120 });
+			const r = el.getBoundingClientRect()
+			if (r.top < 70) window.scrollBy({ top: r.top - 120 })
+			else if (r.bottom > innerHeight - 80) window.scrollBy({ top: r.bottom - innerHeight + 120 })
 		}
-	});
+	})
 </script>
 
 <svelte:head>
@@ -208,7 +227,9 @@
 <svelte:window onkeydown={onKey} />
 
 {#if !session.ready}
-	<div class="aa-bootsplash"><span class="aa-brandmark"><Icon name="zap" size={16} strokeWidth={2.2} /></span></div>
+	<div class="aa-bootsplash">
+		<span class="aa-brandmark"><Icon name="zap" size={16} strokeWidth={2.2} /></span>
+	</div>
 {:else if !session.authed}
 	<Login />
 {:else}
@@ -222,7 +243,10 @@
 			</div>
 			<nav class="aa-nav">
 				{#each NAV as n (n.id)}
-					<button class={`aa-navlink ${view === n.id ? 'is-active' : ''}`} onclick={() => n.id === 'reports' ? goto('/reports') : (view = n.id)}>
+					<button
+						class={`aa-navlink ${view === n.id ? 'is-active' : ''}`}
+						onclick={() => (n.id === 'reports' ? goto('/reports') : (view = n.id))}
+					>
 						<Icon name={n.icon} size={14} />{n.label}
 						{#if n.id === 'jobs'}<span class="aa-navcount">{openCount}</span>{/if}
 					</button>
@@ -241,14 +265,32 @@
 					{#if userMenu}
 						<div class="aa-usermenu">
 							<div class="eyebrow" style="padding:6px 10px 4px;">{me?.email}</div>
-							<button class="aa-usermenu-item" onclick={() => { view = 'profile'; userMenu = false; }}>
+							<button
+								class="aa-usermenu-item"
+								onclick={() => {
+									view = 'profile'
+									userMenu = false
+								}}
+							>
 								<Icon name="user" size={14} style="margin:0 5px;" /><span>Profile & providers</span>
 							</button>
-							<button class="aa-usermenu-item" onclick={() => { view = 'users'; userMenu = false; }}>
+							<button
+								class="aa-usermenu-item"
+								onclick={() => {
+									view = 'users'
+									userMenu = false
+								}}
+							>
 								<Icon name="users" size={14} style="margin:0 5px;" /><span>Workspace</span>
 							</button>
 							<div class="aa-usermenu-divider"></div>
-							<button class="aa-usermenu-item" onclick={() => { logout(); userMenu = false; }}>
+							<button
+								class="aa-usermenu-item"
+								onclick={() => {
+									logout()
+									userMenu = false
+								}}
+							>
 								<Icon name="logout" size={14} style="margin:0 5px;" /><span>Sign out</span>
 							</button>
 						</div>
@@ -277,7 +319,8 @@
 				{searching}
 				onRescan={rescan}
 				onToggleSelect={toggleSelect}
-				onToggleSelectAll={() => (selection = selection.size === jobs.length ? new Set() : new Set(jobs.map((j) => j.id)))}
+				onToggleSelectAll={() =>
+					(selection = selection.size === jobs.length ? new Set() : new Set(jobs.map((j) => j.id)))}
 				onRate={rate}
 				onExpand={(id) => (expanded = expanded === id ? null : id)}
 				onOpen={(id) => (drawerId = id)}
@@ -302,8 +345,14 @@
 			applied={statuses[drawerJob.id] === 'applied'}
 			onClose={() => (drawerId = null)}
 			onRate={rate}
-			onQuickApply={(id) => { drawerId = null; quickApply(id); }}
-			onApply={(ids) => { drawerId = null; review(ids); }}
+			onQuickApply={(id) => {
+				drawerId = null
+				quickApply(id)
+			}}
+			onApply={(ids) => {
+				drawerId = null
+				review(ids)
+			}}
 		/>
 	{/if}
 
@@ -313,7 +362,7 @@
 			mode={applyModal.mode}
 			{documents}
 			onClose={() => (applyModal = null)}
-			onSent={onSent}
+			{onSent}
 		/>
 	{/if}
 
@@ -322,8 +371,15 @@
 			{jobs}
 			nav={NAV}
 			onClose={() => (paletteOpen = false)}
-			onGo={(v) => { view = v; paletteOpen = false; }}
-			onJob={(id) => { view = 'jobs'; drawerId = id; paletteOpen = false; }}
+			onGo={(v) => {
+				view = v
+				paletteOpen = false
+			}}
+			onJob={(id) => {
+				view = 'jobs'
+				drawerId = id
+				paletteOpen = false
+			}}
 		/>
 	{/if}
 

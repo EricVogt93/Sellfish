@@ -16,5 +16,4 @@ public record RawJob(
         String url,
         String salaryRaw,
         Instant postedAt,
-        String raw) {
-}
+        String raw) {}

@@ -1,5 +1,10 @@
 package de.sellfish.auth;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.sellfish.support.AbstractPostgresIT;
@@ -7,11 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 class AuthFlowIT extends AbstractPostgresIT {
@@ -30,17 +30,19 @@ class AuthFlowIT extends AbstractPostgresIT {
 
         // Registrierung liefert Tokens
         String response = mockMvc.perform(post("/api/auth/register")
-                        .contentType("application/json").content(body))
+                        .contentType("application/json")
+                        .content(body))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.accessToken").exists())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
         JsonNode tokens = objectMapper.readTree(response);
         String accessToken = tokens.get("accessToken").asText();
 
         // Geschützte Route ohne Token -> 401
-        mockMvc.perform(get("/api/me"))
-                .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/api/me")).andExpect(status().isUnauthorized());
 
         // Mit Token -> 200 + korrekte E-Mail
         mockMvc.perform(get("/api/me").header("Authorization", "Bearer " + accessToken))
@@ -48,21 +50,24 @@ class AuthFlowIT extends AbstractPostgresIT {
                 .andExpect(jsonPath("$.email").value("test@example.com"));
 
         // Login funktioniert ebenfalls
-        mockMvc.perform(post("/api/auth/login")
-                        .contentType("application/json").content(body))
+        mockMvc.perform(post("/api/auth/login").contentType("application/json").content(body))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").exists());
     }
 
     @Test
     void profileGetCreatesDefaultAndUpdateWorks() throws Exception {
-        String creds = """
+        String creds =
+                """
                 {"email":"profile@example.com","password":"supersecret1"}
                 """;
         String response = mockMvc.perform(post("/api/auth/register")
-                        .contentType("application/json").content(creds))
+                        .contentType("application/json")
+                        .content(creds))
                 .andExpect(status().isCreated())
-                .andReturn().getResponse().getContentAsString();
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
         String token = objectMapper.readTree(response).get("accessToken").asText();
 
         // Default-Profil wird angelegt
@@ -71,13 +76,15 @@ class AuthFlowIT extends AbstractPostgresIT {
                 .andExpect(jsonPath("$.remotePref").value("ANY"));
 
         // Update inkl. Präferenz-Arrays
-        String prefs = """
+        String prefs =
+                """
                 {"desiredTitles":["Java Entwickler","Backend Engineer"],"keywords":["spring","kafka"]}
                 """;
-        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
-                        .put("/api/profile/preferences")
+        mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put(
+                                "/api/profile/preferences")
                         .header("Authorization", "Bearer " + token)
-                        .contentType("application/json").content(prefs))
+                        .contentType("application/json")
+                        .content(prefs))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.desiredTitles[0]").value("Java Entwickler"));
     }

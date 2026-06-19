@@ -1,14 +1,14 @@
 <script lang="ts">
-	import Icon from './Icon.svelte';
-	import Btn from './Btn.svelte';
-	import Kbd from './Kbd.svelte';
-	import CompanyMark from './CompanyMark.svelte';
-	import MatchScore from './MatchScore.svelte';
-	import Stars from './Stars.svelte';
-	import FilterChips from './FilterChips.svelte';
-	import { FILTERS, type Job } from './data';
-	import { api } from '$lib/api';
-	import { toast } from './toasts.svelte';
+	import Icon from './Icon.svelte'
+	import Btn from './Btn.svelte'
+	import Kbd from './Kbd.svelte'
+	import CompanyMark from './CompanyMark.svelte'
+	import MatchScore from './MatchScore.svelte'
+	import Stars from './Stars.svelte'
+	import FilterChips from './FilterChips.svelte'
+	import { FILTERS, type Job } from './data'
+	import { api } from '$lib/api'
+	import { toast } from './toasts.svelte'
 
 	let {
 		job,
@@ -19,42 +19,55 @@
 		onQuickApply,
 		onApply
 	}: {
-		job: Job;
-		rating?: number;
-		applied?: boolean;
-		onClose: () => void;
-		onRate: (id: string, v: number) => void;
-		onQuickApply: (id: string) => void;
-		onApply: (ids: string[]) => void;
-	} = $props();
+		job: Job
+		rating?: number
+		applied?: boolean
+		onClose: () => void
+		onRate: (id: string, v: number) => void
+		onQuickApply: (id: string) => void
+		onApply: (ids: string[]) => void
+	} = $props()
 
-	let interviewQuestions = $state<string | null>(null);
-	let companyProfile = $state<string | null>(null);
-	let loadingQuestions = $state(false);
-	let loadingCompany = $state(false);
+	let interviewQuestions = $state<string | null>(null)
+	let companyProfile = $state<string | null>(null)
+	let loadingQuestions = $state(false)
+	let loadingCompany = $state(false)
 
 	async function loadInterviewPrep() {
-		if (interviewQuestions) { interviewQuestions = null; return; }
-		loadingQuestions = true;
+		if (interviewQuestions) {
+			interviewQuestions = null
+			return
+		}
+		loadingQuestions = true
 		try {
 			const res = await api<{ questions: string }>(
-				`/api/generate/interview-questions/${job.matchId}`, { method: 'POST' });
-			interviewQuestions = res.questions;
+				`/api/generate/interview-questions/${job.matchId}`,
+				{ method: 'POST' }
+			)
+			interviewQuestions = res.questions
 		} catch (e) {
-			toast(e instanceof Error ? e.message : 'Failed', 'x', 'var(--accent-error)');
-		} finally { loadingQuestions = false; }
+			toast(e instanceof Error ? e.message : 'Failed', 'x', 'var(--accent-error)')
+		} finally {
+			loadingQuestions = false
+		}
 	}
 
 	async function loadCompanyResearch() {
-		if (companyProfile) { companyProfile = null; return; }
-		loadingCompany = true;
+		if (companyProfile) {
+			companyProfile = null
+			return
+		}
+		loadingCompany = true
 		try {
-			const res = await api<{ profile: string }>(
-				`/api/generate/company-research/${job.matchId}`, { method: 'POST' });
-			companyProfile = res.profile;
+			const res = await api<{ profile: string }>(`/api/generate/company-research/${job.matchId}`, {
+				method: 'POST'
+			})
+			companyProfile = res.profile
 		} catch (e) {
-			toast(e instanceof Error ? e.message : 'Failed', 'x', 'var(--accent-error)');
-		} finally { loadingCompany = false; }
+			toast(e instanceof Error ? e.message : 'Failed', 'x', 'var(--accent-error)')
+		} finally {
+			loadingCompany = false
+		}
 	}
 </script>
 
@@ -67,9 +80,16 @@
 			<div class="aa-jobmeta">{job.company} · {job.location} · via {job.source}</div>
 		</div>
 		{#if job.url}
-			<button class="aa-iconbtn" title="Open original posting" onclick={() => window.open(job.url, '_blank', 'noopener')}><Icon name="external" size={16} /></button>
+			<button
+				class="aa-iconbtn"
+				title="Open original posting"
+				onclick={() => window.open(job.url, '_blank', 'noopener')}
+				><Icon name="external" size={16} /></button
+			>
 		{/if}
-		<button class="aa-iconbtn" onclick={onClose} title="Close (Esc)"><Icon name="x" size={16} /></button>
+		<button class="aa-iconbtn" onclick={onClose} title="Close (Esc)"
+			><Icon name="x" size={16} /></button
+		>
 	</header>
 
 	<div class="aa-drawer-body">
@@ -103,10 +123,14 @@
 		<section class="aa-drawer-sec">
 			<div class="eyebrow">conditions</div>
 			<div class="aa-condgrid">
-				<div class="aa-cond"><Icon name="briefcase" size={13} /><span>{job.seniority} · {job.type}</span></div>
+				<div class="aa-cond">
+					<Icon name="briefcase" size={13} /><span>{job.seniority} · {job.type}</span>
+				</div>
 				<div class="aa-cond"><Icon name="mapPin" size={13} /><span>{job.location}</span></div>
 				<div class="aa-cond"><span class="aa-salary">{job.salary}</span></div>
-				<div class="aa-cond"><Icon name="clock" size={13} /><span>posted {job.posted} ago</span></div>
+				<div class="aa-cond">
+					<Icon name="clock" size={13} /><span>posted {job.posted} ago</span>
+				</div>
 			</div>
 		</section>
 
@@ -120,7 +144,11 @@
 			<div class="aa-aitools">
 				<button class="aa-aitool-btn" onclick={loadInterviewPrep} disabled={loadingQuestions}>
 					<Icon name="sparkles" size={13} />
-					{loadingQuestions ? 'Generating…' : interviewQuestions ? 'Hide questions' : 'Interview prep'}
+					{loadingQuestions
+						? 'Generating…'
+						: interviewQuestions
+							? 'Hide questions'
+							: 'Interview prep'}
 				</button>
 				<button class="aa-aitool-btn" onclick={loadCompanyResearch} disabled={loadingCompany}>
 					<Icon name="search" size={13} />
@@ -138,7 +166,9 @@
 
 	<footer class="aa-drawer-foot">
 		{#if applied}
-			<span class="aa-appliedtag" style="position:static;"><Icon name="check" size={12} strokeWidth={2.5} /> Application sent</span>
+			<span class="aa-appliedtag" style="position:static;"
+				><Icon name="check" size={12} strokeWidth={2.5} /> Application sent</span
+			>
 		{:else}
 			<Btn variant="primary" icon="zap" onclick={() => onQuickApply(job.id)}>Quick apply</Btn>
 			<Btn variant="secondary" icon="pen" onclick={() => onApply([job.id])}>Generate & review</Btn>
@@ -148,19 +178,40 @@
 </aside>
 
 <style>
-	.aa-aitools { display: flex; gap: 8px; }
-	.aa-aitool-btn {
-		display: flex; align-items: center; gap: 6px;
-		padding: 7px 12px; border: 1px solid var(--border-default);
-		border-radius: 6px; background: var(--bg-elevated);
-		color: var(--text-secondary); font-size: 0.8rem; cursor: pointer;
+	.aa-aitools {
+		display: flex;
+		gap: 8px;
 	}
-	.aa-aitool-btn:hover { border-color: var(--accent-primary); color: var(--text-primary); }
-	.aa-aitool-btn:disabled { opacity: 0.5; cursor: default; }
+	.aa-aitool-btn {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		padding: 7px 12px;
+		border: 1px solid var(--border-default);
+		border-radius: 6px;
+		background: var(--bg-elevated);
+		color: var(--text-secondary);
+		font-size: 0.8rem;
+		cursor: pointer;
+	}
+	.aa-aitool-btn:hover {
+		border-color: var(--accent-primary);
+		color: var(--text-primary);
+	}
+	.aa-aitool-btn:disabled {
+		opacity: 0.5;
+		cursor: default;
+	}
 	.aa-ai-result {
-		margin-top: 8px; padding: 12px; background: var(--bg-glass);
-		border: 1px solid var(--border-subtle); border-radius: 8px;
-		font-size: 0.82rem; line-height: 1.6; color: var(--text-secondary);
-		max-height: 400px; overflow-y: auto;
+		margin-top: 8px;
+		padding: 12px;
+		background: var(--bg-glass);
+		border: 1px solid var(--border-subtle);
+		border-radius: 8px;
+		font-size: 0.82rem;
+		line-height: 1.6;
+		color: var(--text-secondary);
+		max-height: 400px;
+		overflow-y: auto;
 	}
 </style>

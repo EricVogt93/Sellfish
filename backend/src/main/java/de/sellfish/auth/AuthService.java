@@ -12,14 +12,13 @@ import de.sellfish.sso.OidcService;
 import de.sellfish.users.User;
 import de.sellfish.users.UserRepository;
 import io.jsonwebtoken.Claims;
+import java.util.UUID;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 public class AuthService {
@@ -31,12 +30,13 @@ public class AuthService {
     private final SecurityProperties securityProperties;
     private final AuditService auditService;
 
-    public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       AuthenticationManager authenticationManager,
-                       JwtService jwtService,
-                       SecurityProperties securityProperties,
-                       AuditService auditService) {
+    public AuthService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            AuthenticationManager authenticationManager,
+            JwtService jwtService,
+            SecurityProperties securityProperties,
+            AuditService auditService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
@@ -57,9 +57,9 @@ public class AuthService {
     }
 
     public TokenResponse login(LoginRequest req) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.email(), req.password()));
-        User user = userRepository.findByEmailIgnoreCase(req.email())
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.email(), req.password()));
+        User user = userRepository
+                .findByEmailIgnoreCase(req.email())
                 .orElseThrow(() -> new BadCredentialsException("Ungültige Anmeldedaten"));
         auditService.record(user.getId(), AuditAction.LOGIN);
         return issueTokens(user);
@@ -76,14 +76,17 @@ public class AuthService {
             throw new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "No refresh token");
         }
         UUID userId = UUID.fromString(claims.getSubject());
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Nutzer nicht gefunden"));
+        User user = userRepository
+                .findById(userId)
+                .orElseThrow(() ->
+                        new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Nutzer nicht gefunden"));
         return issueTokens(user);
     }
 
     @Transactional
     public TokenResponse loginWithSso(OidcService.OidcUser oidcUser) {
-        User user = userRepository.findByOidcSubjectAndOidcProvider(oidcUser.subject(), oidcUser.provider())
+        User user = userRepository
+                .findByOidcSubjectAndOidcProvider(oidcUser.subject(), oidcUser.provider())
                 .orElseGet(() -> {
                     User newUser = User.sso(oidcUser.email(), oidcUser.subject(), oidcUser.provider());
                     return userRepository.save(newUser);
@@ -95,13 +98,11 @@ public class AuthService {
     private TokenResponse issueTokens(User user) {
         String access = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getCurrentOrgId());
         String refresh = jwtService.generateRefreshToken(user.getId());
-        return new TokenResponse(access, refresh, "Bearer",
-                securityProperties.accessTokenTtlMinutes() * 60);
+        return new TokenResponse(access, refresh, "Bearer", securityProperties.accessTokenTtlMinutes() * 60);
     }
 
     public TokenResponse issueAccessToken(User user) {
         String access = jwtService.generateAccessToken(user.getId(), user.getEmail(), user.getCurrentOrgId());
-        return new TokenResponse(access, null, "Bearer",
-                securityProperties.accessTokenTtlMinutes() * 60);
+        return new TokenResponse(access, null, "Bearer", securityProperties.accessTokenTtlMinutes() * 60);
     }
 }

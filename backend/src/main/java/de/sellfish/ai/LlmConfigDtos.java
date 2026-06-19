@@ -2,13 +2,11 @@ package de.sellfish.ai;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
 import java.util.UUID;
 
 public final class LlmConfigDtos {
 
-    private LlmConfigDtos() {
-    }
+    private LlmConfigDtos() {}
 
     public record ConfigRequest(
             @NotNull Provider provider,
@@ -19,8 +17,7 @@ public final class LlmConfigDtos {
             @NotNull Purpose purpose,
             Boolean isDefault,
             Boolean enabled,
-            String params) {
-    }
+            String params) {}
 
     public record ConfigResponse(
             UUID id,
@@ -37,11 +34,19 @@ public final class LlmConfigDtos {
         public static ConfigResponse from(LlmProviderConfig c) {
             boolean hasKey = (c.getKeyEnc() != null && !c.getKeyEnc().isBlank())
                     || (c.getKeyRef() != null && !c.getKeyRef().isBlank());
-            return new ConfigResponse(c.getId(), c.getProvider(), c.getModel(), c.getBaseUrl(),
-                    c.getKeyRef(), hasKey, c.getPurpose(), c.isDefault(), c.isEnabled(), c.getParams());
+            return new ConfigResponse(
+                    c.getId(),
+                    c.getProvider(),
+                    c.getModel(),
+                    c.getBaseUrl(),
+                    c.getKeyRef(),
+                    hasKey,
+                    c.getPurpose(),
+                    c.isDefault(),
+                    c.isEnabled(),
+                    c.getParams());
         }
     }
 
-    public record TestResult(boolean ok, String message) {
-    }
+    public record TestResult(boolean ok, String message) {}
 }

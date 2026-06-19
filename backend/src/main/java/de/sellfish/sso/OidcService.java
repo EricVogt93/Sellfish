@@ -6,13 +6,6 @@ import de.sellfish.common.error.ApiException;
 import de.sellfish.sso.OidcProperties.ProviderConfig;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriComponentsBuilder;
-
 import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +15,12 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Service
 public class OidcService {
@@ -39,9 +38,11 @@ public class OidcService {
 
     public String buildAuthUrl(String providerId) {
         ProviderConfig p = requireProvider(providerId);
-        String state = Base64.getUrlEncoder().withoutPadding()
+        String state = Base64.getUrlEncoder()
+                .withoutPadding()
                 .encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
-        String scopes = String.join(" ", Optional.ofNullable(p.scopes()).orElse(java.util.List.of("openid", "email", "profile")));
+        String scopes = String.join(
+                " ", Optional.ofNullable(p.scopes()).orElse(java.util.List.of("openid", "email", "profile")));
         String redirect = properties.redirectUri() + "?provider=" + providerId;
         return UriComponentsBuilder.fromUriString(p.authorizationUri())
                 .queryParam("response_type", "code")
@@ -50,7 +51,8 @@ public class OidcService {
                 .queryParam("scope", scopes)
                 .queryParam("state", state)
                 .queryParam("nonce", UUID.randomUUID().toString())
-                .build().toUriString();
+                .build()
+                .toUriString();
     }
 
     public OidcUser exchangeCode(String providerId, String code) {
@@ -75,10 +77,12 @@ public class OidcService {
 
         Claims claims = verifyIdToken(idToken, p);
         String subject = claims.getSubject();
-        String email = Optional.ofNullable(claims.get("email", String.class))
-                .orElse(subject);
+        String email = Optional.ofNullable(claims.get("email", String.class)).orElse(subject);
 
-        return new OidcUser(subject, providerId, email.toLowerCase(),
+        return new OidcUser(
+                subject,
+                providerId,
+                email.toLowerCase(),
                 Optional.ofNullable(claims.get("name", String.class)).orElse(email),
                 Optional.ofNullable(claims.get("email_verified", Boolean.class)).orElse(false));
     }
@@ -111,30 +115,30 @@ public class OidcService {
     private PublicKey fetchPublicKey(ProviderConfig p, String kid) {
         RestClient client = restClientBuilder.build();
         try {
-            String jwksJson = client.get()
-                    .uri(p.jwksUri())
-                    .retrieve()
-                    .body(String.class);
+            String jwksJson = client.get().uri(p.jwksUri()).retrieve().body(String.class);
             JsonNode jwks = mapper.readTree(jwksJson);
             for (JsonNode key : jwks.path("keys")) {
                 if (kid == null || kid.equals(key.path("kid").asText())) {
                     String n = key.path("n").asText();
                     String e = key.path("e").asText();
-                    BigInteger modulus = new BigInteger(1, Base64.getUrlDecoder().decode(n));
-                    BigInteger exponent = new BigInteger(1, Base64.getUrlDecoder().decode(e));
+                    BigInteger modulus =
+                            new BigInteger(1, Base64.getUrlDecoder().decode(n));
+                    BigInteger exponent =
+                            new BigInteger(1, Base64.getUrlDecoder().decode(e));
                     RSAPublicKeySpec spec = new RSAPublicKeySpec(modulus, exponent);
                     return KeyFactory.getInstance("RSA").generatePublic(spec);
                 }
             }
         } catch (Exception e) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED,
-                    "JWKS-Abruf failed: " + e.getMessage());
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "JWKS-Abruf failed: " + e.getMessage());
         }
         throw new ApiException(HttpStatus.UNAUTHORIZED, "No matching JWK key found");
     }
 
     public boolean hasProviders() {
-        return properties.enabled() && properties.providers() != null && !properties.providers().isEmpty();
+        return properties.enabled()
+                && properties.providers() != null
+                && !properties.providers().isEmpty();
     }
 
     public java.util.List<ProviderInfo> providerList() {

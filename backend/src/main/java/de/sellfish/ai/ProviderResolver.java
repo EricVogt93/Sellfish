@@ -2,12 +2,11 @@ package de.sellfish.ai;
 
 import de.sellfish.ai.model.ResolvedModel;
 import de.sellfish.ai.secret.SecretResolver;
-import org.springframework.stereotype.Component;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.stereotype.Component;
 
 /**
  * Wählt für einen Nutzer und Zweck die passende Provider-Konfiguration:
@@ -27,13 +26,9 @@ public class ProviderResolver {
     public ResolvedModel resolve(UUID userId, Purpose purpose) {
         LlmProviderConfig config = pickConfig(userId, purpose)
                 .orElseThrow(() -> new LlmException(
-                        "Keine aktive LLM-Konfiguration für Zweck " + purpose
-                                + " (weder nutzer- noch systemweit)"));
+                        "Keine aktive LLM-Konfiguration für Zweck " + purpose + " (weder nutzer- noch systemweit)"));
         return new ResolvedModel(
-                config.getProvider(),
-                config.getModel(),
-                config.getBaseUrl(),
-                secretResolver.resolveApiKey(config));
+                config.getProvider(), config.getModel(), config.getBaseUrl(), secretResolver.resolveApiKey(config));
     }
 
     public Optional<LlmProviderConfig> pickConfig(UUID userId, Purpose purpose) {
@@ -49,8 +44,9 @@ public class ProviderResolver {
 
     private Optional<LlmProviderConfig> best(List<LlmProviderConfig> configs) {
         return configs.stream()
-                .min(Comparator.comparing(LlmProviderConfig::isDefault).reversed()
-                        .thenComparing(LlmProviderConfig::getCreatedAt,
-                                Comparator.nullsLast(Comparator.naturalOrder())));
+                .min(Comparator.comparing(LlmProviderConfig::isDefault)
+                        .reversed()
+                        .thenComparing(
+                                LlmProviderConfig::getCreatedAt, Comparator.nullsLast(Comparator.naturalOrder())));
     }
 }

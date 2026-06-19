@@ -1,15 +1,14 @@
 package de.sellfish.jobs;
-import de.sellfish.jobs.adapter.persistence.VectorStore;
 
 import de.sellfish.ai.LlmService;
+import de.sellfish.jobs.adapter.persistence.VectorStore;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 /**
  * Berechnet und speichert Embeddings für Jobs und Profile.
@@ -28,9 +27,10 @@ public class JobEmbeddingService {
     private final VectorStore vectorStore;
     private final int expectedDimension;
 
-    public JobEmbeddingService(LlmService llmService,
-                               VectorStore vectorStore,
-                               @Value("${app.embedding.dimension:768}") int expectedDimension) {
+    public JobEmbeddingService(
+            LlmService llmService,
+            VectorStore vectorStore,
+            @Value("${app.embedding.dimension:768}") int expectedDimension) {
         this.llmService = llmService;
         this.vectorStore = vectorStore;
         this.expectedDimension = expectedDimension;
@@ -46,8 +46,7 @@ public class JobEmbeddingService {
             vectorStore.upsertJobEmbedding(job.getId(), vector, "embedding");
             return true;
         } catch (RuntimeException e) {
-            log.warn("Job embedding failed for {} ({} chars): {}",
-                    job.getId(), text.length(), e.getMessage());
+            log.warn("Job embedding failed for {} ({} chars): {}", job.getId(), text.length(), e.getMessage());
             return false;
         }
     }
@@ -147,9 +146,12 @@ public class JobEmbeddingService {
 
     private boolean dimensionOk(float[] vector, String what) {
         if (vector.length != expectedDimension) {
-            log.warn("Embedding for {} discarded: Dimension {} ≠ schema dimension {}. "
+            log.warn(
+                    "Embedding for {} discarded: Dimension {} ≠ schema dimension {}. "
                             + "Setze EMBEDDING_DIM passend zum Modell (vor dem ersten DB-Start).",
-                    what, vector.length, expectedDimension);
+                    what,
+                    vector.length,
+                    expectedDimension);
             return false;
         }
         return true;

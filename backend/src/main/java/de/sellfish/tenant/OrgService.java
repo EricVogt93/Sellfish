@@ -6,11 +6,10 @@ import de.sellfish.common.error.ApiException;
 import de.sellfish.enterprise.LicenseService;
 import de.sellfish.users.User;
 import de.sellfish.users.UserRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class OrgService {
@@ -21,11 +20,12 @@ public class OrgService {
     private final LicenseService licenseService;
     private final AuditService auditService;
 
-    public OrgService(OrganizationRepository orgRepository,
-                      OrgMemberRepository memberRepository,
-                      UserRepository userRepository,
-                      LicenseService licenseService,
-                      AuditService auditService) {
+    public OrgService(
+            OrganizationRepository orgRepository,
+            OrgMemberRepository memberRepository,
+            UserRepository userRepository,
+            LicenseService licenseService,
+            AuditService auditService) {
         this.orgRepository = orgRepository;
         this.memberRepository = memberRepository;
         this.userRepository = userRepository;
@@ -52,11 +52,11 @@ public class OrgService {
         Organization org = new Organization(name, slug);
         org = orgRepository.save(org);
         memberRepository.save(new OrganizationMember(org.getId(), userId, OrgMemberRole.OWNER));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+        User user = userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
         user.setCurrentOrgId(org.getId());
         userRepository.save(user);
-        auditService.record(userId, AuditAction.ORG_CREATE, "organization", org.getId().toString());
+        auditService.record(
+                userId, AuditAction.ORG_CREATE, "organization", org.getId().toString());
         return org;
     }
 
@@ -69,11 +69,11 @@ public class OrgService {
     @Transactional
     public void switchContext(UUID userId, UUID orgId) {
         if (orgId != null) {
-            memberRepository.findByOrgIdAndUserId(orgId, userId)
+            memberRepository
+                    .findByOrgIdAndUserId(orgId, userId)
                     .orElseThrow(() -> ApiException.notFound("Nicht Mitglied dieser Organisation"));
         }
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+        User user = userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
         user.setCurrentOrgId(orgId);
         userRepository.save(user);
     }
@@ -92,15 +92,16 @@ public class OrgService {
     @Transactional
     public void removeMember(UUID orgId, UUID requestingUserId, UUID targetUserId) {
         requireOrgRole(orgId, requestingUserId, OrgMemberRole.ADMIN);
-        OrganizationMember target = memberRepository.findByOrgIdAndUserId(orgId, targetUserId)
+        OrganizationMember target = memberRepository
+                .findByOrgIdAndUserId(orgId, targetUserId)
                 .orElseThrow(() -> ApiException.notFound("Mitglied nicht gefunden"));
         if (target.getRole() == OrgMemberRole.OWNER) {
             throw ApiException.badRequest("Owner kann nicht entfernt werden");
         }
         memberRepository.delete(target);
         auditService.record(requestingUserId, AuditAction.ORG_LEAVE, "organization", orgId.toString());
-        User targetUser = userRepository.findById(targetUserId)
-                .orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+        User targetUser =
+                userRepository.findById(targetUserId).orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
         if (orgId.equals(targetUser.getCurrentOrgId())) {
             targetUser.setCurrentOrgId(null);
             userRepository.save(targetUser);
@@ -117,12 +118,14 @@ public class OrgService {
     }
 
     private void requireOrgAccess(UUID orgId, UUID userId) {
-        memberRepository.findByOrgIdAndUserId(orgId, userId)
+        memberRepository
+                .findByOrgIdAndUserId(orgId, userId)
                 .orElseThrow(() -> ApiException.notFound("Kein Zugriff auf diese Organisation"));
     }
 
     private void requireOrgRole(UUID orgId, UUID userId, OrgMemberRole minRole) {
-        OrganizationMember member = memberRepository.findByOrgIdAndUserId(orgId, userId)
+        OrganizationMember member = memberRepository
+                .findByOrgIdAndUserId(orgId, userId)
                 .orElseThrow(() -> ApiException.notFound("Kein Zugriff auf diese Organisation"));
         if (member.getRole().ordinal() > minRole.ordinal()) {
             throw ApiException.badRequest("Fehlende Berechtigung");

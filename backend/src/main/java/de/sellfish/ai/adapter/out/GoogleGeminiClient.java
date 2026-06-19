@@ -1,6 +1,4 @@
 package de.sellfish.ai.adapter.out;
-import de.sellfish.ai.port.ChatProvider;
-import de.sellfish.ai.port.EmbeddingProvider;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sellfish.ai.LlmException;
@@ -9,16 +7,17 @@ import de.sellfish.ai.model.ChatMessage;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
 import de.sellfish.ai.model.ResolvedModel;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-
+import de.sellfish.ai.port.ChatProvider;
+import de.sellfish.ai.port.EmbeddingProvider;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 /**
  * Client für Google Gemini (Generative Language API).
@@ -39,7 +38,8 @@ public class GoogleGeminiClient implements ChatProvider, EmbeddingProvider {
 
     private String baseUrl(ResolvedModel model) {
         String base = (model.baseUrl() == null || model.baseUrl().isBlank())
-                ? "https://generativelanguage.googleapis.com/v1beta" : model.baseUrl();
+                ? "https://generativelanguage.googleapis.com/v1beta"
+                : model.baseUrl();
         return base.replaceAll("/+$", "");
     }
 
@@ -76,7 +76,12 @@ public class GoogleGeminiClient implements ChatProvider, EmbeddingProvider {
         }
 
         JsonNode response = post(model, "/models/" + model.model() + ":generateContent", body);
-        JsonNode text = response.path("candidates").path(0).path("content").path("parts").path(0).path("text");
+        JsonNode text = response.path("candidates")
+                .path(0)
+                .path("content")
+                .path("parts")
+                .path(0)
+                .path("text");
         if (text.isMissingNode()) {
             throw new LlmException("Unerwartete Gemini-Antwort");
         }
@@ -84,8 +89,12 @@ public class GoogleGeminiClient implements ChatProvider, EmbeddingProvider {
         return new ChatResult(
                 text.asText(),
                 model.model(),
-                usage.path("promptTokenCount").isNumber() ? usage.get("promptTokenCount").asInt() : null,
-                usage.path("candidatesTokenCount").isNumber() ? usage.get("candidatesTokenCount").asInt() : null);
+                usage.path("promptTokenCount").isNumber()
+                        ? usage.get("promptTokenCount").asInt()
+                        : null,
+                usage.path("candidatesTokenCount").isNumber()
+                        ? usage.get("candidatesTokenCount").asInt()
+                        : null);
     }
 
     @Override
@@ -107,7 +116,10 @@ public class GoogleGeminiClient implements ChatProvider, EmbeddingProvider {
         try {
             RestClient client = builder.baseUrl(baseUrl(model)).build();
             JsonNode result = client.post()
-                    .uri(uriBuilder -> uriBuilder.path(path).queryParam("key", model.apiKey()).build())
+                    .uri(uriBuilder -> uriBuilder
+                            .path(path)
+                            .queryParam("key", model.apiKey())
+                            .build())
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(body)
                     .retrieve()

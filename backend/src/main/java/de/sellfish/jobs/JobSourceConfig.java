@@ -24,8 +24,7 @@ public class JobSourceConfig extends BaseEntity {
     @Column(nullable = false)
     private boolean enabled = true;
 
-    protected JobSourceConfig() {
-    }
+    protected JobSourceConfig() {}
 
     public String getCode() {
         return code;

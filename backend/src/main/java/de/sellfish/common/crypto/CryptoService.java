@@ -1,14 +1,13 @@
 package de.sellfish.common.crypto;
 
 import de.sellfish.common.config.CryptoProperties;
-import org.springframework.stereotype.Service;
-
-import javax.crypto.Cipher;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.util.Base64;
+import javax.crypto.Cipher;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import org.springframework.stereotype.Service;
 
 /**
  * AES-GCM-Encryption für sensible Werte (z. B. Per-User-API-Keys).

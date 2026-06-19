@@ -7,10 +7,9 @@ import de.sellfish.cv.ProjectRepository;
 import de.sellfish.jobs.Job;
 import de.sellfish.profile.ProfileRepository;
 import de.sellfish.profile.UserProfile;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Component;
 
 /**
  * Baut den Eingabekontext (Bewerberdaten + Zielstelle) für die Generatoren zusammen.
@@ -22,9 +21,10 @@ public class GenerationContextBuilder {
     private final CvStructuredRepository cvRepository;
     private final ProjectRepository projectRepository;
 
-    public GenerationContextBuilder(ProfileRepository profileRepository,
-                                    CvStructuredRepository cvRepository,
-                                    ProjectRepository projectRepository) {
+    public GenerationContextBuilder(
+            ProfileRepository profileRepository,
+            CvStructuredRepository cvRepository,
+            ProjectRepository projectRepository) {
         this.profileRepository = profileRepository;
         this.cvRepository = cvRepository;
         this.projectRepository = projectRepository;

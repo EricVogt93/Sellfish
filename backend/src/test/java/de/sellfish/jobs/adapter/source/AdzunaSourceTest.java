@@ -1,24 +1,22 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.queryParam;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
 import de.sellfish.jobs.port.JobQuery;
 import de.sellfish.jobs.port.RawJob;
-
+import java.util.List;
+import java.util.Map;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.queryParam;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-import static org.springframework.http.HttpMethod.GET;
 
 class AdzunaSourceTest {
 
@@ -46,7 +44,8 @@ class AdzunaSourceTest {
                 .andExpect(queryParam("app_id", "id1"))
                 .andExpect(queryParam("app_key", "key1"))
                 .andExpect(queryParam("where", "Berlin"))
-                .andRespond(withSuccess("""
+                .andRespond(withSuccess(
+                        """
                         {"results":[
                           {"id":"42","title":"Java Entwickler",
                            "company":{"display_name":"Acme"},
@@ -54,7 +53,8 @@ class AdzunaSourceTest {
                            "description":"Spring Boot","redirect_url":"https://x/42",
                            "salary_min":60000,"salary_max":80000,"created":"2026-06-01T10:00:00Z"}
                         ]}
-                        """, MediaType.APPLICATION_JSON));
+                        """,
+                        MediaType.APPLICATION_JSON));
 
         List<RawJob> jobs = source.fetch(
                 new JobQuery(List.of("java", "entwickler"), "Berlin", null, false, 10),

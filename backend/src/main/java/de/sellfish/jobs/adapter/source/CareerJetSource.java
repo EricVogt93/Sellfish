@@ -1,19 +1,17 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 
 /**
  * CareerJet Job-Search-API (benötigt api_key, disabled by default).
@@ -33,7 +31,9 @@ public class CareerJetSource implements JobSource {
     }
 
     @Override
-    public String code() { return CODE; }
+    public String code() {
+        return CODE;
+    }
 
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
@@ -67,7 +67,8 @@ public class CareerJetSource implements JobSource {
 
     private RawJob toRawJob(JsonNode item) {
         String salary = JobSourceSupport.text(item, "salary");
-        return new RawJob(CODE,
+        return new RawJob(
+                CODE,
                 JobSourceSupport.text(item, "url"),
                 JobSourceSupport.text(item, "title"),
                 JobSourceSupport.text(item, "company"),
@@ -83,6 +84,8 @@ public class CareerJetSource implements JobSource {
     private String urlEncode(String s) {
         try {
             return java.net.URLEncoder.encode(s, java.nio.charset.StandardCharsets.UTF_8);
-        } catch (Exception e) { return s; }
+        } catch (Exception e) {
+            return s;
+        }
     }
 }

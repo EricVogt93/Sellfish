@@ -1,24 +1,22 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import de.sellfish.ai.LlmException;
-import de.sellfish.ai.LlmService;
-import de.sellfish.ai.model.ChatRequest;
-import de.sellfish.ai.model.ChatResult;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.sellfish.ai.LlmException;
+import de.sellfish.ai.LlmService;
+import de.sellfish.ai.model.ChatRequest;
+import de.sellfish.ai.model.ChatResult;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.RawJob;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
 
 class LlmWebSearchSourceTest {
 
@@ -28,13 +26,17 @@ class LlmWebSearchSourceTest {
     @Test
     void parsesJsonArrayFromModel() {
         when(llmService.chat(nullable(UUID.class), any(ChatRequest.class)))
-                .thenReturn(new ChatResult("""
+                .thenReturn(new ChatResult(
+                        """
                         ```json
                         [{"title":"Java Entwickler","company":"Acme","location":"Berlin",
                           "url":"https://x/1","description":"Spring"},
                          {"title":"","company":"Leer"}]
                         ```
-                        """, "m", null, null));
+                        """,
+                        "m",
+                        null,
+                        null));
 
         List<RawJob> jobs = source.fetch(new JobQuery(List.of("java"), "Berlin", null, false, 5), Map.of());
 
@@ -48,6 +50,7 @@ class LlmWebSearchSourceTest {
     void returnsEmptyWhenLlmUnavailable() {
         when(llmService.chat(nullable(UUID.class), any(ChatRequest.class)))
                 .thenThrow(new LlmException("kein Provider"));
-        assertThat(source.fetch(new JobQuery(List.of("x"), null, null, false, 5), Map.of())).isEmpty();
+        assertThat(source.fetch(new JobQuery(List.of("x"), null, null, false, 5), Map.of()))
+                .isEmpty();
     }
 }

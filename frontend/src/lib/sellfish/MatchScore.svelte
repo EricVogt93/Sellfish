@@ -1,16 +1,27 @@
 <script lang="ts">
-	import { scoreColor } from './data';
+	import { scoreColor } from './data'
 
-	let { score, size = 36 }: { score: number; size?: number } = $props();
+	let { score, size = 36 }: { score: number; size?: number } = $props()
 
-	const color = $derived(scoreColor(score));
-	const r = $derived((size - 5) / 2);
-	const c = $derived(2 * Math.PI * r);
+	const color = $derived(scoreColor(score))
+	const r = $derived((size - 5) / 2)
+	const c = $derived(2 * Math.PI * r)
 </script>
 
-<span class="aa-score-ring" title={`Match score ${score}`} style={`width:${size}px;height:${size}px;`}>
+<span
+	class="aa-score-ring"
+	title={`Match score ${score}`}
+	style={`width:${size}px;height:${size}px;`}
+>
 	<svg width={size} height={size}>
-		<circle cx={size / 2} cy={size / 2} {r} fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="3"></circle>
+		<circle
+			cx={size / 2}
+			cy={size / 2}
+			{r}
+			fill="none"
+			stroke="rgba(255,255,255,0.08)"
+			stroke-width="3"
+		></circle>
 		<circle
 			cx={size / 2}
 			cy={size / 2}

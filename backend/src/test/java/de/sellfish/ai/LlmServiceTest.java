@@ -1,20 +1,19 @@
 package de.sellfish.ai;
 
-import de.sellfish.ai.port.ChatProvider;
-import de.sellfish.ai.port.EmbeddingProvider;
-import de.sellfish.ai.model.ChatRequest;
-import de.sellfish.ai.model.ChatResult;
-import de.sellfish.ai.model.ResolvedModel;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.UUID;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import de.sellfish.ai.model.ChatRequest;
+import de.sellfish.ai.model.ChatResult;
+import de.sellfish.ai.model.ResolvedModel;
+import de.sellfish.ai.port.ChatProvider;
+import de.sellfish.ai.port.EmbeddingProvider;
+import java.util.List;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
 
 class LlmServiceTest {
 
@@ -59,7 +58,7 @@ class LlmServiceTest {
 
         EmbeddingProvider emb = mock(EmbeddingProvider.class);
         when(emb.supports(Provider.OLLAMA)).thenReturn(true);
-        when(emb.embed(any(), any())).thenReturn(new float[]{1f, 2f});
+        when(emb.embed(any(), any())).thenReturn(new float[] {1f, 2f});
         LlmService service = new LlmService(resolver, List.of(), List.of(emb));
 
         assertThat(service.embed(UUID.randomUUID(), "text")).containsExactly(1f, 2f);

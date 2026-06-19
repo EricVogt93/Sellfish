@@ -1,8 +1,6 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
+import de.sellfish.jobs.port.RawJob;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -14,8 +12,7 @@ import java.util.Locale;
  */
 public final class Fingerprints {
 
-    private Fingerprints() {
-    }
+    private Fingerprints() {}
 
     public static String of(RawJob job) {
         String basis;

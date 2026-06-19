@@ -1,18 +1,17 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Jobicy Remote-Jobs-API v2 (kostenlos, without Key, international/remote).
@@ -40,8 +39,7 @@ public class JobicySource implements JobSource {
         try {
             JsonNode response = client.get()
                     .uri(uri -> {
-                        var b = uri.path("/remote-jobs")
-                                .queryParam("count", Math.min(Math.max(query.size(), 1), 50));
+                        var b = uri.path("/remote-jobs").queryParam("count", Math.min(Math.max(query.size(), 1), 50));
                         if (!query.keywordString().isBlank()) {
                             b.queryParam("tag", query.keywordString());
                         }

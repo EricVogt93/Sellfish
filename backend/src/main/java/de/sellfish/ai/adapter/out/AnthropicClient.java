@@ -1,6 +1,4 @@
 package de.sellfish.ai.adapter.out;
-import de.sellfish.ai.port.ChatProvider;
-import de.sellfish.ai.port.EmbeddingProvider;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sellfish.ai.LlmException;
@@ -9,16 +7,16 @@ import de.sellfish.ai.model.ChatMessage;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
 import de.sellfish.ai.model.ResolvedModel;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-
+import de.sellfish.ai.port.ChatProvider;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 /**
  * Client für Anthropic (Claude). Embeddings werden von Anthropic nicht angeboten.
@@ -40,8 +38,8 @@ public class AnthropicClient implements ChatProvider {
     }
 
     private String baseUrl(ResolvedModel model) {
-        String base = (model.baseUrl() == null || model.baseUrl().isBlank())
-                ? "https://api.anthropic.com" : model.baseUrl();
+        String base =
+                (model.baseUrl() == null || model.baseUrl().isBlank()) ? "https://api.anthropic.com" : model.baseUrl();
         return base.replaceAll("/+$", "");
     }
 
@@ -93,8 +91,12 @@ public class AnthropicClient implements ChatProvider {
             return new ChatResult(
                     text.asText(),
                     response.path("model").asText(model.model()),
-                    usage.path("input_tokens").isNumber() ? usage.get("input_tokens").asInt() : null,
-                    usage.path("output_tokens").isNumber() ? usage.get("output_tokens").asInt() : null);
+                    usage.path("input_tokens").isNumber()
+                            ? usage.get("input_tokens").asInt()
+                            : null,
+                    usage.path("output_tokens").isNumber()
+                            ? usage.get("output_tokens").asInt()
+                            : null);
         } catch (RestClientException e) {
             throw new LlmException("Anthropic-Aufruf failed: " + e.getMessage(), e);
         }

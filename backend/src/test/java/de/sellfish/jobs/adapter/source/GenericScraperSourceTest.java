@@ -1,21 +1,20 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
-
-import org.jsoup.Jsoup;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.RawJob;
+import java.util.List;
+import java.util.Map;
+import org.jsoup.Jsoup;
+import org.junit.jupiter.api.Test;
 
 class GenericScraperSourceTest {
 
     private final GenericScraperSource source = new GenericScraperSource();
 
-    private static final String HTML = """
+    private static final String HTML =
+            """
             <html><body>
               <div class="job">
                 <a class="title" href="/jobs/1">Java Entwickler</a>
@@ -58,6 +57,7 @@ class GenericScraperSourceTest {
 
     @Test
     void fetchWithoutConfigReturnsEmpty() {
-        assertThat(source.fetch(new JobQuery(List.of("x"), null, null, false, 5), Map.of())).isEmpty();
+        assertThat(source.fetch(new JobQuery(List.of("x"), null, null, false, 5), Map.of()))
+                .isEmpty();
     }
 }

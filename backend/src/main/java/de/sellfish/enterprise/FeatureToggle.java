@@ -1,16 +1,14 @@
 package de.sellfish.enterprise;
 
-import de.sellfish.enterprise.LicenseValidator.LicensePayload;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import org.springframework.boot.autoconfigure.condition.ConditionOutcome;
 import org.springframework.boot.autoconfigure.condition.SpringBootCondition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.core.type.AnnotatedTypeMetadata;
-
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 
 /**
  * Aktiviert eine Bean/Methode nur, wenn das angegebene Enterprise-Feature aktiv ist
@@ -30,7 +28,8 @@ public @interface FeatureToggle {
 
         @Override
         public ConditionOutcome getMatchOutcome(ConditionContext context, AnnotatedTypeMetadata metadata) {
-            String feature = (String) metadata.getAnnotationAttributes(FeatureToggle.class.getName()).get("value");
+            String feature = (String) metadata.getAnnotationAttributes(FeatureToggle.class.getName())
+                    .get("value");
             if (feature == null || feature.isBlank()) {
                 return ConditionOutcome.match("no feature specified — allowing");
             }

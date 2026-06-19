@@ -19,8 +19,7 @@ public interface StorageService {
      * Erzeugt einen kollisionsfreien, nutzer-gescopten storage key.
      */
     default String newKey(UUID userId, String category, String filename) {
-        String safe = filename == null ? "file"
-                : filename.replaceAll("[^A-Za-z0-9._-]", "_");
+        String safe = filename == null ? "file" : filename.replaceAll("[^A-Za-z0-9._-]", "_");
         return "%s/%s/%s-%s".formatted(userId, category, UUID.randomUUID(), safe);
     }
 }

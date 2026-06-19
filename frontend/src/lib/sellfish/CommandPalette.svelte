@@ -1,19 +1,19 @@
 <script lang="ts">
-	import Icon from './Icon.svelte';
-	import Kbd from './Kbd.svelte';
-	import CompanyMark from './CompanyMark.svelte';
-	import type { Job } from './data';
+	import Icon from './Icon.svelte'
+	import Kbd from './Kbd.svelte'
+	import CompanyMark from './CompanyMark.svelte'
+	import type { Job } from './data'
 
 	interface NavItem {
-		id: string;
-		label: string;
-		icon: string;
-		key: string;
+		id: string
+		label: string
+		icon: string
+		key: string
 	}
 
 	type Result =
 		| { kind: 'nav'; id: string; label: string; icon: string; hint: string }
-		| { kind: 'job'; id: string; label: string; sub: string; job: Job };
+		| { kind: 'job'; id: string; label: string; sub: string; job: Job }
 
 	let {
 		jobs,
@@ -22,20 +22,20 @@
 		onGo,
 		onJob
 	}: {
-		jobs: Job[];
-		nav: NavItem[];
-		onClose: () => void;
-		onGo: (view: string) => void;
-		onJob: (id: string) => void;
-	} = $props();
+		jobs: Job[]
+		nav: NavItem[]
+		onClose: () => void
+		onGo: (view: string) => void
+		onJob: (id: string) => void
+	} = $props()
 
-	let q = $state('');
-	let idx = $state(0);
-	let inputEl: HTMLInputElement | undefined = $state();
+	let q = $state('')
+	let idx = $state(0)
+	let inputEl: HTMLInputElement | undefined = $state()
 
 	$effect(() => {
-		inputEl?.focus();
-	});
+		inputEl?.focus()
+	})
 
 	const results = $derived.by<Result[]>(() => {
 		const actions: Result[] = nav.map((n) => ({
@@ -44,12 +44,14 @@
 			label: `Go to ${n.label}`,
 			icon: n.icon,
 			hint: n.key
-		}));
-		const ql = q.toLowerCase();
+		}))
+		const ql = q.toLowerCase()
 		return [
 			...(q ? actions.filter((a) => a.label.toLowerCase().includes(ql)) : actions),
 			...jobs
-				.filter((j) => !q || (j.title + ' ' + j.company + ' ' + j.location).toLowerCase().includes(ql))
+				.filter(
+					(j) => !q || (j.title + ' ' + j.company + ' ' + j.location).toLowerCase().includes(ql)
+				)
 				.slice(0, q ? 8 : 4)
 				.map((j) => ({
 					kind: 'job' as const,
@@ -58,23 +60,23 @@
 					sub: `${j.company} · ${j.location}`,
 					job: j
 				}))
-		];
-	});
+		]
+	})
 
 	function pick(r: Result) {
-		if (r.kind === 'nav') onGo(r.id);
-		else onJob(r.id);
+		if (r.kind === 'nav') onGo(r.id)
+		else onJob(r.id)
 	}
 
 	function onKeydown(e: KeyboardEvent) {
 		if (e.key === 'ArrowDown') {
-			e.preventDefault();
-			idx = Math.min(idx + 1, results.length - 1);
+			e.preventDefault()
+			idx = Math.min(idx + 1, results.length - 1)
 		} else if (e.key === 'ArrowUp') {
-			e.preventDefault();
-			idx = Math.max(idx - 1, 0);
+			e.preventDefault()
+			idx = Math.max(idx - 1, 0)
 		} else if (e.key === 'Enter' && results[idx]) {
-			pick(results[idx]);
+			pick(results[idx])
 		}
 	}
 </script>
@@ -83,7 +85,7 @@
 	class="aa-modal-overlay aa-palette-overlay"
 	role="presentation"
 	onclick={(e) => {
-		if (e.target === e.currentTarget) onClose();
+		if (e.target === e.currentTarget) onClose()
 	}}
 >
 	<div class="aa-palette">

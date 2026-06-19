@@ -17,15 +17,13 @@ import de.sellfish.profile.ProfileRepository;
 import de.sellfish.storage.port.StorageService;
 import de.sellfish.users.User;
 import de.sellfish.users.UserRepository;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * DSGVO-Funktionen: vollständiger Datenexport und Account-Löschung eines Nutzers.
@@ -47,17 +45,18 @@ public class AccountService {
     private final LlmProviderConfigRepository llmConfigRepository;
     private final StorageService storage;
 
-    public AccountService(UserRepository userRepository,
-                          ProfileRepository profileRepository,
-                          PreferencesRepository preferencesRepository,
-                          CvStructuredRepository cvRepository,
-                          ProjectRepository projectRepository,
-                          DocumentRepository documentRepository,
-                          JobMatchRepository matchRepository,
-                          GeneratedDocumentRepository generatedRepository,
-                          FeedbackEventRepository feedbackRepository,
-                          LlmProviderConfigRepository llmConfigRepository,
-                          StorageService storage) {
+    public AccountService(
+            UserRepository userRepository,
+            ProfileRepository profileRepository,
+            PreferencesRepository preferencesRepository,
+            CvStructuredRepository cvRepository,
+            ProjectRepository projectRepository,
+            DocumentRepository documentRepository,
+            JobMatchRepository matchRepository,
+            GeneratedDocumentRepository generatedRepository,
+            FeedbackEventRepository feedbackRepository,
+            LlmProviderConfigRepository llmConfigRepository,
+            StorageService storage) {
         this.userRepository = userRepository;
         this.profileRepository = profileRepository;
         this.preferencesRepository = preferencesRepository;
@@ -73,8 +72,7 @@ public class AccountService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> export(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+        User user = userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
 
         Map<String, Object> data = new LinkedHashMap<>();
         Map<String, Object> account = new LinkedHashMap<>();
@@ -89,14 +87,23 @@ public class AccountService {
         data.put("preferences", preferencesRepository.findByUserId(userId).orElse(null));
         data.put("cv", cvRepository.findByUserId(userId).orElse(null));
         data.put("projects", projectRepository.findByUserIdOrderByCreatedAtDesc(userId));
-        data.put("documents", documentRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
-                .map(this::documentView).toList());
-        data.put("matches", matchRepository.findByUserId(userId).stream()
-                .map(this::matchView).toList());
+        data.put(
+                "documents",
+                documentRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+                        .map(this::documentView)
+                        .toList());
+        data.put(
+                "matches",
+                matchRepository.findByUserId(userId).stream()
+                        .map(this::matchView)
+                        .toList());
         data.put("generatedDocuments", generatedRepository.findByUserIdOrderByCreatedAtDesc(userId));
         data.put("feedback", feedbackRepository.findByUserIdOrderByTsDesc(userId));
-        data.put("llmProviders", llmConfigRepository.findByUserId(userId).stream()
-                .map(this::providerView).toList());
+        data.put(
+                "llmProviders",
+                llmConfigRepository.findByUserId(userId).stream()
+                        .map(this::providerView)
+                        .toList());
         return data;
     }
 

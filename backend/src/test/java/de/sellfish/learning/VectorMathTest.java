@@ -1,17 +1,16 @@
 package de.sellfish.learning;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+
+import java.util.List;
+import org.junit.jupiter.api.Test;
 
 class VectorMathTest {
 
     @Test
     void centroidAveragesComponentwise() {
-        float[] c = VectorMath.centroid(List.of(new float[]{0, 2}, new float[]{2, 4}));
+        float[] c = VectorMath.centroid(List.of(new float[] {0, 2}, new float[] {2, 4}));
         assertThat(c).containsExactly(1f, 3f);
     }
 
@@ -22,7 +21,7 @@ class VectorMathTest {
 
     @Test
     void normalizeYieldsUnitLength() {
-        float[] n = VectorMath.normalize(new float[]{3, 4});
+        float[] n = VectorMath.normalize(new float[] {3, 4});
         double len = Math.sqrt(n[0] * n[0] + n[1] * n[1]);
         assertThat(len).isCloseTo(1.0, within(1e-6));
     }
@@ -40,7 +39,7 @@ class VectorMathTest {
 
     @Test
     void mismatchedDimensionsRejected() {
-        org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException.class,
-                () -> VectorMath.blend(new float[]{1}, new float[]{1, 2}, 0.5));
+        org.junit.jupiter.api.Assertions.assertThrows(
+                IllegalArgumentException.class, () -> VectorMath.blend(new float[] {1}, new float[] {1, 2}, 0.5));
     }
 }

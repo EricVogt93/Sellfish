@@ -2,11 +2,10 @@ package de.sellfish.enterprise;
 
 import de.sellfish.enterprise.LicenseValidator.LicensePayload;
 import jakarta.annotation.PostConstruct;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
 
 /**
  * Zentraler Dienst für License- und Feature-Toggle-Logik.
@@ -56,8 +55,7 @@ public class LicenseService {
         }
         licenseRepository.deleteAll();
         LicenseEntity entity = new LicenseEntity(
-                licenseKey, payload.subject(), payload.expires(),
-                String.join(",", payload.features()));
+                licenseKey, payload.subject(), payload.expires(), String.join(",", payload.features()));
         licenseRepository.save(entity);
         activePayload = payload;
         log.info("License aktiviert: sub={}, features={}", payload.subject(), payload.features());
@@ -109,11 +107,14 @@ public class LicenseService {
         return set;
     }
 
-    public record LicenseStatus(boolean valid, String subject, java.time.Instant expires,
-                                Set<String> licenseFeatures, Set<String> configFeatures) {
+    public record LicenseStatus(
+            boolean valid,
+            String subject,
+            java.time.Instant expires,
+            Set<String> licenseFeatures,
+            Set<String> configFeatures) {
         public static LicenseStatus noLicense(boolean enterpriseEnabled) {
-            return new LicenseStatus(false, null, null, Set.of(),
-                    enterpriseEnabled ? Set.of() : Set.of());
+            return new LicenseStatus(false, null, null, Set.of(), enterpriseEnabled ? Set.of() : Set.of());
         }
     }
 }

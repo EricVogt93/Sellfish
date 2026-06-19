@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Icon from './Icon.svelte';
-	import { FILTERS, type Job } from './data';
+	import Icon from './Icon.svelte'
+	import { FILTERS, type Job } from './data'
 
-	let { job }: { job: Job } = $props();
+	let { job }: { job: Job } = $props()
 </script>
 
 <div class="aa-chips">

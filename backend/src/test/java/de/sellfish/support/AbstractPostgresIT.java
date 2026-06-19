@@ -18,8 +18,7 @@ public abstract class AbstractPostgresIT {
 
     @Container
     static final PostgreSQLContainer<?> POSTGRES = new PostgreSQLContainer<>(
-            DockerImageName.parse("pgvector/pgvector:pg16")
-                    .asCompatibleSubstituteFor("postgres"))
+                    DockerImageName.parse("pgvector/pgvector:pg16").asCompatibleSubstituteFor("postgres"))
             .withDatabaseName("sellfish")
             .withUsername("test")
             .withPassword("test");

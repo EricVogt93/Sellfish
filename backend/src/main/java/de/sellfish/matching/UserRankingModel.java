@@ -4,11 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "user_ranking_model")
@@ -37,8 +36,7 @@ public class UserRankingModel {
     @Column(name = "trained_at", nullable = false)
     private Instant trainedAt = Instant.now();
 
-    protected UserRankingModel() {
-    }
+    protected UserRankingModel() {}
 
     public UserRankingModel(UUID userId, int version) {
         this.userId = userId;

@@ -4,10 +4,9 @@ import de.sellfish.common.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "projects")
@@ -30,8 +29,7 @@ public class Project extends BaseEntity {
     @Column(columnDefinition = "text")
     private String description;
 
-    protected Project() {
-    }
+    protected Project() {}
 
     public Project(UUID userId, String title) {
         this.userId = userId;

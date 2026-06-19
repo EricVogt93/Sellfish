@@ -1,18 +1,17 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Remote.co — kuratierte Remote-Jobs mit JSON-API (keyless).
@@ -33,7 +32,9 @@ public class RemoteCoSource implements JobSource {
     }
 
     @Override
-    public String code() { return CODE; }
+    public String code() {
+        return CODE;
+    }
 
     @Override
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
@@ -41,7 +42,8 @@ public class RemoteCoSource implements JobSource {
             JsonNode response = client.get()
                     .uri("/remote-jobs/search?search="
                             + urlEncode(query.keywordString().isBlank() ? "developer" : query.keywordString()))
-                    .retrieve().body(JsonNode.class);
+                    .retrieve()
+                    .body(JsonNode.class);
             if (response == null || !response.isArray()) return List.of();
             List<RawJob> jobs = new ArrayList<>();
             for (JsonNode item : response) {
@@ -58,7 +60,8 @@ public class RemoteCoSource implements JobSource {
     }
 
     private RawJob toRawJob(JsonNode item) {
-        return new RawJob(CODE,
+        return new RawJob(
+                CODE,
                 JobSourceSupport.text(item, "id"),
                 JobSourceSupport.text(item, "job_title"),
                 JobSourceSupport.text(item, "company_name"),
@@ -72,7 +75,10 @@ public class RemoteCoSource implements JobSource {
     }
 
     private String urlEncode(String s) {
-        try { return java.net.URLEncoder.encode(s, java.nio.charset.StandardCharsets.UTF_8); }
-        catch (Exception e) { return s; }
+        try {
+            return java.net.URLEncoder.encode(s, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return s;
+        }
     }
 }

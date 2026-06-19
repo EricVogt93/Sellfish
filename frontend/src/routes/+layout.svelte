@@ -1,7 +1,7 @@
 <script lang="ts">
-	import '$lib/sellfish/styles.css';
+	import '$lib/sellfish/styles.css'
 
-	let { children } = $props();
+	let { children } = $props()
 </script>
 
 {@render children()}

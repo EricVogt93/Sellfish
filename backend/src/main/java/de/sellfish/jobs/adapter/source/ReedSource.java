@@ -1,15 +1,9 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
@@ -19,6 +13,11 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 /**
  * Reed.co.uk-API (UK). Benötigt {@code api_key} (HTTP-Basic, Key als Benutzername) in der Config.
@@ -49,8 +48,7 @@ public class ReedSource implements JobSource {
             log.warn("Reed without api_key configured - skipped");
             return List.of();
         }
-        String basic = Base64.getEncoder()
-                .encodeToString((apiKey + ":").getBytes(StandardCharsets.UTF_8));
+        String basic = Base64.getEncoder().encodeToString((apiKey + ":").getBytes(StandardCharsets.UTF_8));
         try {
             RestClient client = builder.baseUrl(BASE_URL).build();
             JsonNode response = client.get()
@@ -85,7 +83,8 @@ public class ReedSource implements JobSource {
     private RawJob toRawJob(JsonNode item) {
         String salary = null;
         if (item.path("minimumSalary").isNumber()) {
-            salary = item.path("minimumSalary").asText() + "–" + item.path("maximumSalary").asText("");
+            salary = item.path("minimumSalary").asText() + "–"
+                    + item.path("maximumSalary").asText("");
         }
         return new RawJob(
                 CODE,

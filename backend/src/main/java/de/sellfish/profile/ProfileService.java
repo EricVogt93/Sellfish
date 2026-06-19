@@ -1,9 +1,8 @@
 package de.sellfish.profile;
 
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.UUID;
 
 @Service
 public class ProfileService {
@@ -18,13 +17,13 @@ public class ProfileService {
 
     @Transactional
     public UserProfile getOrCreateProfile(UUID userId) {
-        return profileRepository.findByUserId(userId)
-                .orElseGet(() -> profileRepository.save(new UserProfile(userId)));
+        return profileRepository.findByUserId(userId).orElseGet(() -> profileRepository.save(new UserProfile(userId)));
     }
 
     @Transactional
     public UserPreferences getOrCreatePreferences(UUID userId) {
-        return preferencesRepository.findByUserId(userId)
+        return preferencesRepository
+                .findByUserId(userId)
                 .orElseGet(() -> preferencesRepository.save(new UserPreferences(userId)));
     }
 

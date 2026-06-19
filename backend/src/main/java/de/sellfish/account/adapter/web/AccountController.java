@@ -2,14 +2,13 @@ package de.sellfish.account.adapter.web;
 
 import de.sellfish.account.AccountService;
 import de.sellfish.common.security.CurrentUser;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Map;
 
 /**
  * Inbound-Adapter für DSGVO-Selbstbedienung: Datenexport und Account-Löschung.

@@ -12,11 +12,10 @@ import de.sellfish.users.Role;
 import de.sellfish.users.User;
 import de.sellfish.users.UserRepository;
 import de.sellfish.users.UserStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Administrative Funktionen: Nutzerverwaltung, Job-Quellen und globale LLM-Konfiguration.
@@ -29,10 +28,11 @@ public class AdminService {
     private final LlmProviderConfigRepository llmConfigRepository;
     private final CryptoService cryptoService;
 
-    public AdminService(UserRepository userRepository,
-                        JobSourceConfigRepository jobSourceRepository,
-                        LlmProviderConfigRepository llmConfigRepository,
-                        CryptoService cryptoService) {
+    public AdminService(
+            UserRepository userRepository,
+            JobSourceConfigRepository jobSourceRepository,
+            LlmProviderConfigRepository llmConfigRepository,
+            CryptoService cryptoService) {
         this.userRepository = userRepository;
         this.jobSourceRepository = jobSourceRepository;
         this.llmConfigRepository = llmConfigRepository;
@@ -65,7 +65,8 @@ public class AdminService {
 
     @Transactional
     public JobSourceConfig updateJobSource(String code, Boolean enabled, String config) {
-        JobSourceConfig source = jobSourceRepository.findByCode(code)
+        JobSourceConfig source = jobSourceRepository
+                .findByCode(code)
                 .orElseThrow(() -> ApiException.notFound("Job-Quelle nicht gefunden: " + code));
         if (enabled != null) {
             source.setEnabled(enabled);
@@ -82,9 +83,14 @@ public class AdminService {
     }
 
     @Transactional
-    public LlmProviderConfig createGlobalLlmConfig(Provider provider, String model, Purpose purpose,
-                                                   String baseUrl, String keyRef, String apiKey,
-                                                   boolean isDefault) {
+    public LlmProviderConfig createGlobalLlmConfig(
+            Provider provider,
+            String model,
+            Purpose purpose,
+            String baseUrl,
+            String keyRef,
+            String apiKey,
+            boolean isDefault) {
         List<LlmProviderConfig> globals = llmConfigRepository.findAllGlobal();
 
         // API-Key pro Provider (baseUrl) wiederverwenden: bleibt das Feld leer, ziehen wir den
@@ -96,9 +102,11 @@ public class AdminService {
         } else if (baseUrl != null) {
             keyEnc = globals.stream()
                     .filter(c -> baseUrl.equals(c.getBaseUrl())
-                            && c.getKeyEnc() != null && !c.getKeyEnc().isBlank())
+                            && c.getKeyEnc() != null
+                            && !c.getKeyEnc().isBlank())
                     .map(LlmProviderConfig::getKeyEnc)
-                    .findFirst().orElse(null);
+                    .findFirst()
+                    .orElse(null);
         }
 
         // Upsert: vorhandene globale Config mit gleicher purpose+baseUrl+model wiederverwenden,
@@ -134,7 +142,8 @@ public class AdminService {
 
     @Transactional
     public void deleteGlobalLlmConfig(UUID id) {
-        LlmProviderConfig config = llmConfigRepository.findById(id)
+        LlmProviderConfig config = llmConfigRepository
+                .findById(id)
                 .orElseThrow(() -> ApiException.notFound("Konfiguration nicht gefunden"));
         if (config.getUserId() != null) {
             throw ApiException.badRequest("Keine globale Konfiguration");
@@ -143,7 +152,6 @@ public class AdminService {
     }
 
     private User user(UUID userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
+        return userRepository.findById(userId).orElseThrow(() -> ApiException.notFound("Nutzer nicht gefunden"));
     }
 }

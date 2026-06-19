@@ -1,11 +1,13 @@
 package de.sellfish.ai.adapter.web;
-import de.sellfish.ai.*;
 
+import de.sellfish.ai.*;
 import de.sellfish.ai.LlmConfigDtos.ConfigRequest;
 import de.sellfish.ai.LlmConfigDtos.ConfigResponse;
 import de.sellfish.ai.LlmConfigDtos.TestResult;
 import de.sellfish.common.security.CurrentUser;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,9 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/llm/configs")

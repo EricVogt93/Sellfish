@@ -1,9 +1,8 @@
 package de.sellfish.cv;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CvStructuredRepository extends JpaRepository<CvStructured, UUID> {
 

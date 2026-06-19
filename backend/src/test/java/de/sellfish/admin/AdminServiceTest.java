@@ -1,5 +1,13 @@
 package de.sellfish.admin;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import de.sellfish.ai.LlmProviderConfig;
 import de.sellfish.ai.LlmProviderConfigRepository;
 import de.sellfish.ai.Provider;
@@ -10,19 +18,10 @@ import de.sellfish.common.error.ApiException;
 import de.sellfish.jobs.JobSourceConfig;
 import de.sellfish.jobs.JobSourceConfigRepository;
 import de.sellfish.users.UserRepository;
-import org.junit.jupiter.api.Test;
-
 import java.util.Base64;
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.Test;
 
 class AdminServiceTest {
 
@@ -32,8 +31,8 @@ class AdminServiceTest {
     private final CryptoService cryptoService = new CryptoService(
             new CryptoProperties(Base64.getEncoder().encodeToString("0123456789abcdef0123456789abcdef".getBytes())));
 
-    private final AdminService service = new AdminService(
-            userRepository, jobSourceRepository, llmConfigRepository, cryptoService);
+    private final AdminService service =
+            new AdminService(userRepository, jobSourceRepository, llmConfigRepository, cryptoService);
 
     @Test
     void updateJobSourceTogglesEnabled() {
@@ -50,16 +49,15 @@ class AdminServiceTest {
     @Test
     void updateUnknownJobSourceThrows() {
         when(jobSourceRepository.findByCode("NOPE")).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> service.updateJobSource("NOPE", true, null))
-                .isInstanceOf(ApiException.class);
+        assertThatThrownBy(() -> service.updateJobSource("NOPE", true, null)).isInstanceOf(ApiException.class);
     }
 
     @Test
     void createGlobalConfigEncryptsApiKey() {
         when(llmConfigRepository.save(any(LlmProviderConfig.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        LlmProviderConfig saved = service.createGlobalLlmConfig(
-                Provider.OPENAI, "gpt-4o", Purpose.CHAT, null, null, "sk-secret", true);
+        LlmProviderConfig saved =
+                service.createGlobalLlmConfig(Provider.OPENAI, "gpt-4o", Purpose.CHAT, null, null, "sk-secret", true);
 
         assertThat(saved.getUserId()).isNull();
         assertThat(saved.getKeyEnc()).isNotNull();

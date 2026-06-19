@@ -3,13 +3,12 @@ package de.sellfish.docs;
 import de.sellfish.common.error.ApiException;
 import de.sellfish.cv.CvParsingService;
 import de.sellfish.storage.port.StorageService;
+import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class DocumentService {
@@ -21,10 +20,11 @@ public class DocumentService {
     private final TextExtractionService textExtraction;
     private final CvParsingService cvParsingService;
 
-    public DocumentService(DocumentRepository repository,
-                           StorageService storage,
-                           TextExtractionService textExtraction,
-                           CvParsingService cvParsingService) {
+    public DocumentService(
+            DocumentRepository repository,
+            StorageService storage,
+            TextExtractionService textExtraction,
+            CvParsingService cvParsingService) {
         this.repository = repository;
         this.storage = storage;
         this.textExtraction = textExtraction;
@@ -119,26 +119,23 @@ public class DocumentService {
     @Transactional
     public Document setPrimary(UUID userId, UUID id) {
         Document doc = owned(userId, id);
-        repository.findByUserIdAndType(userId, doc.getType())
-                .forEach(d -> {
-                    if (d.isPrimary()) {
-                        d.setPrimary(false);
-                        repository.save(d);
-                    }
-                });
+        repository.findByUserIdAndType(userId, doc.getType()).forEach(d -> {
+            if (d.isPrimary()) {
+                d.setPrimary(false);
+                repository.save(d);
+            }
+        });
         doc.setPrimary(true);
         return repository.save(doc);
     }
 
     private Document owned(UUID userId, UUID id) {
-        Document doc = repository.findById(id)
-                .orElseThrow(() -> ApiException.notFound("Dokument nicht gefunden"));
+        Document doc = repository.findById(id).orElseThrow(() -> ApiException.notFound("Dokument nicht gefunden"));
         if (!doc.getUserId().equals(userId)) {
             throw ApiException.notFound("Dokument nicht gefunden");
         }
         return doc;
     }
 
-    public record DownloadedFile(String filename, String mime, byte[] content) {
-    }
+    public record DownloadedFile(String filename, String mime, byte[] content) {}
 }

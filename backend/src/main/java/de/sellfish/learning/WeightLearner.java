@@ -2,7 +2,6 @@ package de.sellfish.learning;
 
 import de.sellfish.matching.Features;
 import de.sellfish.matching.Weights;
-
 import java.util.List;
 
 /**
@@ -14,8 +13,7 @@ public final class WeightLearner {
     private static final double LEARNING_RATE = 0.3;
     private static final double L2 = 0.01;
 
-    private WeightLearner() {
-    }
+    private WeightLearner() {}
 
     public static LearnResult learn(List<Features> samples, double[] labels) {
         if (samples.size() != labels.length) {
@@ -35,9 +33,7 @@ public final class WeightLearner {
             w[i] = Math.max(0, coef[i]);
             sum += w[i];
         }
-        Weights weights = sum == 0
-                ? Weights.defaults()
-                : new Weights(w[0], w[1], w[2], w[3], w[4], w[5], w[6], w[7]);
+        Weights weights = sum == 0 ? Weights.defaults() : new Weights(w[0], w[1], w[2], w[3], w[4], w[5], w[6], w[7]);
 
         return new LearnResult(weights, model.accuracy(x, labels), samples.size());
     }
@@ -46,6 +42,5 @@ public final class WeightLearner {
         return f.toArray();
     }
 
-    public record LearnResult(Weights weights, double accuracy, int samples) {
-    }
+    public record LearnResult(Weights weights, double accuracy, int samples) {}
 }

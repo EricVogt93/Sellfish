@@ -6,11 +6,10 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.time.Instant;
 import java.util.UUID;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "audit_events")
@@ -56,14 +55,43 @@ public class AuditEvent {
         this.details = details != null ? details : "{}";
     }
 
-    public UUID getId() { return id; }
-    public UUID getOrgId() { return orgId; }
-    public UUID getUserId() { return userId; }
-    public AuditAction getAction() { return action; }
-    public String getTargetType() { return targetType; }
-    public String getTargetId() { return targetId; }
-    public String getDetails() { return details; }
-    public String getIp() { return ip; }
-    public void setIp(String ip) { this.ip = ip; }
-    public Instant getTs() { return ts; }
+    public UUID getId() {
+        return id;
+    }
+
+    public UUID getOrgId() {
+        return orgId;
+    }
+
+    public UUID getUserId() {
+        return userId;
+    }
+
+    public AuditAction getAction() {
+        return action;
+    }
+
+    public String getTargetType() {
+        return targetType;
+    }
+
+    public String getTargetId() {
+        return targetId;
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public Instant getTs() {
+        return ts;
+    }
 }

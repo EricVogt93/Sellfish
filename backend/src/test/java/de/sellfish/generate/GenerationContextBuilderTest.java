@@ -1,5 +1,10 @@
 package de.sellfish.generate;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import de.sellfish.cv.CvStructured;
 import de.sellfish.cv.CvStructuredRepository;
 import de.sellfish.cv.Project;
@@ -7,16 +12,10 @@ import de.sellfish.cv.ProjectRepository;
 import de.sellfish.jobs.Job;
 import de.sellfish.profile.ProfileRepository;
 import de.sellfish.profile.UserProfile;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.jupiter.api.Test;
 
 class GenerationContextBuilderTest {
 
@@ -44,7 +43,7 @@ class GenerationContextBuilderTest {
 
         Project project = new Project(userId, "Zahlungsplattform");
         project.setRole("Lead");
-        project.setTech(new String[]{"Java", "Kafka"});
+        project.setTech(new String[] {"Java", "Kafka"});
         when(projectRepository.findByUserIdOrderByCreatedAtDesc(userId)).thenReturn(List.of(project));
 
         String context = builder.build(userId, job);

@@ -1,9 +1,8 @@
 package de.sellfish.tenant;
 
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OrganizationRepository extends JpaRepository<Organization, UUID> {
 

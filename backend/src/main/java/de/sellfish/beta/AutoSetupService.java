@@ -8,21 +8,18 @@ import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
 import de.sellfish.cv.CvStructured;
 import de.sellfish.cv.CvStructuredRepository;
-import de.sellfish.profile.ProfileDtos;
+import de.sellfish.jobs.JobSearchService;
 import de.sellfish.profile.ProfileRepository;
 import de.sellfish.profile.ProfileService;
 import de.sellfish.profile.UserPreferences;
 import de.sellfish.profile.UserProfile;
-import de.sellfish.jobs.JobSearchService;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 @Service
 public class AutoSetupService {
@@ -36,12 +33,13 @@ public class AutoSetupService {
     private final JobSearchService jobSearchService;
     private final ObjectMapper mapper;
 
-    public AutoSetupService(LlmService llmService,
-                            CvStructuredRepository cvRepository,
-                            ProfileRepository profileRepository,
-                            ProfileService profileService,
-                            JobSearchService jobSearchService,
-                            ObjectMapper mapper) {
+    public AutoSetupService(
+            LlmService llmService,
+            CvStructuredRepository cvRepository,
+            ProfileRepository profileRepository,
+            ProfileService profileService,
+            JobSearchService jobSearchService,
+            ObjectMapper mapper) {
         this.llmService = llmService;
         this.cvRepository = cvRepository;
         this.profileRepository = profileRepository;
@@ -58,8 +56,8 @@ public class AutoSetupService {
         }
 
         String cvData = buildCvText(cv);
-        String personalMeta = profileRepository.findByUserId(userId)
-                .map(p -> p.getMeta()).orElse("{}");
+        String personalMeta =
+                profileRepository.findByUserId(userId).map(p -> p.getMeta()).orElse("{}");
         String json = extractProfileJson(userId, cvData, personalMeta);
         ProfileData parsed = parseProfileJson(json);
 
@@ -85,8 +83,12 @@ public class AutoSetupService {
         profileService.save(prefs);
 
         StringBuilder summary = new StringBuilder();
-        summary.append("Profile: ").append(parsed.headline() != null ? "✓" : "—").append(", ");
-        summary.append("Titles: ").append(parsed.titles() != null ? parsed.titles().length : 0).append(", ");
+        summary.append("Profile: ")
+                .append(parsed.headline() != null ? "✓" : "—")
+                .append(", ");
+        summary.append("Titles: ")
+                .append(parsed.titles() != null ? parsed.titles().length : 0)
+                .append(", ");
         summary.append("Keywords: ").append(parsed.keywords() != null ? parsed.keywords().length : 0);
 
         jobSearchService.runForUser(userId);
@@ -95,7 +97,8 @@ public class AutoSetupService {
     }
 
     private String extractProfileJson(UUID userId, String cvData, String personalMeta) {
-        String prompt = """
+        String prompt =
+                """
                 Extract structured profile data from this CV%s. Return ONLY valid JSON.
 
                 {
@@ -111,17 +114,22 @@ public class AutoSetupService {
                 CV Data:
                 %s
 
-                JSON:""".formatted(
-                personalMeta != null && !personalMeta.equals("{}")
-                        ? " and this personal context: " + personalMeta : "",
-                cvData);
+                JSON:"""
+                        .formatted(
+                                personalMeta != null && !personalMeta.equals("{}")
+                                        ? " and this personal context: " + personalMeta
+                                        : "",
+                                cvData);
 
-        ChatResult result = llmService.chat(userId, ChatRequest.of(
-                "You extract structured data from CVs. Reply ONLY with valid JSON, no markdown.",
-                prompt));
+        ChatResult result = llmService.chat(
+                userId,
+                ChatRequest.of(
+                        "You extract structured data from CVs. Reply ONLY with valid JSON, no markdown.", prompt));
         String content = result.content() != null ? result.content().trim() : "";
         if (content.startsWith("```")) {
-            content = content.replaceAll("```[a-z]*\n?", "").replaceAll("\n```", "").trim();
+            content = content.replaceAll("```[a-z]*\n?", "")
+                    .replaceAll("\n```", "")
+                    .trim();
         }
         return content;
     }
@@ -167,8 +175,14 @@ public class AutoSetupService {
         return list.toArray(new String[0]);
     }
 
-    public record ProfileData(String headline, String summary, String location, String remotePref,
-                               Integer salaryMin, String[] titles, String[] keywords) {}
+    public record ProfileData(
+            String headline,
+            String summary,
+            String location,
+            String remotePref,
+            Integer salaryMin,
+            String[] titles,
+            String[] keywords) {}
 
     public record SetupResult(String status, String message, ProfileData data) {}
 }

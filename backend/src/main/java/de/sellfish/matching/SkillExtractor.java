@@ -1,6 +1,5 @@
 package de.sellfish.matching;
 
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Locale;
 import java.util.Set;

@@ -1,25 +1,23 @@
 package de.sellfish.jobs.adapter.source;
-import de.sellfish.jobs.port.JobSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.queryParam;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
 import de.sellfish.jobs.port.JobQuery;
 import de.sellfish.jobs.port.RawJob;
-
+import java.util.List;
+import java.util.Map;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
-
-import java.util.List;
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.queryParam;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-import static org.springframework.http.HttpMethod.GET;
 
 class BundesagenturSourceTest {
 
@@ -40,23 +38,26 @@ class BundesagenturSourceTest {
                 .andExpect(method(GET))
                 .andExpect(header("X-API-Key", "jobboerse-jobsuche"))
                 .andExpect(queryParam("was", "java"))
-                .andRespond(withSuccess("""
+                .andRespond(withSuccess(
+                        """
                         {"stellenangebote":[
                           {"titel":"Java Entwickler","refnr":"10000-ABC",
                            "arbeitgeber":"Acme GmbH",
                            "arbeitsort":{"plz":"10115","ort":"Berlin","region":"Berlin"},
                            "aktuelleVeroeffentlichungsdatum":"2026-06-01"}
                         ]}
-                        """, MediaType.APPLICATION_JSON));
+                        """,
+                        MediaType.APPLICATION_JSON));
 
         server.expect(requestTo(Matchers.containsString("/pc/v4/jobdetails/")))
                 .andExpect(method(GET))
-                .andRespond(withSuccess("""
+                .andRespond(withSuccess(
+                        """
                         {"stellenbeschreibung":"Wir suchen einen Java-Entwickler."}
-                        """, MediaType.APPLICATION_JSON));
+                        """,
+                        MediaType.APPLICATION_JSON));
 
-        List<RawJob> jobs = source.fetch(
-                new JobQuery(List.of("java"), "Berlin", 50, false, 10), Map.of());
+        List<RawJob> jobs = source.fetch(new JobQuery(List.of("java"), "Berlin", 50, false, 10), Map.of());
 
         assertThat(jobs).hasSize(1);
         RawJob job = jobs.get(0);
@@ -74,6 +75,7 @@ class BundesagenturSourceTest {
     void emptyResponseYieldsEmptyList() {
         server.expect(requestTo(Matchers.containsString("/pc/v4/app/jobs")))
                 .andRespond(withSuccess("{\"stellenangebote\":[]}", MediaType.APPLICATION_JSON));
-        assertThat(source.fetch(new JobQuery(List.of("x"), null, null, false, 5), Map.of())).isEmpty();
+        assertThat(source.fetch(new JobQuery(List.of("x"), null, null, false, 5), Map.of()))
+                .isEmpty();
     }
 }

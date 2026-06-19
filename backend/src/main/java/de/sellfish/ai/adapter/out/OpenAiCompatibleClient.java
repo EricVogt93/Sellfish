@@ -1,6 +1,4 @@
 package de.sellfish.ai.adapter.out;
-import de.sellfish.ai.port.ChatProvider;
-import de.sellfish.ai.port.EmbeddingProvider;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import de.sellfish.ai.LlmException;
@@ -9,15 +7,16 @@ import de.sellfish.ai.model.ChatMessage;
 import de.sellfish.ai.model.ChatRequest;
 import de.sellfish.ai.model.ChatResult;
 import de.sellfish.ai.model.ResolvedModel;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
-
+import de.sellfish.ai.port.ChatProvider;
+import de.sellfish.ai.port.EmbeddingProvider;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 /**
  * Client für OpenAI und alle OpenAI-kompatiblen Endpunkte (NVIDIA NIM, OpenRouter, …).
@@ -33,9 +32,7 @@ public class OpenAiCompatibleClient implements ChatProvider, EmbeddingProvider {
 
     @Override
     public boolean supports(Provider provider) {
-        return provider == Provider.OPENAI
-                || provider == Provider.NIM
-                || provider == Provider.OPENAI_COMPATIBLE;
+        return provider == Provider.OPENAI || provider == Provider.NIM || provider == Provider.OPENAI_COMPATIBLE;
     }
 
     private String baseUrl(ResolvedModel model) {
@@ -45,8 +42,7 @@ public class OpenAiCompatibleClient implements ChatProvider, EmbeddingProvider {
         return switch (model.provider()) {
             case OPENAI -> "https://api.openai.com/v1";
             case NIM -> "https://integrate.api.nvidia.com/v1";
-            default -> throw new LlmException(
-                    "base_url ist für Provider " + model.provider() + " erforderlich");
+            default -> throw new LlmException("base_url ist für Provider " + model.provider() + " erforderlich");
         };
     }
 
@@ -75,8 +71,12 @@ public class OpenAiCompatibleClient implements ChatProvider, EmbeddingProvider {
         return new ChatResult(
                 choice.asText(),
                 response.path("model").asText(model.model()),
-                usage.path("prompt_tokens").isNumber() ? usage.get("prompt_tokens").asInt() : null,
-                usage.path("completion_tokens").isNumber() ? usage.get("completion_tokens").asInt() : null);
+                usage.path("prompt_tokens").isNumber()
+                        ? usage.get("prompt_tokens").asInt()
+                        : null,
+                usage.path("completion_tokens").isNumber()
+                        ? usage.get("completion_tokens").asInt()
+                        : null);
     }
 
     @Override

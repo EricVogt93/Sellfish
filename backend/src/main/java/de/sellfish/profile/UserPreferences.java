@@ -4,10 +4,9 @@ import de.sellfish.common.domain.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
+import java.util.UUID;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "user_preferences")
@@ -54,8 +53,7 @@ public class UserPreferences extends BaseEntity {
     @Column(name = "preferred_countries", columnDefinition = "text[]")
     private String[] preferredCountries = new String[0];
 
-    protected UserPreferences() {
-    }
+    protected UserPreferences() {}
 
     public UserPreferences(UUID userId) {
         this.userId = userId;

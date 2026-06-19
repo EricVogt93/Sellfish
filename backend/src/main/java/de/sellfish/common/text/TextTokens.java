@@ -10,8 +10,7 @@ import java.util.Set;
  */
 public final class TextTokens {
 
-    private TextTokens() {
-    }
+    private TextTokens() {}
 
     public static Set<String> tokenize(String text) {
         if (text == null || text.isBlank()) {
@@ -19,9 +18,7 @@ public final class TextTokens {
         }
         String[] parts = text.toLowerCase(Locale.ROOT).split("[^\\p{L}\\p{Nd}]+");
         Set<String> tokens = new LinkedHashSet<>();
-        Arrays.stream(parts)
-                .filter(t -> t.length() > 1)
-                .forEach(tokens::add);
+        Arrays.stream(parts).filter(t -> t.length() > 1).forEach(tokens::add);
         return tokens;
     }
 

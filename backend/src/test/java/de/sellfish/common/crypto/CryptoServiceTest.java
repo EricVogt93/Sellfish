@@ -1,12 +1,11 @@
 package de.sellfish.common.crypto;
 
-import de.sellfish.common.config.CryptoProperties;
-import org.junit.jupiter.api.Test;
-
-import java.util.Base64;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import de.sellfish.common.config.CryptoProperties;
+import java.util.Base64;
+import org.junit.jupiter.api.Test;
 
 class CryptoServiceTest {
 

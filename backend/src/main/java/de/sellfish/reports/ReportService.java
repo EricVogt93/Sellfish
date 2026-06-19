@@ -2,9 +2,6 @@ package de.sellfish.reports;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -12,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ReportService {
@@ -31,8 +30,10 @@ public class ReportService {
 
         String sql = "SELECT"
                 + " (SELECT count(*) FROM job_matches m WHERE m.created_at >= :since" + org + "),"
-                + " (SELECT count(*) FROM job_matches m WHERE m.status = 'APPLIED' AND m.updated_at >= :since" + org + "),"
-                + " (SELECT count(*) FROM job_matches m WHERE m.status IN ('INTERVIEW','OFFER') AND m.updated_at >= :since" + org + "),"
+                + " (SELECT count(*) FROM job_matches m WHERE m.status = 'APPLIED' AND m.updated_at >= :since" + org
+                + "),"
+                + " (SELECT count(*) FROM job_matches m WHERE m.status IN ('INTERVIEW','OFFER') AND m.updated_at >= :since"
+                + org + "),"
                 + " (SELECT count(*) FROM generated_documents g WHERE g.created_at >= :since" + org + "),"
                 + " (SELECT count(*) FROM jobs j WHERE j.created_at >= :since" + jobOrg + "),"
                 + " (SELECT count(*) FROM users)";
@@ -47,8 +48,7 @@ public class ReportService {
                 ((Number) row[2]).longValue(),
                 ((Number) row[3]).longValue(),
                 ((Number) row[4]).longValue(),
-                ((Number) row[5]).longValue()
-        );
+                ((Number) row[5]).longValue());
     }
 
     @Transactional(readOnly = true)
@@ -127,8 +127,7 @@ public class ReportService {
                     (String) row[1],
                     ((Number) row[2]).longValue(),
                     ((Number) row[3]).longValue(),
-                    ((Number) row[4]).longValue()
-            ));
+                    ((Number) row[4]).longValue()));
         }
         return list;
     }
@@ -141,11 +140,10 @@ public class ReportService {
         return buckets;
     }
 
-    public record Summary(long totalMatches, long applied, long interviews,
-                          long generated, long jobsScanned, long totalUsers) {}
+    public record Summary(
+            long totalMatches, long applied, long interviews, long generated, long jobsScanned, long totalUsers) {}
 
     public record DailyBucket(String day, long count) {}
 
-    public record MemberStats(String userId, String email,
-                               long applied, long interviews, long generated) {}
+    public record MemberStats(String userId, String email, long applied, long interviews, long generated) {}
 }

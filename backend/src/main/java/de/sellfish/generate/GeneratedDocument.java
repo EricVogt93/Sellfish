@@ -6,7 +6,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-
 import java.util.UUID;
 
 @Entity
@@ -40,8 +39,7 @@ public class GeneratedDocument extends BaseEntity {
     @Column(nullable = false)
     private int version = 1;
 
-    protected GeneratedDocument() {
-    }
+    protected GeneratedDocument() {}
 
     public GeneratedDocument(UUID userId, UUID jobMatchId, GenerationType type) {
         this.userId = userId;

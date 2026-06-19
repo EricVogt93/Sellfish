@@ -1,18 +1,17 @@
 package de.sellfish.jobs.adapter.source;
 
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.RawJob;
 import com.fasterxml.jackson.databind.JsonNode;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Recruitee-Offers-API (ATS, per Firmen-Subdomain). Config {@code companies}: kommagetrennte Handles.
@@ -53,7 +52,8 @@ public class RecruiteeSource implements JobSource {
 
     private List<RawJob> fetchCompany(String company, JobQuery query) {
         try {
-            RestClient client = builder.baseUrl("https://" + company + ".recruitee.com").build();
+            RestClient client =
+                    builder.baseUrl("https://" + company + ".recruitee.com").build();
             JsonNode response = client.get().uri("/api/offers/").retrieve().body(JsonNode.class);
             if (response == null) {
                 return List.of();

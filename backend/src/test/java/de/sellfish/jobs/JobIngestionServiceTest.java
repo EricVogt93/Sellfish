@@ -1,21 +1,19 @@
 package de.sellfish.jobs;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import de.sellfish.jobs.adapter.source.Fingerprints;
-import de.sellfish.jobs.port.JobQuery;
-import de.sellfish.jobs.port.JobSource;
-import de.sellfish.jobs.port.RawJob;
-import org.junit.jupiter.api.Test;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import de.sellfish.jobs.adapter.source.Fingerprints;
+import de.sellfish.jobs.port.JobQuery;
+import de.sellfish.jobs.port.JobSource;
+import de.sellfish.jobs.port.RawJob;
+import java.util.List;
+import java.util.Set;
+import org.junit.jupiter.api.Test;
 
 class JobIngestionServiceTest {
 
