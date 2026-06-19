@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { scoreColor } from './data'
+	import { scoreColor } from '$lib/utils/data'
 
 	let { score, size = 36 }: { score: number; size?: number } = $props()
 

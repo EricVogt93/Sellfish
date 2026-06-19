@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import Icon from './Icon.svelte'
-	import Avatar from './Avatar.svelte'
+	import Icon from '$lib/atoms/Icon.svelte'
+	import Avatar from '$lib/atoms/Avatar.svelte'
 	import { backend, type AdminUser, type Me } from '$lib/api/backend'
-	import { initialsOf, hueOf } from './map'
+	import { initialsOf, hueOf } from '$lib/utils/map'
 
 	let { me }: { me: Me | null } = $props()
 

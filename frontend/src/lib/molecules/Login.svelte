@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import Icon from './Icon.svelte'
-	import Btn from './Btn.svelte'
+	import Icon from '$lib/atoms/Icon.svelte'
+	import Btn from '$lib/atoms/Btn.svelte'
 	import { login, register } from '$lib/api/session.svelte'
 	import { api } from '$lib/api'
 

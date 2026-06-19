@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Icon from './Icon.svelte'
-	import CompanyMark from './CompanyMark.svelte'
-	import StageBadge from './StageBadge.svelte'
-	import { STAGES, type Stage } from './data'
-	import type { Job } from './data'
+	import Icon from '$lib/atoms/Icon.svelte'
+	import CompanyMark from '$lib/atoms/CompanyMark.svelte'
+	import StageBadge from '$lib/atoms/StageBadge.svelte'
+	import { STAGES, type Stage } from '$lib/utils/data'
+	import type { Job } from '$lib/utils/data'
 
 	// UI-Jobs mit beworbenem Status (vom Page-Container vorgefiltert)
 	let { applications }: { applications: Job[] } = $props()

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Icon from './Icon.svelte'
-	import { getToasts } from './toasts.svelte'
+	import Icon from '$lib/atoms/Icon.svelte'
+	import { getToasts } from '$lib/utils/toasts.svelte'
 
 	const toasts = $derived(getToasts())
 </script>

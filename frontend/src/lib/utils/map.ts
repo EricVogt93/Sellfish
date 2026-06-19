@@ -1,5 +1,5 @@
 import type { MatchResponse } from '$lib/api/backend'
-import { FILTERS, type Job } from './data'
+import { FILTERS, type Job } from '$lib/utils/data'
 
 /** Initialen aus dem Firmennamen (max. 2 Zeichen). */
 export function initialsOf(name: string | null | undefined): string {

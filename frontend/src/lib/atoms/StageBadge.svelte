@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { STAGES, type Stage } from './data'
+	import { STAGES, type Stage } from '$lib/utils/data'
 
 	let { stage }: { stage: Stage } = $props()
 

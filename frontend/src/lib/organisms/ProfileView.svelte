@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import Icon from './Icon.svelte'
-	import Btn from './Btn.svelte'
-	import { toast } from './toasts.svelte'
+	import Icon from '$lib/atoms/Icon.svelte'
+	import Btn from '$lib/atoms/Btn.svelte'
+	import { toast } from '$lib/utils/toasts.svelte'
 	import { api, apiDownload } from '$lib/api'
 	import {
 		backend,

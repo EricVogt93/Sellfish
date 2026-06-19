@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import Icon from './Icon.svelte'
+	import Icon from '$lib/atoms/Icon.svelte'
 	import {
 		backend,
 		type ProfileResponse,

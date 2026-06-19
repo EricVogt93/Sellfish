@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Icon from './Icon.svelte'
-	import Kbd from './Kbd.svelte'
-	import CompanyMark from './CompanyMark.svelte'
-	import type { Job } from './data'
+	import Icon from '$lib/atoms/Icon.svelte'
+	import Kbd from '$lib/atoms/Kbd.svelte'
+	import CompanyMark from '$lib/atoms/CompanyMark.svelte'
+	import type { Job } from '$lib/utils/data'
 
 	interface NavItem {
 		id: string

@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Icon from './Icon.svelte'
-	import Btn from './Btn.svelte'
-	import CompanyMark from './CompanyMark.svelte'
-	import MatchScore from './MatchScore.svelte'
-	import Stars from './Stars.svelte'
-	import FilterSummary from './FilterSummary.svelte'
-	import FilterChips from './FilterChips.svelte'
-	import type { Job } from './data'
+	import Icon from '$lib/atoms/Icon.svelte'
+	import Btn from '$lib/atoms/Btn.svelte'
+	import CompanyMark from '$lib/atoms/CompanyMark.svelte'
+	import MatchScore from '$lib/atoms/MatchScore.svelte'
+	import Stars from '$lib/atoms/Stars.svelte'
+	import FilterSummary from '$lib/molecules/FilterSummary.svelte'
+	import FilterChips from '$lib/molecules/FilterChips.svelte'
+	import type { Job } from '$lib/utils/data'
 	import { browser } from '$app/environment'
 
 	function hasNote(matchId: string | undefined): boolean {

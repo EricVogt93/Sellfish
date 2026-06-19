@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { FILTERS, type Job } from './data'
+	import { FILTERS, type Job } from '$lib/utils/data'
 
 	let { job }: { job: Job } = $props()
 

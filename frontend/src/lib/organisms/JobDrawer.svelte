@@ -1,14 +1,14 @@
 <script lang="ts">
-	import Icon from './Icon.svelte'
-	import Btn from './Btn.svelte'
-	import Kbd from './Kbd.svelte'
-	import CompanyMark from './CompanyMark.svelte'
-	import MatchScore from './MatchScore.svelte'
-	import Stars from './Stars.svelte'
-	import FilterChips from './FilterChips.svelte'
-	import { FILTERS, type Job } from './data'
+	import Icon from '$lib/atoms/Icon.svelte'
+	import Btn from '$lib/atoms/Btn.svelte'
+	import Kbd from '$lib/atoms/Kbd.svelte'
+	import CompanyMark from '$lib/atoms/CompanyMark.svelte'
+	import MatchScore from '$lib/atoms/MatchScore.svelte'
+	import Stars from '$lib/atoms/Stars.svelte'
+	import FilterChips from '$lib/molecules/FilterChips.svelte'
+	import { FILTERS, type Job } from '$lib/utils/data'
 	import { api } from '$lib/api'
-	import { toast } from './toasts.svelte'
+	import { toast } from '$lib/utils/toasts.svelte'
 	import { browser } from '$app/environment'
 
 	function cleanHtml(html: string): string {

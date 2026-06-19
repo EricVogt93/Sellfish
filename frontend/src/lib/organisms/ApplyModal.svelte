@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount } from 'svelte'
-	import Icon from './Icon.svelte'
-	import Btn from './Btn.svelte'
-	import CompanyMark from './CompanyMark.svelte'
+	import Icon from '$lib/atoms/Icon.svelte'
+	import Btn from '$lib/atoms/Btn.svelte'
+	import CompanyMark from '$lib/atoms/CompanyMark.svelte'
 	import { backend, type DocumentResponse, type GenerationType } from '$lib/api/backend'
-	import type { Job } from './data'
+	import type { Job } from '$lib/utils/data'
 
 	const GEN_STEPS = [
 		'Reading the job posting…',

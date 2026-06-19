@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Job } from './data'
+	import type { Job } from '$lib/utils/data'
 
 	let { job, size = 0 }: { job: Job; size?: number } = $props()
 

@@ -1,9 +1,9 @@
 <script lang="ts">
-	import Icon from './Icon.svelte'
-	import Btn from './Btn.svelte'
-	import Kbd from './Kbd.svelte'
-	import JobRow from './JobRow.svelte'
-	import type { Job } from './data'
+	import Icon from '$lib/atoms/Icon.svelte'
+	import Btn from '$lib/atoms/Btn.svelte'
+	import Kbd from '$lib/atoms/Kbd.svelte'
+	import JobRow from '$lib/molecules/JobRow.svelte'
+	import type { Job } from '$lib/utils/data'
 
 	let {
 		jobs,

@@ -1,8 +1,8 @@
 <script lang="ts">
-	import Icon from './Icon.svelte'
+	import Icon from '$lib/atoms/Icon.svelte'
 	import { getSession, switchOrg, refreshOrgs } from '$lib/api/session.svelte'
 	import { backend } from '$lib/api/backend'
-	import { toast } from './toasts.svelte'
+	import { toast } from '$lib/utils/toasts.svelte'
 
 	const session = getSession()
 	let open = $state(false)
