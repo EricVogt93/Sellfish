@@ -32,7 +32,7 @@ public class LlmWebSearchSource implements JobSource {
             Stellenangebote als JSON-Array (keine erfundenen Arbeitgeber, wenn unbekannt 'company' leer
             lassen). Struktur:
             [{"title":"","company":"","location":"","url":"","description":""}]
-            Antworte ausschließlich mit dem JSON-Array.
+            Respond with ONLY the JSON array, nothing else.
             """;
 
     private final LlmService llmService;

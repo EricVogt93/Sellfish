@@ -4,8 +4,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Mappt Job-Quell-Codes auf die Länder, die sie abdecken.
- * "REMOTE" steht für weltweit remote (kein Landesbezug).
+ * Maps job source codes to the countries they cover.
+ * "REMOTE" means worldwide remote (no country tie).
  */
 public final class SourceCountries {
 
@@ -59,24 +59,24 @@ public final class SourceCountries {
 
     public static java.util.List<CountryGroup> allGroups() {
         return java.util.List.of(
-                new CountryGroup("DE", "Deutschland", "DE", true),
-                new CountryGroup("AT", "Österreich", "DE", false),
-                new CountryGroup("CH", "Schweiz", "DE", false),
+                new CountryGroup("DE", "Germany", "DE", true),
+                new CountryGroup("AT", "Austria", "DE", false),
+                new CountryGroup("CH", "Switzerland", "DE", false),
                 new CountryGroup("GB", "UK", "GB", false),
                 new CountryGroup("US", "USA", "US", false),
                 new CountryGroup("CA", "Kanada", "CA", false),
-                new CountryGroup("FR", "Frankreich", "FR", false),
-                new CountryGroup("NL", "Niederlande", "NL", false),
-                new CountryGroup("IT", "Italien", "IT", false),
-                new CountryGroup("ES", "Spanien", "ES", false),
-                new CountryGroup("PL", "Polen", "PL", false),
-                new CountryGroup("CZ", "Tschechien", "CZ", false),
-                new CountryGroup("SE", "Schweden", "SE", false),
-                new CountryGroup("DK", "Dänemark", "DK", false),
-                new CountryGroup("NO", "Norwegen", "NO", false),
-                new CountryGroup("FI", "Finnland", "FI", false),
-                new CountryGroup("IE", "Irland", "IE", false),
-                new CountryGroup("AU", "Australien", "AU", false),
+                new CountryGroup("FR", "France", "FR", false),
+                new CountryGroup("NL", "Netherlands", "NL", false),
+                new CountryGroup("IT", "Italy", "IT", false),
+                new CountryGroup("ES", "Spain", "ES", false),
+                new CountryGroup("PL", "Poland", "PL", false),
+                new CountryGroup("CZ", "Czechia", "CZ", false),
+                new CountryGroup("SE", "Sweden", "SE", false),
+                new CountryGroup("DK", "Denmark", "DK", false),
+                new CountryGroup("NO", "Norway", "NO", false),
+                new CountryGroup("FI", "Finland", "FI", false),
+                new CountryGroup("IE", "Ireland", "IE", false),
+                new CountryGroup("AU", "Australia", "AU", false),
                 new CountryGroup("REMOTE", "Worldwide Remote", "REMOTE", true)
         );
     }

@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
 /**
- * Gemeinsame Hilfsfunktionen für die Job-Quellen-Adapter (Feldzugriff, Datums-Parsing).
+ * Common helpers for job source adapters (field access, date parsing).
  */
 public final class JobSourceSupport {
 
@@ -27,7 +27,7 @@ public final class JobSourceSupport {
         return s.isEmpty() ? null : s;
     }
 
-    /** Joint mehrere String-Knoten zu einem nicht-leeren Wert (erster nicht-leerer gewinnt). */
+    /** Joins multiple string nodes into one non-null value (first non-empty wins). */
     public static String firstText(JsonNode node, String... fields) {
         for (String f : fields) {
             String s = text(node, f);
@@ -45,7 +45,7 @@ public final class JobSourceSupport {
         try {
             return OffsetDateTime.parse(value).toInstant();
         } catch (Exception ignored) {
-            // weiter unten versuchen
+            // try alternate formats below
         }
         try {
             return LocalDate.parse(value).atStartOfDay().toInstant(ZoneOffset.UTC);
