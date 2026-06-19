@@ -1,6 +1,7 @@
 package de.sellfish.support;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.TestPropertySource;
@@ -14,6 +15,7 @@ import org.testcontainers.utility.DockerImageName;
  * cheap to assert in tests.
  */
 @SpringBootTest
+@ActiveProfiles("dev")
 @TestPropertySource(properties = "EMBEDDING_DIM=3")
 public abstract class AbstractPostgresIT {
 
