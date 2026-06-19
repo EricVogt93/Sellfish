@@ -13,6 +13,7 @@ concurrency:
 permissions:
   contents: read
   packages: write
+  id-token: write   # required for cosign keyless (OIDC) signing
 
 jobs:
   images:
@@ -54,6 +55,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & push
+        id: build
         uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.context }}
@@ -62,3 +64,12 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.component }}
           cache-to: type=gha,mode=max,scope=${{ matrix.component }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@v3
+
+      - name: Sign image (keyless, Sigstore OIDC)
+        env:
+          IMAGE: ${{ steps.img.outputs.name }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+        run: cosign sign --yes "${IMAGE}@${DIGEST}"
