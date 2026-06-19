@@ -39,7 +39,7 @@ public class AshbySource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         Object orgs = config.get("orgs");
         if (orgs == null) {
-            log.warn("Ashby ohne orgs konfiguriert – übersprungen");
+            log.warn("Ashby without orgs configured - skipped");
             return List.of();
         }
         List<RawJob> jobs = new ArrayList<>();
@@ -67,7 +67,7 @@ public class AshbySource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Ashby-Org {} fehlgeschlagen: {}", org, e.getMessage());
+            log.warn("Ashby-Org {} failed: {}", org, e.getMessage());
             return List.of();
         }
     }

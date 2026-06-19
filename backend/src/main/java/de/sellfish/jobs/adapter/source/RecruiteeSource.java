@@ -38,7 +38,7 @@ public class RecruiteeSource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         Object companies = config.get("companies");
         if (companies == null) {
-            log.warn("Recruitee ohne companies konfiguriert – übersprungen");
+            log.warn("Recruitee without companies configured - skipped");
             return List.of();
         }
         List<RawJob> jobs = new ArrayList<>();
@@ -67,7 +67,7 @@ public class RecruiteeSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Recruitee-Company {} fehlgeschlagen: {}", company, e.getMessage());
+            log.warn("Recruitee-Company {} failed: {}", company, e.getMessage());
             return List.of();
         }
     }

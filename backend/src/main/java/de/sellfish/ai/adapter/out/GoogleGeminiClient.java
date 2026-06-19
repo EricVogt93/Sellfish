@@ -94,7 +94,7 @@ public class GoogleGeminiClient implements ChatProvider, EmbeddingProvider {
         JsonNode response = post(model, "/models/" + model.model() + ":embedContent", body);
         JsonNode vector = response.path("embedding").path("values");
         if (!vector.isArray()) {
-            throw new LlmException("Gemini-Embedding-Antwort enthält keinen Vektor");
+            throw new LlmException("Gemini embedding response contains no vector");
         }
         float[] out = new float[vector.size()];
         for (int i = 0; i < vector.size(); i++) {
@@ -117,7 +117,7 @@ public class GoogleGeminiClient implements ChatProvider, EmbeddingProvider {
             }
             return result;
         } catch (RestClientException e) {
-            throw new LlmException("Gemini-Aufruf fehlgeschlagen: " + e.getMessage(), e);
+            throw new LlmException("Gemini-Aufruf failed: " + e.getMessage(), e);
         }
     }
 }

@@ -78,7 +78,7 @@ public class BundesagenturSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Bundesagentur-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Bundesagentur-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

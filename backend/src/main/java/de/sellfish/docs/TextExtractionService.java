@@ -25,7 +25,7 @@ public class TextExtractionService {
         try (var in = new ByteArrayInputStream(content)) {
             return tika.parseToString(in).strip();
         } catch (IOException | TikaException e) {
-            throw new DocumentProcessingException("Textextraktion fehlgeschlagen: " + e.getMessage(), e);
+            throw new DocumentProcessingException("Text extraction failed: " + e.getMessage(), e);
         }
     }
 }

@@ -53,7 +53,7 @@ public class AgentController {
     public List<Tool> tools() {
         return List.of(
                 new Tool("search_jobs",
-                        "Löst einen Suchlauf aus und liefert die besten Matches.",
+                        "Löst einen Search run aus und liefert die besten Matches.",
                         "POST", "/api/agent/search", "{}"),
                 new Tool("list_matches",
                         "Listet die aktuellen Job-Matches des Nutzers (optional nach Status).",

@@ -51,7 +51,7 @@ public class FourScottySource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("4Scotty-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("4Scotty-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

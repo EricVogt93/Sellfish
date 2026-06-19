@@ -70,10 +70,10 @@ public class AuthService {
         try {
             claims = jwtService.parse(req.refreshToken());
         } catch (RuntimeException ex) {
-            throw new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Ungültiges Refresh-Token");
+            throw new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Invalid refresh token");
         }
         if (!jwtService.isRefreshToken(claims)) {
-            throw new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "Kein Refresh-Token");
+            throw new ApiException(org.springframework.http.HttpStatus.UNAUTHORIZED, "No refresh token");
         }
         UUID userId = UUID.fromString(claims.getSubject());
         User user = userRepository.findById(userId)

@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Jobicy Remote-Jobs-API v2 (kostenlos, ohne Key, international/remote).
+ * Jobicy Remote-Jobs-API v2 (kostenlos, without Key, international/remote).
  */
 @Component
 public class JobicySource implements JobSource {
@@ -58,7 +58,7 @@ public class JobicySource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Jobicy-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Jobicy-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

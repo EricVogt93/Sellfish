@@ -50,7 +50,7 @@ public class WeWorkRemotelySource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("WWR-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("WWR-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

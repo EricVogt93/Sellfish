@@ -80,7 +80,7 @@ public class InfisicalClient {
                 .retrieve()
                 .body(JsonNode.class);
         if (response == null || response.path("accessToken").isMissingNode()) {
-            throw new IllegalStateException("Infisical-Login fehlgeschlagen");
+            throw new IllegalStateException("Infisical-Login failed");
         }
         cachedToken = response.get("accessToken").asText();
         long ttl = response.path("expiresIn").asLong(3600);

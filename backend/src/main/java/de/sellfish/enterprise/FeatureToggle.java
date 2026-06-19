@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 
 /**
  * Aktiviert eine Bean/Methode nur, wenn das angegebene Enterprise-Feature aktiv ist
- * (entweder via {@code app.enterprise.features.X=true} oder via gültiger Lizenz).
+ * (entweder via {@code app.enterprise.features.X=true} oder via gültiger License).
  *
  * <p>Verwendung: {@code @FeatureToggle("sso")} auf einer {@code @RestController}-Klasse
  * oder {@code @Bean}-Methode.

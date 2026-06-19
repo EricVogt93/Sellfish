@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Working-Nomads-API (kostenlos, ohne Key, international/remote). Filterung clientseitig.
+ * Working-Nomads-API (kostenlos, without Key, international/remote). Filterung clientseitig.
  */
 @Component
 public class WorkingNomadsSource implements JobSource {
@@ -55,7 +55,7 @@ public class WorkingNomadsSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Working-Nomads-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Working-Nomads-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

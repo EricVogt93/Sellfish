@@ -71,7 +71,7 @@ public class GenerationContextBuilder {
                     sb.append(" (").append(p.getRole()).append(')');
                 }
                 if (p.getTech() != null && p.getTech().length > 0) {
-                    sb.append(" – ").append(String.join(", ", p.getTech()));
+                    sb.append(" - ").append(String.join(", ", p.getTech()));
                 }
                 if (p.getDescription() != null) {
                     sb.append(": ").append(p.getDescription());

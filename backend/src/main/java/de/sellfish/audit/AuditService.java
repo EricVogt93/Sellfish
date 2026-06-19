@@ -35,9 +35,9 @@ public class AuditService {
             event.setIp(clientIp());
             repository.save(event);
         } catch (JsonProcessingException e) {
-            log.warn("Audit-Event nicht serialisierbar: {}", e.getMessage());
+            log.warn("Audit event not serializable: {}", e.getMessage());
         } catch (Exception e) {
-            log.warn("Audit-Event nicht gespeichert: {}", e.getMessage());
+            log.warn("Audit event not stored: {}", e.getMessage());
         }
     }
 

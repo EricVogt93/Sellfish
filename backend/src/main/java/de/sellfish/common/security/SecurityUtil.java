@@ -14,7 +14,7 @@ public final class SecurityUtil {
     public static UUID currentUserId() {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !(auth.getPrincipal() instanceof AppUserDetails details)) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "Nicht authentifiziert");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "Not authenticated");
         }
         return details.getId();
     }

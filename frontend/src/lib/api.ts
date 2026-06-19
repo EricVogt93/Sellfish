@@ -41,7 +41,7 @@ export function setActiveOrgId(orgId: string | null): void {
 	else localStorage.removeItem(ORG_KEY);
 }
 
-/** Wird bei endgültig fehlgeschlagener Auth gesetzt, damit die UI zurück zum Login kann. */
+/** Set on permanently failed auth so the UI can return to login. */
 let onUnauthorized: (() => void) | null = null;
 export function setUnauthorizedHandler(fn: () => void): void {
 	onUnauthorized = fn;

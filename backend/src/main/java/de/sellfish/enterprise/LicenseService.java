@@ -9,16 +9,16 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 /**
- * Zentraler Dienst für Lizenz- und Feature-Toggle-Logik.
+ * Zentraler Dienst für License- und Feature-Toggle-Logik.
  *
  * <p>Prüft in dieser Reihenfolge:
  * <ol>
  *   <li>{@code app.enterprise.enabled = false} → nur statische Config</li>
- *   <li>{@code app.enterprise.enabled = true} → statische Config ODER gültige Lizenz</li>
+ *   <li>{@code app.enterprise.enabled = true} → statische Config ODER gültige License</li>
  * </ol>
  *
  * <p>Feature ist aktiv, wenn es in der statischen Config {@code true} ist ODER
- * eine hochgeladene gültige Lizenz das Feature einschließt.
+ * eine hochgeladene gültige License das Feature einschließt.
  */
 @Service
 public class LicenseService {
@@ -41,9 +41,9 @@ public class LicenseService {
             LicensePayload payload = validator.validate(entity.getLicenseKey());
             if (payload.valid()) {
                 activePayload = payload;
-                log.info("Gespeicherte Lizenz geladen: sub={}, features={}", payload.subject(), payload.features());
+                log.info("Gespeicherte License geladen: sub={}, features={}", payload.subject(), payload.features());
             } else {
-                log.warn("Gespeicherte Lizenz ist ungültig");
+                log.warn("Gespeicherte License ist invalid");
             }
         });
     }
@@ -52,7 +52,7 @@ public class LicenseService {
         LicenseValidator validator = new LicenseValidator(properties.publicKey());
         LicensePayload payload = validator.validate(licenseKey);
         if (!payload.valid()) {
-            throw new IllegalArgumentException("Lizenz-Key ungültig oder abgelaufen");
+            throw new IllegalArgumentException("License key invalid or expired");
         }
         licenseRepository.deleteAll();
         LicenseEntity entity = new LicenseEntity(
@@ -60,7 +60,7 @@ public class LicenseService {
                 String.join(",", payload.features()));
         licenseRepository.save(entity);
         activePayload = payload;
-        log.info("Lizenz aktiviert: sub={}, features={}", payload.subject(), payload.features());
+        log.info("License aktiviert: sub={}, features={}", payload.subject(), payload.features());
         return payload;
     }
 

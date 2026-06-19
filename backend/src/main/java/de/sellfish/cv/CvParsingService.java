@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * Wandelt extrahierten CV-/Projektlisten-Text via LLM in strukturierte Daten um.
+ * Wandelt extrahierten CV-/Project listn-Text via LLM in strukturierte Daten um.
  */
 @Service
 public class CvParsingService {
@@ -32,7 +32,7 @@ public class CvParsingService {
             """;
 
     private static final String PROJECTS_SYSTEM = """
-            Du extrahierst eine Projektliste. Antworte ausschließlich mit gültigem JSON-Array:
+            Du extrahierst eine Project list. Antworte ausschließlich mit gültigem JSON-Array:
             [{"title":"","role":"","period":"","tech":["..."],"description":""}]
             Erfinde nichts. Keine Erklärungen, nur JSON.
             """;
@@ -73,7 +73,7 @@ public class CvParsingService {
         String json = callJson(userId, PROJECTS_SYSTEM, text);
         JsonNode node = readTree(json);
         if (!node.isArray()) {
-            throw new IllegalStateException("Projektliste konnte nicht als Array geparst werden");
+            throw new IllegalStateException("Project list could not be parsed as array");
         }
         projectRepository.deleteByUserId(userId);
         List<Project> result = new ArrayList<>();
@@ -104,7 +104,7 @@ public class CvParsingService {
         try {
             return objectMapper.readTree(json);
         } catch (Exception e) {
-            throw new IllegalStateException("LLM-Antwort war kein gültiges JSON", e);
+            throw new IllegalStateException("LLM response was not valid JSON", e);
         }
     }
 

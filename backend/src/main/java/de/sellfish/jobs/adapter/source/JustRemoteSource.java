@@ -51,7 +51,7 @@ public class JustRemoteSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("JustRemote-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("JustRemote-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

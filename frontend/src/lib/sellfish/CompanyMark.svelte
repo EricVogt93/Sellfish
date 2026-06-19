@@ -3,7 +3,7 @@
 
 	let { job, size = 0 }: { job: Job; size?: number } = $props();
 
-	// size 0 = density-gesteuerte Standardgröße (--mark-size aus dem CSS)
+	// size 0 = density-controlled default size (--mark-size from CSS)
 	const sized = $derived(
 		size > 0
 			? `width:${size}px;height:${size}px;font-size:${size * 0.35}px;`

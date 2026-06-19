@@ -74,7 +74,7 @@ public class OllamaClient implements ChatProvider, EmbeddingProvider {
         JsonNode response = post(model, "/api/embeddings", body);
         JsonNode vector = response.path("embedding");
         if (!vector.isArray()) {
-            throw new LlmException("Ollama-Embedding-Antwort enthält keinen Vektor");
+            throw new LlmException("Ollama embedding response contains no vector");
         }
         float[] out = new float[vector.size()];
         for (int i = 0; i < vector.size(); i++) {
@@ -97,7 +97,7 @@ public class OllamaClient implements ChatProvider, EmbeddingProvider {
             }
             return result;
         } catch (RestClientException e) {
-            throw new LlmException("Ollama-Aufruf fehlgeschlagen: " + e.getMessage(), e);
+            throw new LlmException("Ollama-Aufruf failed: " + e.getMessage(), e);
         }
     }
 }

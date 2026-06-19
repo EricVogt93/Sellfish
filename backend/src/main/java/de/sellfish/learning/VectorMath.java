@@ -36,7 +36,7 @@ public final class VectorMath {
      */
     public static float[] blend(float[] a, float[] b, double alpha) {
         if (a.length != b.length) {
-            throw new IllegalArgumentException("Dimensionen müssen übereinstimmen");
+            throw new IllegalArgumentException("Dimensions must match");
         }
         float[] out = new float[a.length];
         for (int i = 0; i < a.length; i++) {
@@ -51,7 +51,7 @@ public final class VectorMath {
      */
     public static float[] repel(float[] profile, float[] negativeCentroid, double strength) {
         if (profile.length != negativeCentroid.length) {
-            throw new IllegalArgumentException("Dimensionen müssen übereinstimmen");
+            throw new IllegalArgumentException("Dimensions must match");
         }
         float[] out = new float[profile.length];
         for (int i = 0; i < profile.length; i++) {

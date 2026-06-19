@@ -16,7 +16,7 @@ public interface StorageService {
     boolean exists(String key);
 
     /**
-     * Erzeugt einen kollisionsfreien, nutzer-gescopten Storage-Key.
+     * Erzeugt einen kollisionsfreien, nutzer-gescopten storage key.
      */
     default String newKey(UUID userId, String category, String filename) {
         String safe = filename == null ? "file"

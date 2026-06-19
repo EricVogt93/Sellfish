@@ -39,7 +39,7 @@ public class CareerJetSource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         String apiKey = (String) config.get("api_key");
         if (apiKey == null || apiKey.isBlank()) {
-            log.warn("CareerJet ohne api_key konfiguriert – übersprungen");
+            log.warn("CareerJet without api_key configured - skipped");
             return List.of();
         }
         try {
@@ -60,7 +60,7 @@ public class CareerJetSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("CareerJet-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("CareerJet-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

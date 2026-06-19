@@ -39,7 +39,7 @@ public class FindworkSource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         Object apiKey = config.get("api_key");
         if (apiKey == null) {
-            log.warn("Findwork ohne api_key konfiguriert – übersprungen");
+            log.warn("Findwork without api_key configured - skipped");
             return List.of();
         }
         try {
@@ -70,7 +70,7 @@ public class FindworkSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Findwork-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Findwork-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

@@ -40,7 +40,7 @@ public class UsaJobsSource implements JobSource {
         Object apiKey = config.get("api_key");
         Object email = config.get("email");
         if (apiKey == null || email == null) {
-            log.warn("USAJOBS ohne api_key/email konfiguriert – übersprungen");
+            log.warn("USAJOBS without api_key/email configured - skipped");
             return List.of();
         }
         try {
@@ -73,7 +73,7 @@ public class UsaJobsSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("USAJOBS-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("USAJOBS-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

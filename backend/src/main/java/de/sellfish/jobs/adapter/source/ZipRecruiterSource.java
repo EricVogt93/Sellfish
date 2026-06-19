@@ -41,7 +41,7 @@ public class ZipRecruiterSource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         String apiKey = (String) config.get("api_key");
         if (apiKey == null || apiKey.isBlank()) {
-            log.warn("ZipRecruiter ohne api_key konfiguriert – übersprungen");
+            log.warn("ZipRecruiter without api_key configured - skipped");
             return List.of();
         }
         try {
@@ -67,7 +67,7 @@ public class ZipRecruiterSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("ZipRecruiter-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("ZipRecruiter-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

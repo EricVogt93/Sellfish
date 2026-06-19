@@ -50,7 +50,7 @@ public class HoneypotSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Honeypot-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Honeypot-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

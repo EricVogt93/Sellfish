@@ -87,7 +87,7 @@
       await loadGlobal();
       switchMsg = `✓ Generation model active: ${p.model}`;
     } catch (e) {
-      switchMsg = '✗ ' + (e instanceof Error ? e.message : 'Fehler');
+      switchMsg = '✗ ' + (e instanceof Error ? e.message : 'Error');
     } finally {
       switching = false;
     }
@@ -112,7 +112,7 @@
       await load();
       message = 'Provider gespeichert.';
     } catch (e) {
-      message = e instanceof Error ? e.message : 'Fehler';
+      message = e instanceof Error ? e.message : 'Error';
     }
   }
 

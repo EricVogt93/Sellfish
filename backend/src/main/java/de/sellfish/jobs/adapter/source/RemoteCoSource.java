@@ -52,7 +52,7 @@ public class RemoteCoSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Remote.co-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Remote.co-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

@@ -64,7 +64,7 @@ public class JobIngestionService {
             try {
                 rawJobs = source.fetch(query, config);
             } catch (RuntimeException e) {
-                log.warn("Quelle {} fehlgeschlagen: {}", source.code(), e.getMessage());
+                log.warn("Quelle {} failed: {}", source.code(), e.getMessage());
                 continue;
             }
             fetched += rawJobs.size();

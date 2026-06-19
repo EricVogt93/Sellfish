@@ -2,12 +2,12 @@ package de.sellfish.learning;
 
 /**
  * Schlanke logistische Regression (Batch-Gradientenabstieg) mit L2-Regularisierung.
- * Bewusst abhängigkeitsfrei und deterministisch, damit das Self-Learning ohne GPU
- * und ohne externe ML-Bibliothek auskommt.
+ * Bewusst abhängigkeitsfrei und deterministisch, damit das Self-Learning without GPU
+ * und without externe ML-Bibliothek auskommt.
  */
 public final class LogisticRegression {
 
-    private final double[] coefficients; // ohne Intercept
+    private final double[] coefficients; // without Intercept
     private final double intercept;
 
     private LogisticRegression(double[] coefficients, double intercept) {
@@ -17,7 +17,7 @@ public final class LogisticRegression {
 
     public static LogisticRegression fit(double[][] x, double[] y, int iterations, double lr, double l2) {
         if (x.length == 0) {
-            throw new IllegalArgumentException("Keine Trainingsdaten");
+            throw new IllegalArgumentException("No training data");
         }
         int n = x.length;
         int dim = x[0].length;

@@ -64,7 +64,7 @@ public class TheMuseSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("TheMuse-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("TheMuse-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

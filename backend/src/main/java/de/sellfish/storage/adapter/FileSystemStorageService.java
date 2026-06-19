@@ -26,14 +26,14 @@ public class FileSystemStorageService implements StorageService {
         try {
             Files.createDirectories(root);
         } catch (IOException e) {
-            throw new UncheckedIOException("Storage-Verzeichnis nicht anlegbar: " + root, e);
+            throw new UncheckedIOException("Storage-directory could not be created: " + root, e);
         }
     }
 
     private Path resolve(String key) {
         Path target = root.resolve(key).normalize();
         if (!target.startsWith(root)) {
-            throw new IllegalArgumentException("Ungültiger Storage-Key: " + key);
+            throw new IllegalArgumentException("Invalid storage key: " + key);
         }
         return target;
     }
@@ -45,7 +45,7 @@ public class FileSystemStorageService implements StorageService {
             Files.createDirectories(target.getParent());
             Files.write(target, content);
         } catch (IOException e) {
-            throw new UncheckedIOException("Speichern fehlgeschlagen: " + key, e);
+            throw new UncheckedIOException("Save failed: " + key, e);
         }
     }
 
@@ -54,7 +54,7 @@ public class FileSystemStorageService implements StorageService {
         try {
             return Files.readAllBytes(resolve(key));
         } catch (IOException e) {
-            throw new UncheckedIOException("Lesen fehlgeschlagen: " + key, e);
+            throw new UncheckedIOException("Read failed: " + key, e);
         }
     }
 
@@ -63,7 +63,7 @@ public class FileSystemStorageService implements StorageService {
         try {
             Files.deleteIfExists(resolve(key));
         } catch (IOException e) {
-            throw new UncheckedIOException("Löschen fehlgeschlagen: " + key, e);
+            throw new UncheckedIOException("Delete failed: " + key, e);
         }
     }
 

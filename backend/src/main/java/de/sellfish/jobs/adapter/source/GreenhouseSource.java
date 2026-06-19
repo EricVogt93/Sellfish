@@ -39,7 +39,7 @@ public class GreenhouseSource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         Object boards = config.get("boards");
         if (boards == null) {
-            log.warn("Greenhouse ohne boards konfiguriert – übersprungen");
+            log.warn("Greenhouse without boards configured - skipped");
             return List.of();
         }
         List<RawJob> jobs = new ArrayList<>();
@@ -71,7 +71,7 @@ public class GreenhouseSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Greenhouse-Board {} fehlgeschlagen: {}", board, e.getMessage());
+            log.warn("Greenhouse-Board {} failed: {}", board, e.getMessage());
             return List.of();
         }
     }

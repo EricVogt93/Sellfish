@@ -35,7 +35,7 @@ public class FeatureScorer {
                 aiRelevance);
     }
 
-    /** Score ohne AI (zur Verwendung im Self-Learning, das keine LLM-Calls macht). */
+    /** Score without AI (zur Verwendung im Self-Learning, das keine LLM-Calls macht). */
     public Features score(Job job, MatchContext ctx, double semantic) {
         return score(job, ctx, semantic, 0.5);
     }

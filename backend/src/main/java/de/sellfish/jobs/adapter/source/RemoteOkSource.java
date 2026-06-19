@@ -16,8 +16,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * RemoteOK-API (kostenlos, ohne Key, international/remote). Erstes Array-Element ist ein
- * rechtlicher Hinweis und wird übersprungen; Suche erfolgt clientseitig.
+ * RemoteOK-API (kostenlos, without Key, international/remote). Erstes Array-Element ist ein
+ * rechtlicher Hinweis und wird skipped; Suche erfolgt clientseitig.
  */
 @Component
 public class RemoteOkSource implements JobSource {
@@ -63,7 +63,7 @@ public class RemoteOkSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("RemoteOK-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("RemoteOK-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

@@ -39,7 +39,7 @@ public class SmartRecruitersSource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         Object companies = config.get("companies");
         if (companies == null) {
-            log.warn("SmartRecruiters ohne companies konfiguriert – übersprungen");
+            log.warn("SmartRecruiters without companies configured - skipped");
             return List.of();
         }
         List<RawJob> jobs = new ArrayList<>();
@@ -69,7 +69,7 @@ public class SmartRecruitersSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("SmartRecruiters-Company {} fehlgeschlagen: {}", company, e.getMessage());
+            log.warn("SmartRecruiters-Company {} failed: {}", company, e.getMessage());
             return List.of();
         }
     }

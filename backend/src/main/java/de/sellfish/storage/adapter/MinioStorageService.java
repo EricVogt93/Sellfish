@@ -44,7 +44,7 @@ public class MinioStorageService implements StorageService {
                 client.makeBucket(MakeBucketArgs.builder().bucket(bucket).build());
             }
         } catch (Exception e) {
-            throw new IllegalStateException("MinIO-Bucket nicht initialisierbar: " + bucket, e);
+            throw new IllegalStateException("MinIO bucket not initializable: " + bucket, e);
         }
     }
 
@@ -58,7 +58,7 @@ public class MinioStorageService implements StorageService {
                     .contentType(contentType == null ? "application/octet-stream" : contentType)
                     .build());
         } catch (Exception e) {
-            throw new IllegalStateException("MinIO-Speichern fehlgeschlagen: " + key, e);
+            throw new IllegalStateException("MinIO-Save failed: " + key, e);
         }
     }
 
@@ -68,7 +68,7 @@ public class MinioStorageService implements StorageService {
                 .bucket(bucket).object(key).build())) {
             return in.readAllBytes();
         } catch (Exception e) {
-            throw new IllegalStateException("MinIO-Lesen fehlgeschlagen: " + key, e);
+            throw new IllegalStateException("MinIO-Read failed: " + key, e);
         }
     }
 
@@ -77,7 +77,7 @@ public class MinioStorageService implements StorageService {
         try {
             client.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(key).build());
         } catch (Exception e) {
-            throw new IllegalStateException("MinIO-Löschen fehlgeschlagen: " + key, e);
+            throw new IllegalStateException("MinIO-Delete failed: " + key, e);
         }
     }
 
@@ -89,7 +89,7 @@ public class MinioStorageService implements StorageService {
         } catch (ErrorResponseException e) {
             return false;
         } catch (Exception e) {
-            throw new IllegalStateException("MinIO-Statusabfrage fehlgeschlagen: " + key, e);
+            throw new IllegalStateException("MinIO-Status check failed: " + key, e);
         }
     }
 }

@@ -38,7 +38,7 @@ public class WorkableSource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         List<String> companies = companies(config);
         if (companies.isEmpty()) {
-            log.warn("Workable ohne companies konfiguriert – übersprungen");
+            log.warn("Workable without companies configured - skipped");
             return List.of();
         }
         List<RawJob> jobs = new ArrayList<>();
@@ -55,7 +55,7 @@ public class WorkableSource implements JobSource {
                     }
                 }
             } catch (RestClientException e) {
-                log.warn("Workable-Company {} fehlgeschlagen: {}", company, e.getMessage());
+                log.warn("Workable-Company {} failed: {}", company, e.getMessage());
             }
             if (jobs.size() >= query.size()) break;
         }

@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
- * Periodisches Re-Training der Ranking-Modelle aller Nutzer.
+ * Periodisches Retraining der Ranking-Modelle aller Nutzer.
  */
 @Component
 @ConditionalOnProperty(name = "app.scheduling.enabled", havingValue = "true", matchIfMissing = true)
@@ -32,7 +32,7 @@ public class LearningScheduler {
             try {
                 selfLearningService.retrain(user.getId());
             } catch (RuntimeException e) {
-                log.warn("Re-Training für {} fehlgeschlagen: {}", user.getId(), e.getMessage());
+                log.warn("Retraining for {} failed: {}", user.getId(), e.getMessage());
             }
         }
     }

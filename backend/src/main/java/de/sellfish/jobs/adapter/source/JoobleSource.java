@@ -41,7 +41,7 @@ public class JoobleSource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         Object apiKey = config.get("api_key");
         if (apiKey == null) {
-            log.warn("Jooble ohne api_key konfiguriert – übersprungen");
+            log.warn("Jooble without api_key configured - skipped");
             return List.of();
         }
         Map<String, Object> body = new LinkedHashMap<>();
@@ -69,7 +69,7 @@ public class JoobleSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Jooble-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Jooble-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

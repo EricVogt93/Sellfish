@@ -16,7 +16,7 @@ import java.util.UUID;
  *
  * <p>Für lange Job-Texte (über CHUNK_CHARS) werden Chunks gebildet, einzeln embedded
  * und per Mean-Pooling zu einem Vektor fusioniert. So bleibt der volle Textinhalt
- * erhalten, ohne das Per-Slot-Token-Limit (llamacpp --ubatch-size 512) zu sprengen.
+ * erhalten, without das Per-Slot-Token-Limit (llamacpp --ubatch-size 512) zu sprengen.
  */
 @Service
 public class JobEmbeddingService {
@@ -46,7 +46,7 @@ public class JobEmbeddingService {
             vectorStore.upsertJobEmbedding(job.getId(), vector, "embedding");
             return true;
         } catch (RuntimeException e) {
-            log.warn("Job-Embedding fehlgeschlagen für {} ({} Zeichen): {}",
+            log.warn("Job embedding failed for {} ({} chars): {}",
                     job.getId(), text.length(), e.getMessage());
             return false;
         }
@@ -61,7 +61,7 @@ public class JobEmbeddingService {
             vectorStore.upsertProfileEmbedding(userId, vector, "embedding");
             return true;
         } catch (RuntimeException e) {
-            log.debug("Profil-Embedding übersprungen für {}: {}", userId, e.getMessage());
+            log.debug("Profil-Embedding skipped for {}: {}", userId, e.getMessage());
             return false;
         }
     }
@@ -82,7 +82,7 @@ public class JobEmbeddingService {
                     vectors.add(v);
                 }
             } catch (RuntimeException e) {
-                log.warn("Chunk-Embedding fehlgeschlagen für Job {}: {}", jobId, e.getMessage());
+                log.warn("Chunk embedding failed for Job {}: {}", jobId, e.getMessage());
             }
         }
         if (vectors.isEmpty()) {
@@ -147,7 +147,7 @@ public class JobEmbeddingService {
 
     private boolean dimensionOk(float[] vector, String what) {
         if (vector.length != expectedDimension) {
-            log.warn("Embedding für {} verworfen: Dimension {} ≠ Schema-Dimension {}. "
+            log.warn("Embedding for {} discarded: Dimension {} ≠ schema dimension {}. "
                             + "Setze EMBEDDING_DIM passend zum Modell (vor dem ersten DB-Start).",
                     what, vector.length, expectedDimension);
             return false;

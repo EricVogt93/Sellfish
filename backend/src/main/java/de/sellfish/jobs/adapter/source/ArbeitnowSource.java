@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Arbeitnow Job-Board-API (kostenlos, ohne Key, Europa/Remote). Keine serverseitige Suche,
+ * Arbeitnow Job-Board-API (kostenlos, without Key, Europa/Remote). Keine serverseitige Suche,
  * daher Filterung nach Suchbegriffen clientseitig.
  */
 @Component
@@ -59,7 +59,7 @@ public class ArbeitnowSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Arbeitnow-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Arbeitnow-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

@@ -45,7 +45,7 @@ public class AdzunaSource implements JobSource {
         String appKey = str(config, "app_key");
         String country = config.getOrDefault("country", "de").toString();
         if (appId == null || appKey == null) {
-            log.warn("Adzuna ohne app_id/app_key konfiguriert – übersprungen");
+            log.warn("Adzuna without app_id/app_key configured - skipped");
             return List.of();
         }
         try {
@@ -76,7 +76,7 @@ public class AdzunaSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Adzuna-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Adzuna-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

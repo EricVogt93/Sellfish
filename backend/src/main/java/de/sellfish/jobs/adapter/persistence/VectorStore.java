@@ -78,7 +78,7 @@ public class VectorStore {
         return readVector("SELECT embedding::text FROM profile_embedding WHERE user_id = ?", userId);
     }
 
-    /** Liest das Job-Embedding (leeres Array, falls keins vorhanden). */
+    /** Liest das Job embedding (leeres Array, falls keins vorhanden). */
     public float[] getJobEmbedding(UUID jobId) {
         return readVector("SELECT embedding::text FROM job_embedding WHERE job_id = ?", jobId);
     }

@@ -51,7 +51,7 @@ public class JobspressoSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Jobspresso-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Jobspresso-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

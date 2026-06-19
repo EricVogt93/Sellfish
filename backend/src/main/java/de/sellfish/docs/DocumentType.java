@@ -5,6 +5,6 @@ public enum DocumentType {
     CERTIFICATE,
     REFERENCE,        // Arbeitszeugnis
     COVER_LETTER,     // Anschreiben
-    PROJECT_LIST,     // Projektliste
+    PROJECT_LIST,     // Project list
     OTHER
 }

@@ -16,7 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Himalayas Remote-Jobs-API (kostenlos, ohne Key, international/remote). Filterung clientseitig.
+ * Himalayas Remote-Jobs-API (kostenlos, without Key, international/remote). Filterung clientseitig.
  */
 @Component
 public class HimalayasSource implements JobSource {
@@ -57,7 +57,7 @@ public class HimalayasSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Himalayas-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Himalayas-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

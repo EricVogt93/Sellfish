@@ -11,7 +11,7 @@ import java.util.Base64;
 import java.util.Set;
 
 /**
- * Validiert einen RSA-signierten Lizenz-Key offline.
+ * Validiert einen RSA-signierten License key offline.
  *
  * <p>Format des License-Keys (Base64): {@code payload || "::" || signature}
  * wobei der Payload selbst eine JSON-Zeichenkette ist:
@@ -45,7 +45,7 @@ public class LicenseValidator {
             }
             return LicensePayload.parse(payload);
         } catch (Exception e) {
-            log.warn("Lizenz-Validierung fehlgeschlagen: {}", e.getMessage());
+            log.warn("License-Validierung failed: {}", e.getMessage());
             return LicensePayload.INVALID;
         }
     }
@@ -60,7 +60,7 @@ public class LicenseValidator {
     }
 
     /**
-     * Geparste Lizenz-Nutzdaten nach erfolgreicher Signatur-Prüfung.
+     * Geparste License-Nutzdaten nach erfolgreicher Signatur-Prüfung.
      */
     public static class LicensePayload {
         public static final LicensePayload INVALID = new LicensePayload(false, null, null, Set.of());

@@ -39,7 +39,7 @@ public class GenericScraperSource implements JobSource {
         String searchUrl = str(config, "search_url");
         String itemSelector = str(config, "item_selector");
         if (searchUrl == null || itemSelector == null) {
-            log.warn("Scraper ohne search_url/item_selector – übersprungen");
+            log.warn("Scraper without search_url/item_selector - skipped");
             return List.of();
         }
         String url = searchUrl
@@ -52,12 +52,12 @@ public class GenericScraperSource implements JobSource {
                     .get();
             return parse(doc, config);
         } catch (Exception e) {
-            log.warn("Scraper-Abruf fehlgeschlagen ({}): {}", url, e.getMessage());
+            log.warn("Scraper-Abruf failed ({}): {}", url, e.getMessage());
             return List.of();
         }
     }
 
-    /** Reine, netzwerkfreie Parse-Logik – getrennt für Testbarkeit. */
+    /** Reine, netzwerkfreie Parse-Logik - getrennt für Testbarkeit. */
     public List<RawJob> parse(Document doc, Map<String, Object> config) {
         String itemSelector = str(config, "item_selector");
         String titleSelector = str(config, "title_selector");

@@ -89,7 +89,7 @@ public class AdminService {
 
         // API-Key pro Provider (baseUrl) wiederverwenden: bleibt das Feld leer, ziehen wir den
         // bereits gespeicherten Key derselben baseUrl. So laesst sich das Modell per Dropdown
-        // umschalten, ohne den Schluessel jedes Mal neu einzugeben.
+        // umschalten, without den Schluessel jedes Mal neu einzugeben.
         String keyEnc = null;
         if (apiKey != null && !apiKey.isBlank()) {
             keyEnc = cryptoService.encrypt(apiKey);

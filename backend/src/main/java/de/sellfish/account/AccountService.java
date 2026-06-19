@@ -123,7 +123,7 @@ public class AccountService {
         try {
             storage.delete(key);
         } catch (RuntimeException e) {
-            log.warn("Storage-Objekt {} nicht löschbar: {}", key, e.getMessage());
+            log.warn("storage object {} could not be deleted: {}", key, e.getMessage());
         }
     }
 
@@ -153,7 +153,7 @@ public class AccountService {
         v.put("model", c.getModel());
         v.put("purpose", c.getPurpose());
         v.put("baseUrl", c.getBaseUrl());
-        // Bewusst ohne Schlüsselmaterial.
+        // Bewusst without Schlüsselmaterial.
         return v;
     }
 }

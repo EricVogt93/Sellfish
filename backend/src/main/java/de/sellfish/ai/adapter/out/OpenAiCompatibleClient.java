@@ -85,7 +85,7 @@ public class OpenAiCompatibleClient implements ChatProvider, EmbeddingProvider {
         JsonNode response = post(model, "/embeddings", body);
         JsonNode vector = response.path("data").path(0).path("embedding");
         if (!vector.isArray()) {
-            throw new LlmException("Embedding-Antwort enthält keinen Vektor");
+            throw new LlmException("Embedding response contains no vector");
         }
         float[] out = new float[vector.size()];
         for (int i = 0; i < vector.size(); i++) {
@@ -113,7 +113,7 @@ public class OpenAiCompatibleClient implements ChatProvider, EmbeddingProvider {
             }
             return result;
         } catch (RestClientException e) {
-            throw new LlmException("LLM-Aufruf fehlgeschlagen (" + model.provider() + "): " + e.getMessage(), e);
+            throw new LlmException("LLM-Aufruf failed (" + model.provider() + "): " + e.getMessage(), e);
         }
     }
 }

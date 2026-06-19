@@ -40,7 +40,7 @@ public class LeverSource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         Object companies = config.get("companies");
         if (companies == null) {
-            log.warn("Lever ohne companies konfiguriert – übersprungen");
+            log.warn("Lever without companies configured - skipped");
             return List.of();
         }
         List<RawJob> jobs = new ArrayList<>();
@@ -72,7 +72,7 @@ public class LeverSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Lever-Company {} fehlgeschlagen: {}", company, e.getMessage());
+            log.warn("Lever-Company {} failed: {}", company, e.getMessage());
             return List.of();
         }
     }

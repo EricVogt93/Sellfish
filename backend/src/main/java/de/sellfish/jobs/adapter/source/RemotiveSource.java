@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Remotive Remote-Jobs-API (kostenlos, ohne Key, international/remote).
+ * Remotive Remote-Jobs-API (kostenlos, without Key, international/remote).
  */
 @Component
 public class RemotiveSource implements JobSource {
@@ -57,7 +57,7 @@ public class RemotiveSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Remotive-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Remotive-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

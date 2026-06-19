@@ -96,7 +96,7 @@ public class AnthropicClient implements ChatProvider {
                     usage.path("input_tokens").isNumber() ? usage.get("input_tokens").asInt() : null,
                     usage.path("output_tokens").isNumber() ? usage.get("output_tokens").asInt() : null);
         } catch (RestClientException e) {
-            throw new LlmException("Anthropic-Aufruf fehlgeschlagen: " + e.getMessage(), e);
+            throw new LlmException("Anthropic-Aufruf failed: " + e.getMessage(), e);
         }
     }
 }

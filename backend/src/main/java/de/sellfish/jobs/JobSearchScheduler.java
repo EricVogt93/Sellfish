@@ -9,7 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 /**
- * Periodischer Suchlauf für alle aktiven Nutzer. Abschaltbar via {@code app.scheduling.enabled=false}.
+ * Periodischer Search run für alle aktiven Nutzer. Abschaltbar via {@code app.scheduling.enabled=false}.
  */
 @Component
 @ConditionalOnProperty(name = "app.scheduling.enabled", havingValue = "true", matchIfMissing = true)
@@ -32,7 +32,7 @@ public class JobSearchScheduler {
             try {
                 jobSearchService.runForUser(user.getId());
             } catch (RuntimeException e) {
-                log.warn("Geplanter Suchlauf für {} fehlgeschlagen: {}", user.getId(), e.getMessage());
+                log.warn("Scheduled Search run for {} failed: {}", user.getId(), e.getMessage());
             }
         }
     }

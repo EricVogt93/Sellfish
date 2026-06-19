@@ -53,7 +53,7 @@ public class ItTalentsSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("IT-Talents-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("IT-Talents-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

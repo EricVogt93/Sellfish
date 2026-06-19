@@ -37,7 +37,7 @@ public final class Fingerprints {
             byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
             return HexFormat.of().formatHex(hash);
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 nicht verfügbar", e);
+            throw new IllegalStateException("SHA-256 unavailable", e);
         }
     }
 }

@@ -70,7 +70,7 @@ public class WhoIsHiringSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("WhoIsHiring-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("WhoIsHiring-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }
@@ -88,7 +88,7 @@ public class WhoIsHiringSource implements JobSource {
                 }
             }
         } catch (RestClientException e) {
-            log.warn("HN-Suche fehlgeschlagen: {}", e.getMessage());
+            log.warn("HN-Suche failed: {}", e.getMessage());
         }
         return null;
     }

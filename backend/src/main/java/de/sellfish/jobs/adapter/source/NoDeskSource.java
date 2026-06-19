@@ -49,7 +49,7 @@ public class NoDeskSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("NoDesk-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("NoDesk-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

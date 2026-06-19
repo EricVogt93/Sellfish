@@ -21,7 +21,7 @@ public final class CurrentUser {
         if (auth != null && auth.getPrincipal() instanceof AppUserDetails details) {
             return details;
         }
-        throw new ApiException(HttpStatus.UNAUTHORIZED, "Nicht authentifiziert");
+        throw new ApiException(HttpStatus.UNAUTHORIZED, "Not authenticated");
     }
 
     public static UUID id() {

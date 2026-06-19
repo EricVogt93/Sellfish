@@ -18,8 +18,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Quelle, die den konfigurierten LLM-Agenten nach passenden Stellen fragt (für Nischen/Fälle
- * ohne API). Liefert strukturierte Vorschläge des Modells.
+ * Quelle, die den configureden LLM-Agenten nach passenden Stellen fragt (für Nischen/Fälle
+ * without API). Liefert strukturierte Vorschläge des Modells.
  */
 @Component
 public class LlmWebSearchSource implements JobSource {
@@ -81,7 +81,7 @@ public class LlmWebSearchSource implements JobSource {
             }
             return jobs;
         } catch (RuntimeException | com.fasterxml.jackson.core.JsonProcessingException e) {
-            log.info("LLM-Websuche übersprungen: {}", e.getMessage());
+            log.info("LLM-Websuche skipped: {}", e.getMessage());
             return List.of();
         }
     }

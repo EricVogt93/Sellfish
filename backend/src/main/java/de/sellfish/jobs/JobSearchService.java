@@ -23,7 +23,7 @@ import java.util.Set;
 import java.util.UUID;
 
 /**
- * Orchestriert einen Suchlauf für einen Nutzer: Query bauen, Profil-Embedding aktualisieren,
+ * Orchestriert einen Search run für einen Nutzer: Query bauen, Profil-Embedding aktualisieren,
  * Stellen einsammeln, Matches neu berechnen und alles als {@link SearchRun} protokollieren.
  */
 @Service
@@ -83,7 +83,7 @@ public class JobSearchService {
                     "created", stats.created(),
                     "matches", matches)));
         } catch (Exception e) {
-            log.error("Suchlauf für {} fehlgeschlagen", userId, e);
+            log.error("Search run for {} failed", userId, e);
             run.setStatus("FAILED");
             safeStats(run, e.getMessage());
         } finally {

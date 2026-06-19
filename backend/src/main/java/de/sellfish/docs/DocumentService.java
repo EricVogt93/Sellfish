@@ -50,7 +50,7 @@ public class DocumentService {
         try {
             doc.setParsedText(textExtraction.extract(content));
         } catch (DocumentProcessingException e) {
-            log.warn("Textextraktion fehlgeschlagen für {}: {}", filename, e.getMessage());
+            log.warn("Text extraction failed for {}: {}", filename, e.getMessage());
         }
 
         // Erstes Dokument seines Typs wird automatisch primär.
@@ -59,7 +59,7 @@ public class DocumentService {
         }
         Document saved = repository.save(doc);
 
-        // Strukturierung als Best-Effort (scheitert ohne LLM-Konfiguration, blockiert Upload aber nicht).
+        // Strukturierung als Best-Effort (scheitert without LLM-Konfiguration, blockiert Upload aber nicht).
         tryStructure(saved);
         return saved;
     }
@@ -79,7 +79,7 @@ public class DocumentService {
                 repository.save(doc);
             }
         } catch (RuntimeException e) {
-            log.info("Automatische Strukturierung übersprungen für {}: {}", doc.getId(), e.getMessage());
+            log.info("Auto-structuring skipped for {}: {}", doc.getId(), e.getMessage());
         }
     }
 
@@ -97,7 +97,7 @@ public class DocumentService {
         } else if (doc.getType() == DocumentType.PROJECT_LIST) {
             cvParsingService.parseProjects(userId, doc.getParsedText());
         } else {
-            throw ApiException.badRequest("Strukturierung nur für CV und Projektliste verfügbar");
+            throw ApiException.badRequest("Strukturierung nur für CV und Project list verfügbar");
         }
         doc.setParsedStruct("{\"parsed\":true}");
         repository.save(doc);

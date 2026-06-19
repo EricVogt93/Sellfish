@@ -4,7 +4,7 @@ import java.util.UUID;
 
 /**
  * Berechnet die Job-Matches eines Nutzers neu. Implementiert im {@code matching}-Modul;
- * hier als Schnittstelle, um die Abhängigkeit des Suchlaufs zu entkoppeln.
+ * hier als Schnittstelle, um die Abhängigkeit des Search runs zu entkoppeln.
  */
 public interface MatchRecomputer {
 

@@ -107,7 +107,7 @@
 		}
 	}
 
-	// Sterne-Rating ⇒ echtes Feedback fürs Self-Learning
+	// Star rating -> real feedback for self-learning
 	async function rate(jobId: string, v: number) {
 		ratings = { ...ratings, [jobId]: v };
 		const job = jobs.find((j) => j.id === jobId);

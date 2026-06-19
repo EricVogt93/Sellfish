@@ -41,7 +41,7 @@ public class JobValidationService {
             String text = result.content() != null ? result.content().strip() : "";
             return parseScore(text);
         } catch (Exception e) {
-            log.debug("LLM-Relevanz-Score fehlgeschlagen: {}", e.getMessage());
+            log.debug("LLM-Relevanz-Score failed: {}", e.getMessage());
             return 0.5;
         }
     }

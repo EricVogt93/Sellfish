@@ -50,7 +50,7 @@ public class EuropeRemotelySource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("EuropeRemotely-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("EuropeRemotely-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }

@@ -189,7 +189,7 @@ export const backend = {
 			body: JSON.stringify({ jobMatchId, type })
 		}),
 
-	// Profil & Präferenzen
+	// Profile // Profil & Präferenzen preferences
 	getProfile: () => api<ProfileResponse>('/api/profile'),
 	updateProfile: (body: Partial<ProfileResponse>) =>
 		api<ProfileResponse>('/api/profile', { method: 'PUT', body: JSON.stringify(body) }),

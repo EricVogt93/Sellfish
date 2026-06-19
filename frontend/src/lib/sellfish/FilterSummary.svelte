@@ -14,7 +14,7 @@
 	);
 </script>
 
-<!-- Filteranzeige in der Zeile: Zähler + Segmente (gewählte Design-Variante) -->
+<!-- Inline filter summary: counter + segments (selected design variant) -->
 <span class="aa-fsum-seg" title={`${met} of ${total} filters met`}>
 	<span class="aa-fsum-counter" style={`color:${color};`}>{met}/{total}</span>
 	<span class="aa-segments">

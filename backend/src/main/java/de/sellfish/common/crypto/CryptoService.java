@@ -11,7 +11,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 
 /**
- * AES-GCM-Verschlüsselung für sensible Werte (z. B. Per-User-API-Keys).
+ * AES-GCM-Encryption für sensible Werte (z. B. Per-User-API-Keys).
  * <p>
  * Format des Chiffrats (Base64): {@code IV (12 Byte) || Ciphertext || Tag (16 Byte)}.
  */
@@ -50,7 +50,7 @@ public class CryptoService {
             System.arraycopy(ciphertext, 0, out, iv.length, ciphertext.length);
             return Base64.getEncoder().encodeToString(out);
         } catch (Exception e) {
-            throw new IllegalStateException("Verschlüsselung fehlgeschlagen", e);
+            throw new IllegalStateException("Encryption failed", e);
         }
     }
 
@@ -72,7 +72,7 @@ public class CryptoService {
             cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(TAG_BITS, iv));
             return new String(cipher.doFinal(ciphertext), StandardCharsets.UTF_8);
         } catch (Exception e) {
-            throw new IllegalStateException("Entschlüsselung fehlgeschlagen", e);
+            throw new IllegalStateException("Decryption failed", e);
         }
     }
 }

@@ -37,7 +37,7 @@ public class McpTools {
         this.generationService = generationService;
     }
 
-    @McpTool(description = "Löst einen Suchlauf über alle Job-Quellen aus und liefert die besten Matches zurück")
+    @McpTool(description = "Löst einen Search run über alle Job-Quellen aus und liefert die besten Matches zurück")
     public McpSearchResult searchJobs() {
         UUID userId = CurrentUser.id();
         SearchRun run = jobSearchService.runForUser(userId);

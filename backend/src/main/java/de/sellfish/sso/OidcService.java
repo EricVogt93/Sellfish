@@ -70,7 +70,7 @@ public class OidcService {
         JsonNode tokenJson = parse(tokenResponse, "Token-Response");
         String idToken = tokenJson.path("id_token").asText();
         if (idToken == null || idToken.isBlank()) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "Kein ID-Token erhalten");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "No ID token received");
         }
 
         Claims claims = verifyIdToken(idToken, p);
@@ -87,7 +87,7 @@ public class OidcService {
         try {
             String[] parts = idToken.split("\\.");
             if (parts.length < 2) {
-                throw new ApiException(HttpStatus.UNAUTHORIZED, "Ungültiges ID-Token-Format");
+                throw new ApiException(HttpStatus.UNAUTHORIZED, "Invalid ID token format");
             }
             String headerJson = new String(Base64.getUrlDecoder().decode(parts[0]), StandardCharsets.UTF_8);
             JsonNode header = mapper.readTree(headerJson);
@@ -102,9 +102,9 @@ public class OidcService {
                     .parse(idToken)
                     .getPayload();
         } catch (io.jsonwebtoken.JwtException e) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "ID-Token-Verifikation fehlgeschlagen: " + e.getMessage());
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "ID token verification failed: " + e.getMessage());
         } catch (Exception e) {
-            throw new ApiException(HttpStatus.UNAUTHORIZED, "ID-Token-Parsing fehlgeschlagen: " + e.getMessage());
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "ID token parsing failed: " + e.getMessage());
         }
     }
 
@@ -128,9 +128,9 @@ public class OidcService {
             }
         } catch (Exception e) {
             throw new ApiException(HttpStatus.UNAUTHORIZED,
-                    "JWKS-Abruf fehlgeschlagen: " + e.getMessage());
+                    "JWKS-Abruf failed: " + e.getMessage());
         }
-        throw new ApiException(HttpStatus.UNAUTHORIZED, "Kein passender JWK-Key gefunden");
+        throw new ApiException(HttpStatus.UNAUTHORIZED, "No matching JWK key found");
     }
 
     public boolean hasProviders() {
@@ -148,14 +148,14 @@ public class OidcService {
         return properties.providers().stream()
                 .filter(p -> p.id().equalsIgnoreCase(providerId))
                 .findFirst()
-                .orElseThrow(() -> ApiException.notFound("SSO-Provider nicht konfiguriert: " + providerId));
+                .orElseThrow(() -> ApiException.notFound("SSO-Provider nicht configured: " + providerId));
     }
 
     private JsonNode parse(String json, String context) {
         try {
             return mapper.readTree(json);
         } catch (Exception e) {
-            throw new ApiException(HttpStatus.BAD_GATEWAY, context + " konnte nicht geparst werden");
+            throw new ApiException(HttpStatus.BAD_GATEWAY, context + " could not be parsed");
         }
     }
 

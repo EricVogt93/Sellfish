@@ -165,7 +165,7 @@ public class SelfLearningService {
                     "accuracy", result.accuracy(),
                     "samples", result.samples())));
         } catch (Exception e) {
-            log.warn("Modell-Serialisierung fehlgeschlagen: {}", e.getMessage());
+            log.warn("Modell-Serialisierung failed: {}", e.getMessage());
         }
         rankingRepository.save(model);
     }

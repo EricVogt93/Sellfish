@@ -46,7 +46,7 @@ public class ReedSource implements JobSource {
     public List<RawJob> fetch(JobQuery query, Map<String, Object> config) {
         Object apiKey = config.get("api_key");
         if (apiKey == null) {
-            log.warn("Reed ohne api_key konfiguriert – übersprungen");
+            log.warn("Reed without api_key configured - skipped");
             return List.of();
         }
         String basic = Base64.getEncoder()
@@ -77,7 +77,7 @@ public class ReedSource implements JobSource {
             }
             return jobs;
         } catch (RestClientException e) {
-            log.warn("Reed-Abruf fehlgeschlagen: {}", e.getMessage());
+            log.warn("Reed-Abruf failed: {}", e.getMessage());
             return List.of();
         }
     }
