@@ -4,6 +4,13 @@
 stages:
   - test
 
+# Per-build network so the build container can reach DinD service's published
+# container ports (required for Testcontainers in GitLab DinD).
+variables:
+  FF_NETWORK_PER_BUILD: "true"
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+
 test:backend:
   stage: test
   image: maven:3.9-eclipse-temurin-21
@@ -13,9 +20,7 @@ test:backend:
       command: ["--tls=false"]
   variables:
     DOCKER_HOST: tcp://docker:2375
-    DOCKER_TLS_CERTDIR: ""
-    DOCKER_DRIVER: overlay2
-    # Pre-fetch fewer deps into the runner-local .m2 cache
+    TESTCONTAINERS_RYUK_DISABLED: "true"
     MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
   cache:
     key: maven-${CI_COMMIT_REF_SLUG}
