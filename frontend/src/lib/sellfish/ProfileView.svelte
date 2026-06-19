@@ -13,6 +13,14 @@
 		type CountryGroup
 	} from '$lib/api/backend'
 
+	let {
+		preloadedProfile = null,
+		preloadedPrefs = null
+	}: {
+		preloadedProfile?: ProfileResponse | null
+		preloadedPrefs?: PreferencesResponse | null
+	} = $props()
+
 	let profile = $state<ProfileResponse | null>(null)
 	let prefs = $state<PreferencesResponse | null>(null)
 	let documents = $state<DocumentResponse[]>([])
@@ -75,15 +83,29 @@
 		}
 	}
 
-	async function loadAll() {
-		profile = await backend.getProfile()
-		prefs = await backend.getPreferences()
-		titles = prefs.desiredTitles ?? []
-		keywords = prefs.keywords ?? []
-		excluded = prefs.excludedCompanies ?? []
-		selectedCountries = new Set(prefs.preferredCountries ?? [])
-		remoteOnly = selectedCountries.has('REMOTE')
+	function applyProfile(p: ProfileResponse) {
+		profile = p
 		loadPersonal()
+	}
+	function applyPrefs(p: PreferencesResponse) {
+		prefs = p
+		titles = p.desiredTitles ?? []
+		keywords = p.keywords ?? []
+		excluded = p.excludedCompanies ?? []
+		selectedCountries = new Set(p.preferredCountries ?? [])
+		remoteOnly = selectedCountries.has('REMOTE')
+	}
+
+	async function loadAll() {
+		// Use preloaded data if available (no API round-trip)
+		if (preloadedProfile) applyProfile(preloadedProfile)
+		else profile = await backend.getProfile()
+		if (preloadedPrefs) applyPrefs(preloadedPrefs)
+		else {
+			prefs = await backend.getPreferences()
+			applyPrefs(prefs)
+		}
+		if (!preloadedProfile) loadPersonal()
 		documents = await backend.listDocuments()
 		providers = await backend.listProviders()
 	}

@@ -48,6 +48,47 @@ function parseBreakdown(raw: string): Breakdown {
 	}
 }
 
+/** Human-readable source name from internal code. */
+const SOURCE_LABELS: Record<string, string> = {
+	HIMALAYAS: 'Himalayas',
+	WORKINGNOM: 'Working Nomads',
+	REMOTEOK: 'RemoteOK',
+	REMOTIVE: 'Remotive',
+	ARBEITNOW: 'Arbeitnow',
+	JOBICY: 'Jobicy',
+	JUSTRMOTE: 'JustRemote',
+	JOBSPRESSO: 'Jobspresso',
+	NODESK: 'NoDesk',
+	WWREMOTE: 'WeWorkRemotely',
+	WHOWHIRING: 'HN WhoIsHiring',
+	EURREMOTE: 'EuropeRemotely',
+	REMOTECO: 'Remote.co',
+	GREENHOUSE: 'Greenhouse',
+	LEVER: 'Lever',
+	RECRUITEE: 'Recruitee',
+	ASHBY: 'Ashby',
+	SMARTRECRUITERS: 'SmartRecruiters',
+	WORKABLE: 'Workable',
+	ADZUNA: 'Adzuna',
+	BA: 'Bundesagentur',
+	'4SCOTTY': '4Scotty',
+	ITTALENTS: 'IT-Talents',
+	HONEYPOT: 'Honeypot',
+	CAREERJET: 'CareerJet',
+	FINDWORK: 'Findwork',
+	JOOBLE: 'Jooble',
+	REED: 'Reed',
+	THEMUSE: 'TheMuse',
+	USAJOBS: 'USAJobs',
+	ZIPRECRUITER: 'ZipRecruiter',
+	SCRAPER: 'Scraper',
+	LLM_WEB: 'AI Search'
+}
+function sourceLabel(code: string | null): string {
+	if (!code) return '—'
+	return SOURCE_LABELS[code] ?? code.replace(/_/g, ' ').toLowerCase()
+}
+
 /** Backend-Match → UI-Job; Score 0..1 → 0..100, Feature-„Filter" abgeleitet. */
 export function mapMatch(m: MatchResponse): Job {
 	const bd = parseBreakdown(m.scoreBreakdown)
@@ -61,6 +102,7 @@ export function mapMatch(m: MatchResponse): Job {
 
 	const remoteRaw = (m.remote ?? '').toUpperCase()
 	const remote = remoteRaw.includes('REMOTE') ? 'Remote' : remoteRaw || ''
+	const srcLabel = sourceLabel(m.source)
 
 	return {
 		id: m.jobId,
@@ -74,11 +116,11 @@ export function mapMatch(m: MatchResponse): Job {
 		location: m.location ?? (remote || '—'),
 		salary: m.salaryRaw ?? '—',
 		posted: relTime(m.postedAt),
-		source: m.source ?? '—',
+		source: srcLabel,
 		score: Math.round(Math.max(0, Math.min(1, m.score)) * 100),
 		met,
 		type: remote || 'Full-time',
-		seniority: m.source ?? 'Match',
+		seniority: srcLabel,
 		blurb: m.description ?? 'No description provided by the source.',
 		facts
 	}

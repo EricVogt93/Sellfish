@@ -23,7 +23,9 @@
 		backend,
 		type MatchResponse,
 		type DocumentResponse,
-		type MatchStatus
+		type MatchStatus,
+		type ProfileResponse,
+		type PreferencesResponse
 	} from '$lib/api/backend'
 	import { goto } from '$app/navigation'
 
@@ -85,16 +87,26 @@
 		void initSession()
 	})
 
-	// Nach Login: Matches + Dokumente laden
+	// Nach Login: Matches + Dokumente + Profil parallel laden (preload, kein lazy-warten)
 	$effect(() => {
 		if (session.authed) void reload()
 	})
 
+	let preloadedProfile = $state<ProfileResponse | null>(null)
+	let preloadedPrefs = $state<PreferencesResponse | null>(null)
+
 	async function reload() {
 		try {
-			const [page, docs] = await Promise.all([backend.listMatches(100), backend.listDocuments()])
+			const [page, docs, prof, prefs] = await Promise.all([
+				backend.listMatches(100),
+				backend.listDocuments(),
+				backend.getProfile().catch(() => null),
+				backend.getPreferences().catch(() => null)
+			])
 			matches = page.content
 			documents = docs
+			preloadedProfile = prof
+			preloadedPrefs = prefs
 		} catch (e) {
 			toast(e instanceof Error ? e.message : 'Failed to load', 'x', 'var(--accent-error)')
 		}
@@ -332,7 +344,7 @@
 		{:else if view === 'applications'}
 			<ApplicationsView {applications} />
 		{:else if view === 'profile'}
-			<ProfileView />
+			<ProfileView {preloadedProfile} {preloadedPrefs} />
 		{:else if view === 'users'}
 			<UsersView {me} />
 		{/if}
