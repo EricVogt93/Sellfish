@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Icon from '$lib/atoms/Icon.svelte'
-	import { api, apiDownload } from '$lib/api'
+	import { apiDownload } from '$lib/api'
 	import { backend, type DocumentResponse } from '$lib/api/backend'
 	import { toast } from '$lib/utils/toasts.svelte'
 
@@ -11,8 +11,6 @@
 		documents?: DocumentResponse[]
 		onDocumentsChanged: (docs: DocumentResponse[]) => void
 	} = $props()
-
-	let localDocs = $state<DocumentResponse[]>(documents)
 
 	const DOC_TYPES = ['CV', 'PROJECT_LIST', 'CERTIFICATE', 'REFERENCE', 'COVER_LETTER', 'OTHER']
 	let docType = $state('CV')

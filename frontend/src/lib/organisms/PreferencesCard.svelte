@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Icon from '$lib/atoms/Icon.svelte'
-	import { addChip, rmChip, chipKeydown } from '$lib/utils/chipHelpers'
+	import { rmChip, chipKeydown } from '$lib/utils/chipHelpers'
 	import { backend } from '$lib/api/backend'
 	import { toast } from '$lib/utils/toasts.svelte'
 	import type { PreferencesResponse } from '$lib/api/backend'

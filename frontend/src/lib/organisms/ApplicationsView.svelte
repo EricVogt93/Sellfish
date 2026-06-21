@@ -1,101 +1,84 @@
-<script lang="ts">
-	import Icon from '$lib/atoms/Icon.svelte'
-	import CompanyMark from '$lib/atoms/CompanyMark.svelte'
-	import StageBadge from '$lib/atoms/StageBadge.svelte'
-	import { STAGES, type Stage } from '$lib/utils/data'
-	import type { Job } from '$lib/utils/data'
-
-	// UI-Jobs mit beworbenem Status (vom Page-Container vorgefiltert)
-	let { applications }: { applications: Job[] } = $props()
-
-	const STATUS_TO_STAGE: Record<string, Stage> = {
-		APPLIED: 'sent',
-		INTERVIEW: 'interview',
-		OFFER: 'offer',
-		REJECTED: 'rejected'
-	}
-
-	function stageOf(status: string | undefined): Stage {
-		return STATUS_TO_STAGE[status ?? 'APPLIED'] ?? 'sent'
-	}
-
-	const counts = $derived(
-		applications.reduce<Record<string, number>>((m, a) => {
-			const s = stageOf(a.status)
-			m[s] = (m[s] || 0) + 1
-			return m
-		}, {})
-	)
-
-	const stageKeys = Object.keys(STAGES) as Stage[]
+<script>
+	import { app } from '$lib/state/sellfish.svelte'
 </script>
 
-<div class="aa-view">
-	<header class="aa-pagehead">
-		<div>
-			<div class="eyebrow">tracking · {applications.length} in flight</div>
-			<h1 class="aa-h1">Applications</h1>
+<section data-screen-label="Applications" style="animation:sfUp .3s ease both">
+	<div style="margin-bottom:18px">
+		<div
+			style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#71717a"
+		>
+			pipeline · {app.appCount} active applications
 		</div>
-		<div class="aa-stagecounts">
-			{#each stageKeys as s (s)}
-				{#if counts[s]}
-					<span class="aa-stagecount">
-						<span class="aa-stage-dot" style={`background:${STAGES[s].color};`}></span>
-						{counts[s]}
-						{STAGES[s].label.toLowerCase()}
-					</span>
-				{/if}
-			{/each}
-		</div>
-	</header>
-
-	{#if applications.length === 0}
-		<div class="aa-tablecard">
-			<div class="aa-empty">
-				<Icon name="send" size={28} style="color:var(--text-muted);" />
-				<p>No applications yet. Apply to a job from the Jobs view.</p>
-			</div>
-		</div>
-	{:else}
-		<div class="aa-tablecard">
-			<table class="aa-table">
-				<thead>
-					<tr
-						><th>Job</th><th>Company</th><th>Stage</th><th>Source</th><th>Match</th><th
-							class="aa-col-actions"
-						></th></tr
+		<h1 style="font-size:1.85rem;font-weight:600;letter-spacing:-.02em;margin-top:4px">
+			Applications
+		</h1>
+	</div>
+	<div
+		style="display:grid;grid-template-columns:repeat(5,minmax(180px,1fr));gap:14px;align-items:start;overflow-x:auto"
+	>
+		{#each app.appColumns as col (col.key)}
+			<div
+				style="background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:12px"
+			>
+				<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+					<span
+						style="width:8px;height:8px;border-radius:50%;background:{col.color};box-shadow:0 0 8px {col.color}"
+					></span><span
+						style="font-family:'JetBrains Mono',monospace;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:#a1a1aa"
+						>{col.label}</span
+					><span
+						style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:.66rem;color:#71717a"
+						>{col.count}</span
 					>
-				</thead>
-				<tbody>
-					{#each applications as job (job.id)}
-						<tr class="aa-row">
-							<td>
-								<div class="aa-jobcell">
-									<CompanyMark {job} size={28} />
-									<span class="aa-jobtitle">{job.title}</span>
-								</div>
-							</td>
-							<td class="aa-company">{job.company}</td>
-							<td><StageBadge stage={stageOf(job.status)} /></td>
-							<td class="aa-jobmeta">{job.source}</td>
-							<td
-								><span class="aa-fsum-counter" style="color:var(--accent-secondary);"
-									>{job.score}</span
-								></td
-							>
-							<td class="aa-col-actions">
-								<button
-									class="aa-iconbtn"
-									title="Open posting"
-									disabled={!job.url}
-									onclick={() => job.url && window.open(job.url, '_blank', 'noopener')}
-									><Icon name="external" size={14} /></button
+				</div>
+				<div style="display:flex;flex-direction:column;gap:10px">
+					{#each col.items as ap (ap.id)}
+						<div
+							onclick={ap.onOpen}
+							class="sf-appcard"
+							style="background:#16161a;border:1px solid rgba(255,255,255,.06);border-radius:11px;padding:12px;cursor:pointer;transition:all .15s"
+						>
+							<div style="display:flex;align-items:center;gap:9px;margin-bottom:10px">
+								<span
+									style="flex:none;width:30px;height:30px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:.66rem;background:{ap.markBg};border:1px solid {ap.markBorder};color:{ap.markColor}"
+									>{ap.initials}</span
 								>
-							</td>
-						</tr>
+								<div style="min-width:0">
+									<div
+										style="font-size:.81rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+									>
+										{ap.title}
+									</div>
+									<div
+										style="font-size:.69rem;color:#71717a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis"
+									>
+										{ap.company}
+									</div>
+								</div>
+							</div>
+							<div style="display:flex;align-items:center;justify-content:space-between">
+								<span style="font-family:'JetBrains Mono',monospace;font-size:.7rem;color:#06b6d4"
+									>{ap.salary}</span
+								><span style="font-family:'JetBrains Mono',monospace;font-size:.64rem;color:#71717a"
+									>{ap.ago} ago</span
+								>
+							</div>
+						</div>
 					{/each}
-				</tbody>
-			</table>
-		</div>
-	{/if}
-</div>
+					{#if col.empty}<div
+							style="font-family:'JetBrains Mono',monospace;font-size:.66rem;color:#52525b;text-align:center;padding:10px 0"
+						>
+							—
+						</div>{/if}
+				</div>
+			</div>
+		{/each}
+	</div>
+</section>
+
+<style>
+	.sf-appcard:hover {
+		border-color: rgba(124, 58, 237, 0.3);
+		transform: translateY(-2px);
+	}
+</style>

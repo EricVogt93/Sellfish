@@ -1,15 +1,12 @@
 <script lang="ts">
 	import Icon from '$lib/atoms/Icon.svelte'
 	import { backend, type ProviderConfig } from '$lib/api/backend'
-	import { toast } from '$lib/utils/toasts.svelte'
 
 	let {
 		providers = []
 	}: {
 		providers?: ProviderConfig[]
 	} = $props()
-
-	let localProviders = $state<ProviderConfig[]>(providers)
 
 	const PROVIDERS = ['OLLAMA', 'OPENAI', 'NIM', 'OPENAI_COMPATIBLE', 'ANTHROPIC', 'GOOGLE']
 	let form = $state({

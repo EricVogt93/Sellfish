@@ -252,7 +252,10 @@ test.describe('Jobs view', () => {
 		await expect(page.getByText(/matches today/)).toHaveCount(0)
 	})
 
-	test('job drawer opens with description, facts and AI tool buttons', async ({ page, request }) => {
+	test('job drawer opens with description, facts and AI tool buttons', async ({
+		page,
+		request
+	}) => {
 		const token = await apiLogin(request)
 		// Acme must be NEW (not APPLIED) so the footer shows the action buttons.
 		await resetMatches(request, token, ACME_MATCH)
@@ -262,16 +265,22 @@ test.describe('Jobs view', () => {
 		// Click the first job row title to open the drawer.
 		await page.getByText('Senior Java Backend Engineer').click()
 		await expect(page.locator('.aa-drawer')).toBeVisible()
-		await expect(page.locator('.aa-drawer-title', { hasText: 'Senior Java Backend Engineer' })).toBeVisible()
+		await expect(
+			page.locator('.aa-drawer-title', { hasText: 'Senior Java Backend Engineer' })
+		).toBeVisible()
 		// Blurb from seeded description.
 		await expect(page.getByText(/Java\/Spring backend engineer/)).toBeVisible()
 		// AI tools section with both buttons.
 		await expect(page.getByRole('button', { name: /Interview prep|Generating…/ })).toBeVisible()
 		await expect(page.getByRole('button', { name: /Company research|Researching…/ })).toBeVisible()
 		// Footer actions.
-		await expect(page.locator('.aa-drawer-foot').getByRole('button', { name: 'Quick apply' })).toBeVisible()
 		await expect(
-			page.locator('.aa-drawer-foot').getByRole('button', { name: 'Generate & review', exact: true })
+			page.locator('.aa-drawer-foot').getByRole('button', { name: 'Quick apply' })
+		).toBeVisible()
+		await expect(
+			page
+				.locator('.aa-drawer-foot')
+				.getByRole('button', { name: 'Generate & review', exact: true })
 		).toBeVisible()
 		// Close via Esc.
 		await page.keyboard.press('Escape')
@@ -298,9 +307,9 @@ test.describe('Jobs view', () => {
 
 		// The "Rating saved" toast only appears after the POST /status resolves,
 		// so waiting for it proves the persistence call completed.
-		await expect(
-			page.locator('.aa-toast', { hasText: 'Rating saved' })
-		).toBeVisible({ timeout: 10_000 })
+		await expect(page.locator('.aa-toast', { hasText: 'Rating saved' })).toBeVisible({
+			timeout: 10_000
+		})
 
 		// Backend should now report SAVED.
 		const check = await request.get(`/api/matches?size=100`, { headers: authHeaders(token) })
@@ -460,7 +469,10 @@ test.describe('Generation (Apply modal)', () => {
 		await expect(letter).toBeVisible()
 		const content = (await letter.inputValue()).trim()
 		// Non-empty, reasonable length, and not a bare model refusal.
-		expect(content.length, `generated content was: ${JSON.stringify(content.slice(0, 200))}`).toBeGreaterThan(120)
+		expect(
+			content.length,
+			`generated content was: ${JSON.stringify(content.slice(0, 200))}`
+		).toBeGreaterThan(120)
 		expect(content.toLowerCase()).not.toContain('i cannot write')
 
 		// Review footer controls all present.
@@ -584,7 +596,7 @@ test.describe('Generation (Apply modal)', () => {
 	test('Mark as applied flips the match to APPLIED and shows it in Applications', async ({
 		page,
 		request
-	}	) => {
+	}) => {
 		test.setTimeout(120_000)
 		const token = await apiLogin(request)
 		await resetMatches(request, token, ACME_MATCH)
@@ -628,7 +640,9 @@ test.describe('Profile & preferences', () => {
 	test('profile fields load, update, save and persist across reload', async ({ page }) => {
 		await loginViaUI(page)
 		await page.getByRole('button', { name: /^Profile$/ }).click()
-		await expect(page.getByRole('heading', { name: 'Your profile' })).toBeVisible({ timeout: 10_000 })
+		await expect(page.getByRole('heading', { name: 'Your profile' })).toBeVisible({
+			timeout: 10_000
+		})
 
 		// Mutate identity fields deterministically.
 		const headline = `QA Headline ${Date.now().toString(36)}`
@@ -639,7 +653,9 @@ test.describe('Profile & preferences', () => {
 		await page.locator('#aa-remote').selectOption('REMOTE')
 
 		await page.getByRole('button', { name: 'Save identity' }).click()
-		await expect(page.locator('.aa-toast', { hasText: 'Profile saved' })).toBeVisible({ timeout: 10_000 })
+		await expect(page.locator('.aa-toast', { hasText: 'Profile saved' })).toBeVisible({
+			timeout: 10_000
+		})
 
 		// Reload the page and confirm values round-tripped through the backend.
 		await page.reload()
@@ -654,18 +670,24 @@ test.describe('Profile & preferences', () => {
 	test('preferences (titles, keywords, excluded companies) persist', async ({ page }) => {
 		await loginViaUI(page)
 		await page.getByRole('button', { name: /^Profile$/ }).click()
-		await expect(page.getByRole('heading', { name: 'Your profile' })).toBeVisible({ timeout: 10_000 })
+		await expect(page.getByRole('heading', { name: 'Your profile' })).toBeVisible({
+			timeout: 10_000
+		})
 
 		const titles = `Java Engineer, Backend Developer, ${Date.now().toString(36)}`
 		await page.locator('#aa-titles').fill(titles)
 		await page.locator('#aa-kw').fill('Kafka, PostgreSQL, Spring')
 		await page.locator('#aa-excl').fill('NoGo Inc, BadCorp')
 		await page.getByRole('button', { name: 'Save preferences' }).click()
-		await expect(page.locator('.aa-toast', { hasText: 'Preferences saved' })).toBeVisible({ timeout: 10_000 })
+		await expect(page.locator('.aa-toast', { hasText: 'Preferences saved' })).toBeVisible({
+			timeout: 10_000
+		})
 
 		// Verify on the backend directly.
 		const token = await page.evaluate(() => localStorage.getItem('ba_access_token'))
-		const res = await page.request.get('/api/profile/preferences', { headers: authHeaders(token as string) })
+		const res = await page.request.get('/api/profile/preferences', {
+			headers: authHeaders(token as string)
+		})
 		expect(res.status()).toBe(200)
 		const prefs = await res.json()
 		expect(prefs.desiredTitles).toContain('Java Engineer')
@@ -676,7 +698,9 @@ test.describe('Profile & preferences', () => {
 	test('P1-2: job country filter card renders for an authenticated admin', async ({ page }) => {
 		await loginViaUI(page)
 		await page.getByRole('button', { name: /^Profile$/ }).click()
-		await expect(page.getByRole('heading', { name: 'Your profile' })).toBeVisible({ timeout: 10_000 })
+		await expect(page.getByRole('heading', { name: 'Your profile' })).toBeVisible({
+			timeout: 10_000
+		})
 
 		// The country-filter card renders (uses authenticated api() →
 		// /api/admin/source-countries; admin sees countries).
@@ -722,9 +746,7 @@ test.describe('Settings (admin optimizers)', () => {
 			timeout: 10_000
 		})
 		// Active model is shown and matches the seeded global CHAT config.
-		const aiSwitcher = page
-			.locator('section.switcher')
-			.filter({ hasText: 'AI Model (Generation)' })
+		const aiSwitcher = page.locator('section.switcher').filter({ hasText: 'AI Model (Generation)' })
 		await expect(aiSwitcher.locator('.cur', { hasText: REAL_LLM.model })).toBeVisible()
 		// Dropdown lists the actually-configured CHAT provider(s) — at minimum
 		// the seeded local_llm (P1-1: dropdown is driven by /api/admin/llm-configs,
@@ -755,10 +777,9 @@ test.describe('Settings (admin optimizers)', () => {
 
 		// Clicking Activate MUST fire a POST to /api/admin/llm-configs.
 		const postPromise = page
-			.waitForRequest(
-				(r) => r.url().endsWith('/api/admin/llm-configs') && r.method() === 'POST',
-				{ timeout: 15_000 }
-			)
+			.waitForRequest((r) => r.url().endsWith('/api/admin/llm-configs') && r.method() === 'POST', {
+				timeout: 15_000
+			})
 			.catch(() => null as unknown as Request)
 		await aiSwitcher.getByRole('button', { name: 'Activate' }).click()
 		const postReq = await postPromise
@@ -793,13 +814,20 @@ test.describe('Settings (admin optimizers)', () => {
 	test('provider CRUD: Add creates a new provider row, Delete removes it', async ({ page }) => {
 		await loginViaUI(page)
 		await page.goto('/settings')
-		await expect(page.getByRole('heading', { name: 'LLM provider' })).toBeVisible({ timeout: 10_000 })
+		await expect(page.getByRole('heading', { name: 'LLM provider' })).toBeVisible({
+			timeout: 10_000
+		})
 
 		// Add a throwaway EMBEDDING provider we then delete.
 		const model = `qa-embed-${Date.now().toString(36)}`
-		await page.locator('section:has(h1:has-text("LLM provider")) select').first().selectOption('OLLAMA')
 		await page
-			.locator('section:has(h1:has-text("LLM provider")) input[placeholder="Model (e.g. llama3.1)"]')
+			.locator('section:has(h1:has-text("LLM provider")) select')
+			.first()
+			.selectOption('OLLAMA')
+		await page
+			.locator(
+				'section:has(h1:has-text("LLM provider")) input[placeholder="Model (e.g. llama3.1)"]'
+			)
 			.fill(model)
 		await page
 			.locator('section:has(h1:has-text("LLM provider")) select')
@@ -817,7 +845,9 @@ test.describe('Settings (admin optimizers)', () => {
 	test('"Test" validates the live CHAT provider and reports success', async ({ page }) => {
 		await loginViaUI(page)
 		await page.goto('/settings')
-		await expect(page.getByRole('heading', { name: 'LLM provider' })).toBeVisible({ timeout: 10_000 })
+		await expect(page.getByRole('heading', { name: 'LLM provider' })).toBeVisible({
+			timeout: 10_000
+		})
 
 		// The user-owned local_llm row is present. Click its Test button.
 		const row = page.locator('tr', { hasText: 'local_llm' }).first()
@@ -885,7 +915,10 @@ test.describe('Admin views', () => {
 		await expect(page.locator('.aa-youtag', { hasText: 'you' })).toBeVisible()
 	})
 
-	test('Reports dashboard renders all six summary cards from real data', async ({ page, request }) => {
+	test('Reports dashboard renders all six summary cards from real data', async ({
+		page,
+		request
+	}) => {
 		// Deterministic match state so the status distribution is predictable.
 		const token = await apiLogin(request)
 		await resetMatches(request, token, ACME_MATCH, GLOBEX_MATCH)
@@ -896,7 +929,9 @@ test.describe('Admin views', () => {
 		// Six KPI cards.
 		await expect(page.locator('.rp-card')).toHaveCount(6)
 		// Matches card reflects the 2 seeded matches.
-		await expect(page.locator('.rp-card', { hasText: '2' }).filter({ hasText: 'Matches' })).toBeVisible()
+		await expect(
+			page.locator('.rp-card', { hasText: '2' }).filter({ hasText: 'Matches' })
+		).toBeVisible()
 		// Jobs Scanned card also 2.
 		await expect(page.locator('.rp-card').filter({ hasText: 'Jobs Scanned' })).toContainText('2')
 		// Users card >=1 (the P2-1 guard test registers throwaway users that

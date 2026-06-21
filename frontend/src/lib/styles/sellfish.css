@@ -1,0 +1,113 @@
+/* ── Sellfish · globale Basis (1:1 aus Sellfish.dc.html) ── */
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+html {
+	-webkit-font-smoothing: antialiased;
+	scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+body {
+	font-family: 'Space Grotesk', system-ui, sans-serif;
+	color: #fafafa;
+	min-height: 100vh;
+	background:
+		radial-gradient(ellipse 900px 520px at 50% -12%, rgba(124, 58, 237, 0.13), transparent 62%),
+		radial-gradient(ellipse 760px 460px at 96% -6%, rgba(6, 182, 212, 0.09), transparent 58%),
+		#0a0a0b;
+	background-attachment: fixed;
+}
+::selection {
+	background: #7c3aed;
+	color: #fff;
+}
+::-webkit-scrollbar {
+	width: 10px;
+	height: 10px;
+}
+::-webkit-scrollbar-thumb {
+	background: rgba(255, 255, 255, 0.1);
+	border-radius: 5px;
+	border: 2px solid transparent;
+	background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+	background: rgba(255, 255, 255, 0.2);
+}
+input,
+textarea,
+button {
+	font-family: inherit;
+}
+textarea,
+input {
+	outline: none;
+}
+@keyframes sfUp {
+	from {
+		opacity: 0;
+		transform: translateY(14px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+@keyframes sfDrawer {
+	from {
+		transform: translateX(102%);
+	}
+	to {
+		transform: none;
+	}
+}
+@keyframes sfScrim {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes sfPop {
+	from {
+		opacity: 0;
+		transform: scale(0.96) translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+@keyframes sfScan {
+	0% {
+		left: -30%;
+	}
+	100% {
+		left: 130%;
+	}
+}
+@keyframes sfSpin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+@keyframes sfBlink {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0;
+	}
+}
+@keyframes sfFloat {
+	0%,
+	100% {
+		transform: translateY(0);
+	}
+	50% {
+		transform: translateY(-3px);
+	}
+}

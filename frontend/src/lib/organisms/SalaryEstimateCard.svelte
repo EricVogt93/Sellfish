@@ -3,10 +3,22 @@
 	import { api } from '$lib/api'
 	import { toast } from '$lib/utils/toasts.svelte'
 
-	let salary = $state<any>(null)
+	type SalaryEstimate = {
+		hasEstimate?: boolean
+		currency?: string
+		low?: number | null
+		median?: number | null
+		high?: number | null
+		confidence?: string
+		factors?: string[]
+		marketNote?: string
+		error?: string
+	}
+
+	let salary = $state<SalaryEstimate | null>(null)
 	let salaryLoading = $state(false)
 
-	function fmtSalary(v: number | null): string {
+	function fmtSalary(v: number | null | undefined): string {
 		if (!v) return '—'
 		const sym = salary?.currency === 'USD' ? '$' : salary?.currency === 'GBP' ? '£' : '€'
 		return sym + Math.round(v / 1000) + 'k'
@@ -51,7 +63,7 @@
 					<span class="aa-salary-val">{fmtSalary(salary.high)}</span>
 				</div>
 			</div>
-			{#if salary.factors?.length > 0}
+			{#if (salary.factors?.length ?? 0) > 0}
 				<div class="aa-salary-factors">
 					{#each salary.factors as f (f)}
 						<span class="aa-salary-factor">{f}</span>
