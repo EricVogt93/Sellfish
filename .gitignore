@@ -11,7 +11,7 @@ frontend/.env
 
 # Storage / Daten
 backend/data/
-data/
+/data/
 
 # Secrets / Env
 .env
