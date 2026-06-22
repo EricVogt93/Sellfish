@@ -100,7 +100,7 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.18.1</version>
+            <version>1.22.2</version>
         </dependency>
 
         <!-- Objekt-Storage (S3-kompatibel, MinIO) -->
@@ -118,18 +118,18 @@
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
-            <version>0.12.6</version>
+            <version>0.13.0</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-impl</artifactId>
-            <version>0.12.6</version>
+            <version>0.13.0</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
-            <version>0.12.6</version>
+            <version>0.13.0</version>
             <scope>runtime</scope>
         </dependency>
 
@@ -217,7 +217,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.13</version>
+                <version>0.8.15</version>
                 <configuration>
                     <!-- Controller (web layer, covered by integration tests), Spring Data
                          repository interfaces and the bootstrap app are excluded: they are not
